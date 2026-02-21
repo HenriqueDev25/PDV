@@ -169,27 +169,24 @@
 
     // --- AUTH ---
     window.loginGoogle = async () => {
-        try {
-            const result = await signInWithPopup(auth, provider);
-            if (result.user.email !== EMAIL_AUTORIZADO) {
-                await signOut(auth);
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        } catch (e) { console.error(e); }
-    };
-
-    window.logout = () => signOut(auth);
-
-    onAuthStateChanged(auth, (user) => {
-        if (user && user.email === EMAIL_AUTORIZADO) {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('appInterface').classList.remove('hidden-app');
-            inicializarApp();
-        } else {
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('appInterface').classList.add('hidden-app');
+    try {
+        // Força o Google a mostrar a tela de seleção de conta todas as vezes
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
+        
+        const result = await signInWithPopup(auth, provider);
+        
+        if (result.user.email !== EMAIL_AUTORIZADO) {
+            await signOut(auth);
+            document.getElementById('loginError').classList.remove('hidden');
+            notificar("E-mail não autorizado!");
         }
-    });
+    } catch (e) { 
+        console.error("Erro no login:", e); 
+        notificar("Erro ao tentar logar.");
+    }
+};
 
     // --- APP CORE ---
     let produtos = [], vendas = [], carrinho = [];
@@ -401,3 +398,4 @@
 </script>
 </body>
 </html>
+
