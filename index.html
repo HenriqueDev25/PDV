@@ -165,14 +165,21 @@
     const auth = getAuth(app);
     const EMAIL_AUTORIZADO = "louisianapdv@gmail.com";
 
+    // --- FUNÇÃO DE FOCO AUTOMÁTICO ---
+    function focarBusca() {
+        setTimeout(() => {
+            const busca = document.getElementById('inputBusca');
+            if(busca) { 
+                busca.focus(); 
+                busca.select(); 
+            }
+        }, 100);
+    }
+
     // --- ATALHOS DE TECLADO ---
     window.addEventListener('keydown', (e) => {
-        if (e.key === 'F8') {
-            e.preventDefault();
-            const busca = document.getElementById('inputBusca');
-            if(busca) { busca.focus(); busca.select(); }
-        }
-        if (e.key === 'F1') switchTab('venda');
+        if (e.key === 'F8') { e.preventDefault(); focarBusca(); }
+        if (e.key === 'F1') { switchTab('venda'); focarBusca(); }
         if (e.key === 'F2') switchTab('estoque');
         if (e.key === 'F3') switchTab('historico');
     });
@@ -189,9 +196,7 @@
                 erroMsg.innerText = "Acesso não autorizado.";
                 erroMsg.classList.remove('hidden');
             }
-        } catch (e) {
-            erroMsg.classList.remove('hidden');
-        }
+        } catch (e) { erroMsg.classList.remove('hidden'); }
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -199,6 +204,7 @@
             document.getElementById('loginScreen').classList.add('hidden-app');
             document.getElementById('appInterface').classList.remove('hidden-app');
             inicializarApp();
+            focarBusca(); // FOCO AO ENTRAR
         } else {
             document.getElementById('loginScreen').classList.remove('hidden-app');
             document.getElementById('appInterface').classList.add('hidden-app');
@@ -229,18 +235,17 @@
         if(tab) tab.classList.add('active');
         const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(id));
         if(btn) btn.classList.add('active');
+        if(id === 'venda') focarBusca();
     };
 
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        
         const filtrados = produtos.filter(p => {
             const nome = (p.nome || "").toLowerCase();
             const cod = String(p.cod || "").toLowerCase();
             return nome.includes(busca) || cod.includes(busca);
         });
-
         grid.innerHTML = filtrados.map(p => `
             <div class="bg-white rounded-2xl shadow-sm border p-4 cursor-pointer hover:shadow-md transition" onclick="addCarrinho('${p.firebaseId}')">
                 <img src="${p.img}" class="img-produto mb-3" onerror="this.src='https://via.placeholder.com/200'">
@@ -254,15 +259,16 @@
 
     window.addCarrinho = (fbId) => {
         const prod = produtos.find(p => p.firebaseId === fbId);
-        if(!prod || prod.estoque <= 0) return notificar("Sem estoque disponível");
+        if(!prod || prod.estoque <= 0) return notificar("Sem estoque");
         const item = carrinho.find(i => i.firebaseId === fbId);
         if(item) {
             if(item.qtd < prod.estoque) item.qtd++;
-            else notificar("Limite de estoque atingido");
+            else notificar("Limite atingido");
         } else {
             carrinho.push({...prod, qtd: 1});
         }
         atualizarCarrinho();
+        focarBusca(); // FOCO APÓS ADICIONAR
     };
 
     window.atualizarCarrinho = () => {
@@ -284,19 +290,21 @@
         document.getElementById('qtdItens').innerText = `${qtd} Itens`;
     };
 
-    window.removerItemCarrinho = (idx) => { carrinho.splice(idx, 1); atualizarCarrinho(); };
+    window.removerItemCarrinho = (idx) => { 
+        carrinho.splice(idx, 1); 
+        atualizarCarrinho();
+        focarBusca();
+    };
 
     window.finalizarVenda = async () => {
         if(carrinho.length === 0) return;
         const batch = writeBatch(db);
         let lucroV = 0, totalV = 0;
-        
         carrinho.forEach(item => {
             totalV += item.preco * item.qtd;
             lucroV += (item.preco - item.custo) * item.qtd;
             batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
         });
-
         await addDoc(collection(db, "vendas"), {
             data: new Date().toISOString(),
             total: totalV,
@@ -304,12 +312,12 @@
             pagamento: document.getElementById('metodoPgto').value,
             itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
         });
-
         await batch.commit();
         carrinho = [];
         atualizarCarrinho();
         notificar("Venda Concluída!");
         document.getElementById('valorRecebido').value = '';
+        focarBusca(); // FOCO APÓS FINALIZAR
     };
 
     window.renderizarEstoque = () => {
@@ -352,7 +360,7 @@
         document.getElementById('btnCancelarEdit').classList.add('hidden');
     };
 
-    window.removerProd = async (id) => { if(confirm("Apagar produto permanentemente?")) await deleteDoc(doc(db, "produtos", id)); };
+    window.removerProd = async (id) => { if(confirm("Apagar produto?")) await deleteDoc(doc(db, "produtos", id)); };
 
     window.renderizarHistorico = () => {
         const lista = document.getElementById('listaHistorico');
@@ -372,7 +380,7 @@
     };
 
     window.limparHistorico = async () => {
-        if(confirm("Deseja apagar TODO o histórico de vendas?")) {
+        if(confirm("Deseja apagar TODO o histórico?")) {
             const snap = await getDocs(collection(db, "vendas"));
             const batch = writeBatch(db);
             snap.forEach(d => batch.delete(d.ref));
