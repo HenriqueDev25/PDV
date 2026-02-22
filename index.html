@@ -173,7 +173,7 @@
 
     let produtos = [], vendas = [], carrinho = [];
 
-    // EXPORTE PARA O ESCOPO GLOBAL (Importante para o onclick do HTML funcionar)
+    // --- FUNÇÕES GLOBAIS ---
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
@@ -190,25 +190,67 @@
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        event.currentTarget?.classList.add('active');
+        // Adiciona classe ativa no botão clicado
+        const btn = [...document.querySelectorAll('.tab-btn')].find(b => b.textContent.includes(id === 'venda' ? 'Vendas' : id === 'estoque' ? 'Estoque' : 'Relatórios'));
+        if(btn) btn.classList.add('active');
         if(id === 'venda') focarBusca();
     };
 
-    // --- LOGICA DE PRODUTOS ---
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        const filtrados = produtos.filter(p => (p.nome || "").toLowerCase().includes(busca) || String(p.cod || "").includes(busca));
+        const filtrados = produtos.filter(p => 
+            (p.nome || "").toLowerCase().includes(busca) || 
+            String(p.cod || "").includes(busca)
+        );
         
         grid.innerHTML = filtrados.map(p => `
             <div class="bg-white rounded-2xl border border-slate-200 p-3 cursor-pointer hover:border-green-500 transition shadow-sm flex flex-col h-full" onclick="addCarrinho('${p.firebaseId}')">
-                <img src="${p.img}" class="img-produto mb-3" onerror="this.src='https://via.placeholder.com/200'">
+                <img src="${p.img || 'https://via.placeholder.com/200'}" class="img-produto mb-3" onerror="this.src='https://via.placeholder.com/200'">
                 <h3 class="font-bold text-[11px] uppercase truncate text-slate-700">${p.nome}</h3>
                 <div class="mt-auto pt-2 flex justify-between items-center">
-                    <span class="font-black text-sm text-slate-900">R$ ${Number(p.preco).toFixed(2)}</span>
-                    <span class="text-[9px] bg-slate-100 px-2 py-1 rounded font-bold uppercase text-slate-500">${p.estoque} UN</span>
+                    <span class="font-black text-sm text-slate-900">R$ ${Number(p.preco || 0).toFixed(2)}</span>
+                    <span class="text-[9px] bg-slate-100 px-2 py-1 rounded font-bold uppercase text-slate-500">${p.estoque || 0} UN</span>
                 </div>
             </div>`).join('');
+    };
+
+    window.renderizarEstoque = () => {
+        const grid = document.getElementById('listaEstoqueGrid');
+        grid.innerHTML = produtos.map(p => `
+            <div class="bg-white rounded-2xl border border-slate-200 p-3 shadow-sm flex flex-col">
+                <img src="${p.img || 'https://via.placeholder.com/200'}" class="img-produto mb-3" onerror="this.src='https://via.placeholder.com/200'">
+                <h3 class="font-bold text-[11px] uppercase truncate mb-1">${p.nome}</h3>
+                <p class="text-[9px] text-slate-400 mb-3 font-mono">${p.cod}</p>
+                <div class="flex gap-1 mt-auto">
+                    <button onclick="editarProduto('${p.firebaseId}')" class="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg font-bold text-[10px] uppercase">Editar</button>
+                    <button onclick="removerProd('${p.firebaseId}')" class="bg-red-50 text-red-500 py-2 rounded-lg font-bold text-[10px] uppercase">Apagar</button>
+                </div>
+            </div>`).join('');
+    };
+
+    window.renderizarHistorico = () => {
+        const corpoTabela = document.getElementById('corpoTabelaVendas');
+        const stats = document.getElementById('estatisticas');
+        let t = 0, l = 0;
+        
+        vendas.forEach(v => { t += v.total; l += v.lucro; });
+
+        stats.innerHTML = `
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm min-w-[150px]"><p class="text-[10px] text-slate-400 font-black uppercase">Vendas Brutas</p><p class="text-xl font-black">R$ ${t.toFixed(2)}</p></div>
+            <div class="bg-green-600 text-white p-4 rounded-2xl shadow-lg min-w-[150px]"><p class="text-[10px] text-green-100 font-black uppercase">Lucro Líquido</p><p class="text-xl font-black">R$ ${l.toFixed(2)}</p></div>
+        `;
+
+        corpoTabela.innerHTML = vendas.map(v => `
+            <tr>
+                <td class="font-bold text-slate-500">${new Date(v.data).toLocaleString()}</td>
+                <td class="max-w-xs truncate" title="${v.itens}">${v.itens}</td>
+                <td class="uppercase font-black text-[10px] text-slate-400">${v.pagamento}</td>
+                <td class="font-black">R$ ${Number(v.total).toFixed(2)}</td>
+                <td class="text-green-600 font-bold">R$ ${Number(v.lucro).toFixed(2)}</td>
+                <td><button onclick="removerVenda('${v.firebaseId}')" class="text-red-400 font-bold hover:text-red-600">Excluir</button></td>
+            </tr>
+        `).join('');
     };
 
     window.addCarrinho = (fbId) => {
@@ -217,7 +259,7 @@
         const item = carrinho.find(i => i.firebaseId === fbId);
         if(item) {
             if(item.qtd < prod.estoque) item.qtd++;
-            else window.notificar("Limite do estoque atingido!");
+            else window.notificar("Limite atingido!");
         } else {
             carrinho.push({...prod, qtd: 1});
         }
@@ -230,7 +272,7 @@
         lista.innerHTML = carrinho.map((item, idx) => {
             total += item.preco * item.qtd;
             return `<div class="carrinho-item p-3 rounded-xl flex justify-between text-white text-xs mb-2 items-center">
-                <div class="truncate pr-2"><p class="font-bold truncate">${item.nome}</p><p class="text-green-400 font-bold">${item.qtd}x R$ ${item.preco.toFixed(2)}</p></div>
+                <div class="truncate pr-2"><p class="font-bold truncate">${item.nome}</p><p class="text-green-400 font-bold">${item.qtd}x R$ ${Number(item.preco).toFixed(2)}</p></div>
                 <button onclick="removerItemCarrinho(${idx})" class="text-red-400 font-black hover:bg-red-500/10 px-2 py-1 rounded">X</button>
             </div>`;
         }).join('');
@@ -246,39 +288,66 @@
         const batch = writeBatch(db);
         let totalV = 0, lucroV = 0;
         
-        try {
-            carrinho.forEach(item => {
-                totalV += item.preco * item.qtd;
-                lucroV += (item.preco - item.custo) * item.qtd;
-                batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
-            });
+        carrinho.forEach(item => {
+            totalV += item.preco * item.qtd;
+            lucroV += (item.preco - item.custo) * item.qtd;
+            batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
+        });
 
-            await addDoc(collection(db, "vendas"), {
-                data: new Date().toISOString(),
-                total: totalV, 
-                lucro: lucroV,
-                pagamento: document.getElementById('metodoPgto').value,
-                itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
-            });
+        await addDoc(collection(db, "vendas"), {
+            data: new Date().toISOString(),
+            total: totalV, lucro: lucroV,
+            pagamento: document.getElementById('metodoPgto').value,
+            itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
+        });
 
+        await batch.commit();
+        carrinho = []; window.atualizarCarrinho();
+        document.getElementById('valorRecebido').value = '';
+        window.notificar("Venda Concluída!");
+        focarBusca();
+    };
+
+    window.editarProduto = (id) => {
+        const p = produtos.find(x => x.firebaseId === id);
+        document.getElementById('editId').value = id;
+        document.getElementById('nome').value = p.nome;
+        document.getElementById('cod').value = p.cod;
+        document.getElementById('cat').value = p.cat || '';
+        document.getElementById('custo').value = p.custo;
+        document.getElementById('preco').value = p.preco;
+        document.getElementById('qtd').value = p.estoque;
+        document.getElementById('imgUrl').value = p.img || '';
+        document.getElementById('btnSalvar').innerText = "ATUALIZAR PRODUTO";
+        document.getElementById('btnCancelarEdit').classList.remove('hidden');
+    };
+
+    window.cancelarEdicao = () => {
+        document.getElementById('formProd').reset();
+        document.getElementById('editId').value = "";
+        document.getElementById('btnSalvar').innerText = "SALVAR PRODUTO";
+        document.getElementById('btnCancelarEdit').classList.add('hidden');
+    };
+
+    window.removerProd = async (id) => { if(confirm("Apagar produto?")) await deleteDoc(doc(db, "produtos", id)); };
+    window.removerVenda = async (id) => { if(confirm("Remover venda?")) await deleteDoc(doc(db, "vendas", id)); };
+
+    window.limparTodoHistorico = async () => {
+        if(confirm("Apagar TUDO?")) {
+            const snap = await getDocs(collection(db, "vendas"));
+            const batch = writeBatch(db);
+            snap.forEach(d => batch.delete(d.ref));
             await batch.commit();
-            carrinho = []; 
-            window.atualizarCarrinho();
-            document.getElementById('valorRecebido').value = '';
-            window.notificar("Venda Concluída!");
-            focarBusca();
-        } catch (e) {
-            window.notificar("Erro ao finalizar venda.");
         }
     };
 
-    // --- FUNÇÕES DE AUXÍLIO ---
     window.calcTroco = () => {
-        const totalStr = document.getElementById('totalVenda').innerText.replace('R$ ', '').replace(',', '.');
-        const total = parseFloat(totalStr) || 0;
+        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '')) || 0;
         const rec = parseFloat(document.getElementById('valorRecebido').value) || 0;
         document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, rec - total).toFixed(2)}`;
     };
+
+    window.toggleTroco = () => document.getElementById('divTroco').style.display = document.getElementById('metodoPgto').value === 'dinheiro' ? 'block' : 'none';
 
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
@@ -291,31 +360,45 @@
         if(b) b.focus();
     }
 
-    // Auth Observer
+    // --- FORM SUBMIT ---
+    document.getElementById('formProd').onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editId').value;
+        const p = {
+            nome: document.getElementById('nome').value,
+            cod: document.getElementById('cod').value || '0',
+            cat: document.getElementById('cat').value || '',
+            custo: parseFloat(document.getElementById('custo').value),
+            preco: parseFloat(document.getElementById('preco').value),
+            estoque: parseInt(document.getElementById('qtd').value),
+            img: document.getElementById('imgUrl').value || ''
+        };
+        id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
+        window.cancelarEdicao();
+        window.notificar("Produto Salvo!");
+    };
+
+    // --- AUTH & SNAPSHOTS ---
     onAuthStateChanged(auth, (user) => {
         if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
             document.getElementById('loginScreen').classList.add('hidden-app');
             document.getElementById('appInterface').classList.remove('hidden-app');
-            inicializarApp();
+            onSnapshot(collection(db, "produtos"), (snap) => {
+                produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+                window.renderizarProdutos();
+                window.renderizarEstoque();
+            });
+            onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
+                vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+                window.renderizarHistorico();
+            });
         } else {
             document.getElementById('loginScreen').classList.remove('hidden-app');
             document.getElementById('appInterface').classList.add('hidden-app');
         }
     });
 
-    function inicializarApp() {
-        onSnapshot(collection(db, "produtos"), (snap) => {
-            produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-            window.renderizarProdutos();
-            window.renderizarEstoque();
-        });
-        onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
-            vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-            window.renderizarHistorico();
-        });
-    }
-
-    // Atalhos de teclado
+    // Atalhos
     window.addEventListener('keydown', (e) => {
         if (e.key === 'F1') window.switchTab('venda');
         if (e.key === 'F2') window.switchTab('estoque');
@@ -324,26 +407,17 @@
         if (e.key === 'F9') window.finalizarVenda();
     });
 
-    // Demais funções (Editar, Remover, Exportar) devem seguir o mesmo padrão: window.nomeDaFuncao = ...
-    window.renderizarEstoque = () => { /* ... sua lógica original com window. no início ... */ };
-    window.renderizarHistorico = () => { /* ... sua lógica original com window. no início ... */ };
-    window.toggleTroco = () => document.getElementById('divTroco').style.display = document.getElementById('metodoPgto').value === 'dinheiro' ? 'block' : 'none';
-
-    // Handler do Form de Estoque
-    document.getElementById('formProd').onsubmit = async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('editId').value;
-        const p = {
-            nome: document.getElementById('nome').value,
-            cod: document.getElementById('cod').value || '0',
-            custo: parseFloat(document.getElementById('custo').value),
-            preco: parseFloat(document.getElementById('preco').value),
-            estoque: parseInt(document.getElementById('qtd').value),
-            img: document.getElementById('imgUrl').value || ''
-        };
-        id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
-        document.getElementById('formProd').reset();
-        window.notificar("Produto Salvo!");
+    window.exportarExcel = () => {
+        const ws = XLSX.utils.json_to_sheet(vendas.map(v => ({
+            Data: new Date(v.data).toLocaleString(),
+            Itens: v.itens,
+            Pagamento: v.pagamento,
+            Total: v.total,
+            Lucro: v.lucro
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Vendas");
+        XLSX.writeFile(wb, "Vendas_Louisiana.xlsx");
     };
 </script>
 </body>
