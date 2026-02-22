@@ -9,19 +9,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; height: 100vh; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; height: 100vh; overflow: hidden; margin: 0; }
+        
+        /* TELA DE LOADING (SPLASH) */
+        #loadingScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background-color: #1D1F26;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top-color: #22c55e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* UTILITÁRIOS */
         .tab-content { display: none; height: 100%; }
         .tab-content.active { display: block; }
         .tab-btn.active { background-color: #1D1F26 !important; color: white !important; }
+        .hidden-app { display: none !important; }
         
-        /* Grid corrigido para os quadrados aparecerem sempre */
+        /* GRID DE PRODUTOS */
         .grid-pdv { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
             gap: 1.25rem;
             align-content: start;
         }
-
         .card-produto {
             background: white;
             border: 1px solid #e2e8f0;
@@ -33,20 +57,23 @@
             transition: all 0.2s;
             cursor: pointer;
         }
-        .card-produto:hover { border-color: #22c55e; transform: translateY(-2px); shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-
+        .card-produto:hover { border-color: #22c55e; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .img-produto { width: 100%; height: 110px; object-fit: cover; border-radius: 0.5rem; background: #f1f5f9; }
+        
+        .scroll-area { overflow-y: auto; height: calc(100vh - 200px); padding-bottom: 20px; }
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .scroll-area { overflow-y: auto; height: calc(100vh - 200px); padding-bottom: 20px; }
-        
+
         #loginScreen { background-color: #1D1F26; }
-        .hidden-app { display: none !important; }
-        
         select option { color: black; }
     </style>
 </head>
 <body class="flex flex-col">
+
+<div id="loadingScreen">
+    <div class="spinner"></div>
+    <h2 class="text-white mt-4 font-bold tracking-widest uppercase text-[10px] opacity-50">Carregando Sistema...</h2>
+</div>
 
 <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center text-white">
     <div class="bg-white/5 p-10 rounded-3xl border border-white/10 shadow-2xl text-center w-full max-w-md">
@@ -61,7 +88,7 @@
 </div>
 
 <div id="appInterface" class="hidden-app flex flex-col h-full">
-    <header class="bg-[#1D1F26] text-white p-4 flex justify-between items-center shrink-0">
+    <header class="bg-[#1D1F26] text-white p-4 flex justify-between items-center shrink-0 shadow-xl">
         <h1 class="text-xl font-bold tracking-tighter">LOUISIANA <span class="text-green-500">PDV</span></h1>
         <nav class="flex gap-1 bg-white/10 p-1 rounded-lg">
             <button onclick="switchTab('venda')" id="btn-venda" class="tab-btn active px-4 py-2 text-sm font-semibold transition rounded-md">Vendas (F1)</button>
@@ -83,7 +110,7 @@
 
                 <div class="flex-1 bg-[#1D1F26] rounded-3xl flex flex-col text-white shadow-2xl min-w-[350px]">
                     <div class="p-5 border-b border-white/10 flex justify-between items-center">
-                        <span class="font-bold uppercase text-xs text-slate-400">Carrinho</span>
+                        <span class="font-bold uppercase text-xs text-slate-400">Checkout</span>
                         <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold" id="qtdItens">0 Itens</span>
                     </div>
                     <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 custom-scroll"></div>
@@ -94,7 +121,7 @@
                         </div>
                         
                         <div class="space-y-2">
-                            <label class="text-[10px] uppercase font-bold text-slate-500">Forma de Pagamento</label>
+                            <label class="text-[10px] uppercase font-bold text-slate-500">Pagamento</label>
                             <select id="metodoPgto" class="w-full bg-white/10 p-3 rounded-xl border border-white/10 text-white outline-none focus:border-green-500" onchange="toggleTroco()">
                                 <option value="Dinheiro">Dinheiro</option>
                                 <option value="PIX">PIX</option>
@@ -182,7 +209,39 @@
 
     let produtos = [], vendas = [], carrinho = [];
 
-    // --- AUTENTICAÇÃO ---
+    // --- AUTENTICAÇÃO E LOADING ---
+    onAuthStateChanged(auth, (user) => {
+        const splash = document.getElementById('loadingScreen');
+        const login = document.getElementById('loginScreen');
+        const app = document.getElementById('appInterface');
+
+        if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
+            login.classList.add('hidden-app');
+            app.classList.remove('hidden-app');
+            
+            // Ativar ouvintes em tempo real
+            onSnapshot(collection(db, "produtos"), (snap) => {
+                produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+                window.renderizarProdutos();
+                window.renderizarEstoque();
+            });
+
+            onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
+                vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+                window.renderizarHistorico();
+            });
+        } else {
+            app.classList.add('hidden-app');
+            login.classList.remove('hidden-app');
+        }
+
+        // Esconder tela de carregamento após a decisão do Firebase
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            setTimeout(() => splash.style.display = 'none', 500);
+        }, 800);
+    });
+
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
@@ -200,7 +259,7 @@
         if(id === 'venda') focarBusca();
     };
 
-    // --- RENDERIZAR PRODUTOS (PDV) ---
+    // --- PRODUTOS E ESTOQUE ---
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
@@ -218,7 +277,6 @@
         `).join('');
     };
 
-    // --- RENDERIZAR ESTOQUE ---
     window.renderizarEstoque = () => {
         const grid = document.getElementById('listaEstoqueGrid');
         grid.innerHTML = produtos.map(p => `
@@ -227,14 +285,14 @@
                 <h3 class="font-bold text-[11px] uppercase truncate">${p.nome}</h3>
                 <p class="text-[10px] text-slate-400 font-mono mb-2">${p.cod || 'S/ COD'}</p>
                 <div class="mt-auto flex gap-2">
-                    <button onclick="window.editarProduto('${p.firebaseId}')" class="flex-1 bg-slate-100 text-slate-600 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-slate-200">Editar</button>
-                    <button onclick="window.removerProd('${p.firebaseId}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-red-100">X</button>
+                    <button onclick="window.editarProduto('${p.firebaseId}')" class="flex-1 bg-slate-100 text-slate-600 py-2 rounded-lg font-bold text-[10px] uppercase">Editar</button>
+                    <button onclick="window.removerProd('${p.firebaseId}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg font-bold text-[10px] uppercase">X</button>
                 </div>
             </div>
         `).join('');
     };
 
-    // --- CARRINHO E PAGAMENTO ---
+    // --- VENDA E PAGAMENTO ---
     window.addCarrinho = (fbId) => {
         const prod = produtos.find(p => p.firebaseId === fbId);
         if(!prod || prod.estoque <= 0) { window.notificar("Sem estoque!"); return; }
@@ -249,9 +307,9 @@
         lista.innerHTML = carrinho.map((item, idx) => {
             total += (item.preco * item.qtd);
             return `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center mb-2 border-l-4 border-green-500 text-xs">
-                <div class="pr-2 truncate">
+                <div class="truncate pr-2">
                     <p class="font-bold truncate">${item.nome}</p>
-                    <p class="text-green-400 font-bold">${item.qtd}x R$ ${parseFloat(item.preco).toFixed(2)}</p>
+                    <p class="text-green-400">${item.qtd}x R$ ${parseFloat(item.preco).toFixed(2)}</p>
                 </div>
                 <button onclick="window.removerItemCarrinho(${idx})" class="text-red-400 font-bold px-2">X</button>
             </div>`;
@@ -298,7 +356,7 @@
         window.notificar("Venda Concluída!");
     };
 
-    // --- FORMULÁRIO ESTOQUE ---
+    // --- FORMULÁRIO ---
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById('editId').value;
@@ -312,7 +370,7 @@
         };
         id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
         window.cancelarEdicao();
-        window.notificar("Salvo com sucesso!");
+        window.notificar("Salvo!");
     };
 
     window.editarProduto = (id) => {
@@ -345,17 +403,17 @@
             tTotal += v.total; lTotal += v.lucro;
             return `<tr class="border-b border-slate-100 hover:bg-slate-50">
                 <td class="p-4 text-slate-500">${new Date(v.data).toLocaleString()}</td>
-                <td class="p-4 truncate max-w-[200px]">${v.itens}</td>
-                <td class="p-4 font-bold text-slate-400">${v.pagamento}</td>
+                <td class="p-4 truncate max-w-[200px] font-medium">${v.itens}</td>
+                <td class="p-4 text-slate-400 font-bold text-[10px] uppercase">${v.pagamento}</td>
                 <td class="p-4 font-black">R$ ${v.total.toFixed(2)}</td>
                 <td class="p-4 text-green-600 font-bold">R$ ${v.lucro.toFixed(2)}</td>
-                <td class="p-4 text-center"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-400 hover:text-red-600 font-bold">Excluir</button></td>
+                <td class="p-4 text-center"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-400 font-bold">Excluir</button></td>
             </tr>`;
         }).join('');
 
         document.getElementById('estatisticas').innerHTML = `
             <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex-1">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Vendas Brutas</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Total Vendido</p>
                 <p class="text-xl font-black text-slate-800">R$ ${tTotal.toFixed(2)}</p>
             </div>
             <div class="bg-green-600 p-5 rounded-3xl shadow-lg flex-1 text-white">
@@ -366,34 +424,15 @@
     };
     window.removerVenda = async (id) => { if(confirm("Remover venda?")) await deleteDoc(doc(db, "vendas", id)); };
 
-    // --- UTILITÁRIOS ---
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
         t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
         setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
     };
+
     function focarBusca() { document.getElementById('inputBusca')?.focus(); }
 
-    // --- REAL-TIME DATA ---
-    onAuthStateChanged(auth, (user) => {
-        if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
-            document.getElementById('loginScreen').classList.add('hidden-app');
-            document.getElementById('appInterface').classList.remove('hidden-app');
-            onSnapshot(collection(db, "produtos"), (snap) => {
-                produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                window.renderizarProdutos();
-                window.renderizarEstoque();
-            });
-            onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
-                vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                window.renderizarHistorico();
-            });
-        } else {
-            document.getElementById('loginScreen').classList.remove('hidden-app');
-            document.getElementById('appInterface').classList.add('hidden-app');
-        }
-    });
-
+    // Teclas de Atalho
     window.addEventListener('keydown', (e) => {
         if (e.key === 'F1') window.switchTab('venda');
         if (e.key === 'F2') window.switchTab('estoque');
