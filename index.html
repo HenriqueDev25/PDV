@@ -19,16 +19,13 @@
         .tab-content.active { display: block; }
         .tab-btn.active { background-color: #1D1F26; color: white; border-radius: 0.5rem; }
         
-        /* Ajuste dos Quadrados de Produto */
         .img-produto { width: 100%; height: 120px; object-fit: cover; border-radius: 0.75rem; background: #e2e8f0; }
-        
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
         .carrinho-item { background: #1D1F26; border-left: 4px solid #22c55e; transition: all 0.2s; }
-        .scroll-area { overflow-y: auto; height: 100%; padding-bottom: 100px; }
+        .scroll-area { overflow-y: auto; height: 100%; padding-bottom: 120px; }
 
-        /* Grid corrigida para não bugar os quadrados */
         .grid-pdv {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -39,6 +36,11 @@
 
         #loginScreen { background-color: #1D1F26; }
         .hidden-app { display: none !important; }
+
+        /* Estilo da Tabela de Relatório */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 1rem; overflow: hidden; }
+        th { background: #f8fafc; text-align: left; padding: 12px; font-size: 11px; text-transform: uppercase; color: #64748b; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -114,7 +116,7 @@
 
         <section id="estoque" class="tab-content">
             <div class="p-8 flex flex-col h-full gap-6">
-                <div class="bg-white p-6 rounded-3xl border border-slate-200 shrink-0">
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shrink-0 shadow-sm">
                     <form id="formProd" class="grid grid-cols-4 gap-3">
                         <input type="hidden" id="editId">
                         <div class="col-span-2"><input type="text" id="nome" placeholder="Nome do Produto" class="w-full p-3 border rounded-xl" required></div>
@@ -125,8 +127,8 @@
                         <input type="number" id="qtd" placeholder="Quantidade" class="p-3 border rounded-xl" required>
                         <input type="text" id="imgUrl" placeholder="Link da Imagem" class="p-3 border rounded-xl">
                         <div class="col-span-4 flex gap-2">
-                            <button type="submit" id="btnSalvar" class="flex-1 bg-[#1D1F26] text-white py-3 rounded-xl font-bold">SALVAR PRODUTO</button>
-                            <button type="button" onclick="cancelarEdicao()" id="btnCancelarEdit" class="hidden bg-red-100 text-red-600 px-6 rounded-xl font-bold">CANCELAR</button>
+                            <button type="submit" id="btnSalvar" class="flex-1 bg-[#1D1F26] text-white py-3 rounded-xl font-bold uppercase hover:bg-black transition">Salvar Produto</button>
+                            <button type="button" onclick="cancelarEdicao()" id="btnCancelarEdit" class="hidden bg-red-100 text-red-600 px-6 rounded-xl font-bold uppercase">Cancelar</button>
                         </div>
                     </form>
                 </div>
@@ -136,18 +138,41 @@
 
         <section id="historico" class="tab-content">
             <div class="p-8 flex flex-col h-full gap-6">
-                <div id="estatisticas" class="grid grid-cols-3 gap-4"></div>
-                <div id="listaHistorico" class="scroll-area custom-scroll space-y-2"></div>
+                <div class="flex justify-between items-end">
+                    <div id="estatisticas" class="flex gap-4"></div>
+                    <div class="flex gap-2">
+                        <button onclick="exportarExcel()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-xs uppercase shadow-lg">Planilha Excel</button>
+                        <button onclick="limparTodoHistorico()" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs uppercase shadow-lg hover:bg-red-700 transition">Limpar Histórico</button>
+                    </div>
+                </div>
+                
+                <div class="flex-1 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                    <div class="overflow-y-auto custom-scroll flex-1">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data / Hora</th>
+                                    <th>Itens Vendidos</th>
+                                    <th>Pagamento</th>
+                                    <th>Total (R$)</th>
+                                    <th>Lucro (R$)</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpoTabelaVendas"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 bg-[#1D1F26] text-white px-8 py-4 rounded-2xl z-[200]"></div>
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 bg-[#1D1F26] text-white px-8 py-4 rounded-2xl z-[200] font-bold shadow-2xl"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -193,7 +218,7 @@
         });
     }
 
-    // --- CORE ---
+    // --- CORE LOGIN ---
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
@@ -231,7 +256,7 @@
         if(id === 'venda') focarBusca();
     };
 
-    // --- RENDERIZAÇÃO CORRIGIDA ---
+    // --- RENDERIZAÇÃO ---
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
@@ -260,6 +285,48 @@
                     <button onclick="removerProd('${p.firebaseId}')" class="bg-red-50 text-red-500 py-2 rounded-lg font-bold text-[10px] uppercase">Apagar</button>
                 </div>
             </div>`).join('');
+    };
+
+    // --- RELATÓRIOS CORRIGIDO ---
+    window.renderizarHistorico = () => {
+        const corpoTabela = document.getElementById('corpoTabelaVendas');
+        const stats = document.getElementById('estatisticas');
+        let t = 0, l = 0;
+        
+        vendas.forEach(v => { t += v.total; l += v.lucro; });
+
+        stats.innerHTML = `
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm min-w-[150px]"><p class="text-[10px] text-slate-400 font-black uppercase">Vendas Brutas</p><p class="text-xl font-black">R$ ${t.toFixed(2)}</p></div>
+            <div class="bg-green-600 text-white p-4 rounded-2xl shadow-lg min-w-[150px]"><p class="text-[10px] text-green-100 font-black uppercase">Lucro Líquido</p><p class="text-xl font-black">R$ ${l.toFixed(2)}</p></div>
+        `;
+
+        corpoTabela.innerHTML = vendas.map(v => `
+            <tr>
+                <td class="font-bold text-slate-500">${new Date(v.data).toLocaleString()}</td>
+                <td class="max-w-xs truncate" title="${v.itens}">${v.itens}</td>
+                <td class="uppercase font-black text-[10px] text-slate-400">${v.pagamento}</td>
+                <td class="font-black">R$ ${v.total.toFixed(2)}</td>
+                <td class="text-green-600 font-bold">R$ ${v.lucro.toFixed(2)}</td>
+                <td><button onclick="removerVenda('${v.firebaseId}')" class="text-red-400 font-bold hover:text-red-600">Excluir</button></td>
+            </tr>
+        `).join('');
+    };
+
+    window.removerVenda = async (id) => {
+        if(confirm("Deseja excluir esta venda do histórico? Isso não retornará os itens ao estoque.")) {
+            await deleteDoc(doc(db, "vendas", id));
+            notificar("Venda removida.");
+        }
+    };
+
+    window.limparTodoHistorico = async () => {
+        if(confirm("CUIDADO! Isso apagará TODO o histórico de vendas para sempre. Deseja continuar?")) {
+            const querySnapshot = await getDocs(collection(db, "vendas"));
+            const batch = writeBatch(db);
+            querySnapshot.forEach((d) => batch.delete(d.ref));
+            await batch.commit();
+            notificar("Histórico limpo!");
+        }
     };
 
     // --- LOGICA DE VENDA ---
@@ -309,7 +376,7 @@
         notificar("Venda Concluída!"); focarBusca();
     };
 
-    // --- OUTROS ---
+    // --- CADASTRO E ESTOQUE ---
     window.editarProduto = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
         document.getElementById('editId').value = id;
@@ -332,16 +399,6 @@
     };
 
     window.removerProd = async (id) => { if(confirm("Apagar produto?")) await deleteDoc(doc(db, "produtos", id)); };
-
-    window.renderizarHistorico = () => {
-        const stats = document.getElementById('estatisticas');
-        let t = 0, l = 0;
-        vendas.forEach(v => { t += v.total; l += v.lucro; });
-        stats.innerHTML = `
-            <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold uppercase">Bruto</p><p class="text-xl font-black">R$ ${t.toFixed(2)}</p></div>
-            <div class="bg-green-600 text-white p-4 rounded-2xl"><p class="text-[10px] text-green-200 font-bold uppercase">Lucro</p><p class="text-xl font-black">R$ ${l.toFixed(2)}</p></div>
-            <div class="bg-white p-4 rounded-2xl border"><p class="text-[10px] text-slate-400 font-bold uppercase">Vendas</p><p class="text-xl font-black">${vendas.length}</p></div>`;
-    };
 
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
@@ -367,6 +424,21 @@
         };
         id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
         cancelarEdicao();
+        notificar("Produto Salvo!");
+    };
+
+    window.exportarExcel = () => {
+        const dataParaExportar = vendas.map(v => ({
+            Data: new Date(v.data).toLocaleString(),
+            Itens: v.itens,
+            Pagamento: v.pagamento,
+            Total: v.total,
+            Lucro: v.lucro
+        }));
+        const ws = XLSX.utils.json_to_sheet(dataParaExportar);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Vendas");
+        XLSX.writeFile(wb, "Louisiana_Vendas.xlsx");
     };
 
     window.calcTroco = () => {
