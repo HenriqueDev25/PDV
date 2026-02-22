@@ -10,9 +10,7 @@
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
-       (function(){
-          emailjs.init("D2oYhqF92aOaLtnWU");
-       })();
+       (function(){ emailjs.init("D2oYhqF92aOaLtnWU"); })();
     </script>
 
     <style>
@@ -24,12 +22,10 @@
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .carrinho-item { background: #1D1F26; border-left: 4px solid #22c55e; transition: all 0.2s; }
-        #metodoPgto { background-color: #1D1F26; color: white; border: none; outline: none; }
         .scroll-area { overflow-y: auto; height: 100%; }
         #gridProdutos, #listaEstoqueGrid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            grid-auto-rows: max-content;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1rem;
         }
         #loginScreen { background-color: #1D1F26; }
@@ -45,7 +41,7 @@
         <div class="space-y-4">
             <input type="email" id="loginEmail" placeholder="E-mail" class="w-full bg-white/10 border border-white/20 p-4 rounded-2xl outline-none text-white focus:border-green-500 transition">
             <input type="password" id="loginPassword" placeholder="Senha" class="w-full bg-white/10 border border-white/20 p-4 rounded-2xl outline-none text-white focus:border-green-500 transition">
-            <button onclick="fazerLoginEmail()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-2xl transition uppercase">Entrar no Sistema</button>
+            <button onclick="fazerLoginEmail()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-2xl transition uppercase">Entrar</button>
         </div>
         <p id="loginError" class="text-red-400 mt-4 text-xs font-bold hidden">Credenciais Inválidas</p>
     </div>
@@ -55,7 +51,7 @@
     <header class="bg-[#1D1F26] text-white p-4 flex justify-between items-center shadow-lg shrink-0">
         <div class="flex items-center gap-4">
             <h1 class="text-xl font-bold tracking-tighter">LOUISIANA <span class="text-green-500">PDV</span></h1>
-            <span id="scannerStatus" class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30 uppercase font-bold animate-pulse">Scanner Remoto Ativo</span>
+            <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30 uppercase font-bold animate-pulse">Scanner Remoto Ativo</span>
         </div>
         <nav class="flex gap-1 bg-white/10 p-1 rounded-lg">
             <button onclick="switchTab('venda')" class="tab-btn active px-4 py-2 text-sm font-semibold transition">Vendas (F1)</button>
@@ -73,14 +69,14 @@
                         <input type="text" id="inputBusca" placeholder="Pesquisar ou bipar... (F8)" 
                             class="w-full bg-white border-2 border-slate-200 p-4 pl-12 rounded-2xl shadow-sm outline-none text-lg focus:border-[#1D1F26] transition" 
                             oninput="renderizarProdutos()">
-                        <span class="absolute left-4 top-4">🔍</span>
+                        <span class="absolute left-4 top-4 text-slate-400">🔍</span>
                     </div>
                     <div id="gridProdutos" class="scroll-area custom-scroll pr-2 pb-10"></div>
                 </div>
 
                 <div class="flex-1 bg-[#1D1F26] rounded-3xl flex flex-col text-white shadow-2xl min-w-[350px] overflow-hidden border border-white/5">
                     <div class="p-5 border-b border-white/10 flex justify-between items-center">
-                        <span class="font-bold uppercase tracking-widest text-sm">Carrinho</span>
+                        <span class="font-bold uppercase tracking-widest text-sm text-slate-400">Carrinho</span>
                         <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold" id="qtdItens">0 Itens</span>
                     </div>
                     <div id="carrinhoItens" class="flex-1 scroll-area p-4 space-y-3 custom-scroll"></div>
@@ -90,7 +86,7 @@
                             <span id="totalVenda" class="text-3xl font-bold text-white">R$ 0,00</span>
                         </div>
                         <div class="space-y-3">
-                            <select id="metodoPgto" class="w-full p-3 rounded-xl border border-white/10 outline-none" onchange="toggleTroco()">
+                            <select id="metodoPgto" class="w-full bg-white/10 p-3 rounded-xl border border-white/10 text-white outline-none" onchange="toggleTroco()">
                                 <option value="dinheiro">Dinheiro</option>
                                 <option value="pix">PIX</option>
                                 <option value="cartao">Cartão</option>
@@ -101,7 +97,7 @@
                                     <span>Troco:</span><span id="labelTroco" class="font-bold text-green-400">R$ 0,00</span>
                                 </div>
                             </div>
-                            <button onclick="finalizarVenda()" class="w-full bg-green-600 hover:bg-green-500 p-4 rounded-xl font-bold text-lg transition uppercase tracking-widest">Finalizar Venda</button>
+                            <button onclick="finalizarVenda()" class="w-full bg-green-600 hover:bg-green-500 p-4 rounded-xl font-bold text-lg transition uppercase tracking-widest">Finalizar (F9)</button>
                         </div>
                     </div>
                 </div>
@@ -111,19 +107,19 @@
         <section id="estoque" class="tab-content">
             <div class="p-8 flex flex-col h-full gap-6">
                 <div class="bg-white p-6 rounded-3xl border border-slate-200 shrink-0">
-                    <h2 class="text-xl font-bold mb-4 text-[#1D1F26]">Cadastro de Produto</h2>
+                    <h2 class="text-xl font-bold mb-4">Novo Produto</h2>
                     <form id="formProd" class="grid grid-cols-4 gap-3">
                         <input type="hidden" id="editId">
                         <div class="col-span-2"><input type="text" id="nome" placeholder="Nome do Produto" class="w-full p-3 border rounded-xl" required></div>
-                        <input type="text" id="cod" placeholder="Código EAN (Bipe no Celular)" class="p-3 border rounded-xl bg-slate-50 font-mono text-sm focus:border-green-500 outline-none transition">
+                        <input type="text" id="cod" placeholder="Código EAN" class="p-3 border rounded-xl bg-slate-50 font-mono text-green-600 font-bold">
                         <input type="text" id="cat" placeholder="Categoria" class="p-3 border rounded-xl">
                         <input type="number" id="custo" placeholder="Custo R$" step="0.01" class="p-3 border rounded-xl" required>
                         <input type="number" id="preco" placeholder="Venda R$" step="0.01" class="p-3 border rounded-xl" required>
                         <input type="number" id="qtd" placeholder="Quantidade" class="p-3 border rounded-xl" required>
-                        <input type="text" id="imgUrl" placeholder="Link da Imagem" class="p-3 border rounded-xl">
+                        <input type="text" id="imgUrl" placeholder="Link Imagem" class="p-3 border rounded-xl">
                         <div class="col-span-4 flex gap-2">
-                            <button type="submit" id="btnSalvar" class="flex-1 bg-[#1D1F26] text-white py-3 rounded-xl font-bold uppercase">Salvar Produto</button>
-                            <button type="button" onclick="cancelarEdicao()" id="btnCancelarEdit" class="hidden bg-red-100 text-red-600 px-6 rounded-xl font-bold">CANCELAR</button>
+                            <button type="submit" id="btnSalvar" class="flex-1 bg-[#1D1F26] text-white py-3 rounded-xl font-bold uppercase">Salvar</button>
+                            <button type="button" onclick="cancelarEdicao()" id="btnCancelarEdit" class="hidden bg-red-100 text-red-600 px-6 rounded-xl font-bold">Cancelar</button>
                         </div>
                     </form>
                 </div>
@@ -133,10 +129,6 @@
 
         <section id="historico" class="tab-content">
             <div class="p-8 flex flex-col h-full gap-6">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-bold">Relatório de Vendas</h2>
-                    <button onclick="exportarExcel()" class="bg-green-600 text-white px-6 py-2 rounded-xl font-bold uppercase text-xs">Exportar Excel</button>
-                </div>
                 <div id="estatisticas" class="grid grid-cols-3 gap-4"></div>
                 <div id="listaHistorico" class="scroll-area custom-scroll space-y-2"></div>
             </div>
@@ -144,11 +136,11 @@
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 bg-[#1D1F26] text-white px-8 py-4 rounded-2xl z-[200]"></div>
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 bg-[#1D1F26] text-white px-8 py-4 rounded-2xl z-[200] font-bold shadow-2xl"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -167,7 +159,7 @@
 
     let produtos = [], vendas = [], carrinho = [];
 
-    // --- LÓGICA DO SCANNER REMOTO (CAPTURAR DO CELULAR) ---
+    // --- ESCUTA DO SCANNER (ESTRATÉGIA DE BARRA DE BUSCA) ---
     function iniciarScannerRemoto() {
         onSnapshot(collection(db, "bipe_remoto"), (snapshot) => {
             snapshot.docChanges().forEach(async (change) => {
@@ -175,74 +167,46 @@
                     const dados = change.doc.data();
                     const codigoAlvo = String(dados.codigo).trim();
                     
+                    const inputBusca = document.getElementById('inputBusca');
                     const inputCodEstoque = document.getElementById('cod');
                     const abaEstoqueAtiva = document.getElementById('estoque').classList.contains('active');
 
-                    // Se estiver na aba estoque, preenche o campo de cadastro
                     if (abaEstoqueAtiva) {
                         inputCodEstoque.value = codigoAlvo;
-                        inputCodEstoque.classList.add('border-green-500', 'bg-green-50');
-                        setTimeout(() => inputCodEstoque.classList.remove('border-green-500', 'bg-green-50'), 1000);
-                        notificar("Código capturado no cadastro!");
+                        notificar("Código capturado!");
                     } else {
-                        // Se estiver em outra aba (Vendas), adiciona ao carrinho
+                        // 1. Joga o código na barra de pesquisa
+                        inputBusca.value = codigoAlvo;
+                        renderizarProdutos();
+                        
+                        // 2. Tenta adicionar ao carrinho automaticamente
                         const prod = produtos.find(p => String(p.cod).trim() === codigoAlvo);
                         if (prod) {
                             window.addCarrinho(prod.firebaseId);
-                            notificar(`Adicionado: ${prod.nome}`);
+                            notificar(`${prod.nome} bipado!`);
+                            
+                            // 3. Limpa a barra após 1.2s para o próximo
+                            setTimeout(() => {
+                                inputBusca.value = "";
+                                renderizarProdutos();
+                            }, 1200);
                         } else {
-                            notificar(`Não cadastrado: ${codigoAlvo}`);
+                            notificar("Produto não encontrado.");
                         }
                     }
 
-                    // Remove o bipe do Firebase para manter o banco limpo
-                    try {
-                        await deleteDoc(doc(db, "bipe_remoto", change.doc.id));
-                    } catch(e) {}
+                    // Remove do Firebase imediatamente
+                    try { await deleteDoc(doc(db, "bipe_remoto", change.doc.id)); } catch(e) {}
                 }
             });
         });
     }
 
-    // --- AUXILIARES E UI ---
-    function focarBusca() {
-        setTimeout(() => {
-            const busca = document.getElementById('inputBusca');
-            if(busca) { busca.focus(); busca.select(); }
-        }, 150);
-    }
-
-    async function checarEEnviarEmailEstoque(item) {
-        const estoqueFinal = item.estoque - item.qtd;
-        if (estoqueFinal <= 2) {
-            const templateParams = {
-                name: "Louisiana PDV Alertas",
-                time: new Date().toLocaleString('pt-BR'),
-                message: `O estoque do produto "${item.nome}" está crítico. Restam apenas ${estoqueFinal} unidades.`
-            };
-            emailjs.send('service_vdd6bfg', 'template_sw4fz5k', templateParams)
-                .then(() => console.log('Email enviado'), (err) => console.log('Erro email', err));
-        }
-    }
-
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'F8') { e.preventDefault(); focarBusca(); }
-        if (e.key === 'F1') switchTab('venda');
-        if (e.key === 'F2') switchTab('estoque');
-        if (e.key === 'F3') switchTab('historico');
-    });
-
-    // --- LOGIN ---
+    // --- LOGIN E STARTUP ---
     window.fazerLoginEmail = async () => {
-        const email = document.getElementById('loginEmail').value;
-        const senha = document.getElementById('loginPassword').value;
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, senha);
-            if (userCredential.user.email.toLowerCase() !== EMAIL_AUTORIZADO) {
-                await signOut(auth);
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        } catch (e) { document.getElementById('loginError').classList.remove('hidden'); }
+        const e = document.getElementById('loginEmail').value;
+        const s = document.getElementById('loginPassword').value;
+        try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { document.getElementById('loginError').classList.remove('hidden'); }
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -257,21 +221,19 @@
         }
     });
 
-    window.logout = () => signOut(auth).then(() => location.reload());
-
-    // --- FIREBASE DATA ---
     function inicializarApp() {
-        onSnapshot(collection(db, "produtos"), (snapshot) => {
-            produtos = snapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        onSnapshot(collection(db, "produtos"), (snap) => {
+            produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
             renderizarProdutos();
             renderizarEstoque();
         });
-        onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snapshot) => {
-            vendas = snapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
+        onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
+            vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
             renderizarHistorico();
         });
     }
 
+    // --- FUNÇÕES DE INTERFACE ---
     window.switchTab = (id) => {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -279,25 +241,24 @@
         if(id === 'venda') focarBusca();
     };
 
-    // --- VENDAS ---
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
         const filtrados = produtos.filter(p => (p.nome || "").toLowerCase().includes(busca) || String(p.cod || "").includes(busca));
         grid.innerHTML = filtrados.map(p => `
-            <div class="bg-white rounded-2xl border p-4 cursor-pointer hover:shadow-md transition" onclick="addCarrinho('${p.firebaseId}')">
+            <div class="bg-white rounded-2xl border p-4 cursor-pointer hover:border-green-500 transition shadow-sm" onclick="addCarrinho('${p.firebaseId}')">
                 <img src="${p.img}" class="img-produto mb-3" onerror="this.src='https://via.placeholder.com/200'">
                 <h3 class="font-bold text-xs uppercase truncate">${p.nome}</h3>
                 <div class="flex justify-between items-center mt-3">
-                    <span class="font-black text-lg text-[#1D1F26]">R$ ${p.preco.toFixed(2)}</span>
-                    <span class="text-[10px] ${p.estoque < 5 ? 'text-red-500' : 'text-slate-500'} bg-slate-100 px-2 py-1 rounded font-bold">${p.estoque} UN</span>
+                    <span class="font-bold text-lg">R$ ${p.preco.toFixed(2)}</span>
+                    <span class="text-[10px] bg-slate-100 px-2 py-1 rounded font-bold">${p.estoque} UN</span>
                 </div>
             </div>`).join('');
     };
 
     window.addCarrinho = (fbId) => {
         const prod = produtos.find(p => p.firebaseId === fbId);
-        if(!prod || prod.estoque <= 0) { notificar("Estoque Esgotado!"); return; }
+        if(!prod || prod.estoque <= 0) { notificar("Sem estoque!"); return; }
         const item = carrinho.find(i => i.firebaseId === fbId);
         item ? item.qtd++ : carrinho.push({...prod, qtd: 1});
         atualizarCarrinho();
@@ -309,16 +270,16 @@
         let total = 0;
         lista.innerHTML = carrinho.map((item, idx) => {
             total += item.preco * item.qtd;
-            return `<div class="carrinho-item p-3 rounded-xl flex justify-between text-white text-xs mb-2 shadow-sm">
-                <div><p class="font-bold truncate w-40">${item.nome}</p><p class="text-green-400">${item.qtd}x R$ ${item.preco.toFixed(2)}</p></div>
+            return `<div class="carrinho-item p-3 rounded-xl flex justify-between text-white text-xs mb-2">
+                <div class="truncate"><p class="font-bold truncate">${item.nome}</p><p class="text-green-400">${item.qtd}x R$ ${item.preco.toFixed(2)}</p></div>
                 <button onclick="removerItemCarrinho(${idx})" class="text-red-400 font-bold px-2">X</button>
             </div>`;
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
-        document.getElementById('qtdItens').innerText = `${carrinho.reduce((a, b) => a + b.qtd, 0)} Itens`;
+        document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} Itens`;
     };
 
-    window.removerItemCarrinho = (idx) => { carrinho.splice(idx, 1); atualizarCarrinho(); focarBusca(); };
+    window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); atualizarCarrinho(); focarBusca(); };
 
     window.finalizarVenda = async () => {
         if(carrinho.length === 0) return;
@@ -328,7 +289,6 @@
         carrinho.forEach(item => {
             totalV += item.preco * item.qtd;
             lucroV += (item.preco - item.custo) * item.qtd;
-            checarEEnviarEmailEstoque(item);
             batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
         });
 
@@ -344,25 +304,22 @@
         carrinho = [];
         atualizarCarrinho();
         document.getElementById('valorRecebido').value = '';
-        focarBusca();
         notificar("Venda Concluída!");
+        focarBusca();
     };
 
-    // --- ESTOQUE ---
+    // --- ESTOQUE E AUX ---
     window.renderizarEstoque = () => {
         const grid = document.getElementById('listaEstoqueGrid');
         grid.innerHTML = produtos.map(p => `
             <div class="bg-white rounded-xl border p-4 flex justify-between items-center shadow-sm">
                 <div class="flex gap-4 items-center">
-                    <img src="${p.img}" class="w-12 h-12 object-cover rounded-lg border">
-                    <div>
-                        <p class="font-bold uppercase text-xs">${p.nome}</p>
-                        <p class="text-[10px] text-slate-500">EAN: ${p.cod} | Estoque: ${p.estoque}</p>
-                    </div>
+                    <img src="${p.img}" class="w-10 h-10 object-cover rounded-lg border">
+                    <div><p class="font-bold text-xs uppercase">${p.nome}</p><p class="text-[10px] text-slate-500">EAN: ${p.cod} | Estoque: ${p.estoque}</p></div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="editarProduto('${p.firebaseId}')" class="bg-slate-100 p-2 rounded-lg text-blue-600 font-bold text-[10px]">EDITAR</button>
-                    <button onclick="removerProd('${p.firebaseId}')" class="bg-red-50 p-2 rounded-lg text-red-500 font-bold text-[10px]">APAGAR</button>
+                    <button onclick="editarProduto('${p.firebaseId}')" class="bg-blue-50 text-blue-600 p-2 rounded-lg font-bold text-[10px]">EDITAR</button>
+                    <button onclick="removerProd('${p.firebaseId}')" class="bg-red-50 text-red-500 p-2 rounded-lg font-bold text-[10px]">APAGAR</button>
                 </div>
             </div>`).join('');
     };
@@ -376,44 +333,45 @@
         document.getElementById('preco').value = p.preco;
         document.getElementById('qtd').value = p.estoque;
         document.getElementById('imgUrl').value = p.img;
-        document.getElementById('btnSalvar').innerText = "ATUALIZAR PRODUTO";
+        document.getElementById('btnSalvar').innerText = "Atualizar";
         document.getElementById('btnCancelarEdit').classList.remove('hidden');
-        window.scrollTo(0,0);
     };
 
     window.cancelarEdicao = () => {
         document.getElementById('formProd').reset();
         document.getElementById('editId').value = "";
-        document.getElementById('btnSalvar').innerText = "SALVAR PRODUTO";
+        document.getElementById('btnSalvar').innerText = "Salvar";
         document.getElementById('btnCancelarEdit').classList.add('hidden');
     };
 
-    window.removerProd = async (id) => { if(confirm("Apagar este produto?")) await deleteDoc(doc(db, "produtos", id)); };
+    window.removerProd = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "produtos", id)); };
 
-    // --- RELATÓRIOS ---
     window.renderizarHistorico = () => {
         const lista = document.getElementById('listaHistorico');
         const stats = document.getElementById('estatisticas');
         let t = 0, l = 0;
         vendas.forEach(v => { t += v.total; l += v.lucro; });
         stats.innerHTML = `
-            <div class="bg-white p-4 rounded-xl border"><p class="text-xs uppercase text-slate-400 font-bold">Vendas Brutas</p><p class="text-xl font-black">R$ ${t.toFixed(2)}</p></div>
-            <div class="bg-green-600 text-white p-4 rounded-xl shadow-lg"><p class="text-xs uppercase text-green-200 font-bold">Lucro Líquido</p><p class="text-xl font-black">R$ ${l.toFixed(2)}</p></div>
-            <div class="bg-white p-4 rounded-xl border"><p class="text-xs uppercase text-slate-400 font-bold">Qtd Vendas</p><p class="text-xl font-black">${vendas.length}</p></div>`;
+            <div class="bg-white p-4 rounded-xl border"><p class="text-xs text-slate-400">Total Vendas</p><p class="text-xl font-bold">R$ ${t.toFixed(2)}</p></div>
+            <div class="bg-green-600 text-white p-4 rounded-xl"><p class="text-xs text-green-200">Lucro</p><p class="text-xl font-bold">R$ ${l.toFixed(2)}</p></div>
+            <div class="bg-white p-4 rounded-xl border"><p class="text-xs text-slate-400">Vendas</p><p class="text-xl font-bold">${vendas.length}</p></div>`;
         lista.innerHTML = vendas.map(v => `
-            <div class="bg-white p-3 rounded-xl border flex justify-between text-xs items-center shadow-sm">
-                <div><p class="font-bold">${new Date(v.data).toLocaleString()}</p><p class="text-slate-500 italic">${v.itens}</p></div>
-                <div class="text-right font-black text-slate-800">R$ ${v.total.toFixed(2)}</div>
+            <div class="bg-white p-3 rounded-xl border flex justify-between text-xs items-center">
+                <div><p class="font-bold">${new Date(v.data).toLocaleString()}</p><p class="text-slate-500">${v.itens}</p></div>
+                <div class="font-bold">R$ ${v.total.toFixed(2)}</div>
             </div>`).join('');
     };
 
-    window.calcTroco = () => {
-        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', ''));
-        const rec = parseFloat(document.getElementById('valorRecebido').value) || 0;
-        document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, rec - total).toFixed(2)}`;
+    window.notificar = (msg) => {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
+        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
     };
 
-    window.toggleTroco = () => document.getElementById('divTroco').style.display = document.getElementById('metodoPgto').value === 'dinheiro' ? 'block' : 'none';
+    function focarBusca() {
+        const b = document.getElementById('inputBusca');
+        if(b) { b.focus(); b.select(); }
+    }
 
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
@@ -424,25 +382,31 @@
             custo: parseFloat(document.getElementById('custo').value),
             preco: parseFloat(document.getElementById('preco').value),
             estoque: parseInt(document.getElementById('qtd').value),
-            img: document.getElementById('imgUrl').value || 'https://via.placeholder.com/200'
+            img: document.getElementById('imgUrl').value || ''
         };
         id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
         cancelarEdicao();
-        notificar("Base de Dados Atualizada!");
     };
 
-    window.notificar = (msg) => {
-        const t = document.getElementById('toast');
-        t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
-        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
+    window.calcTroco = () => {
+        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', ''));
+        const rec = parseFloat(document.getElementById('valorRecebido').value) || 0;
+        document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, rec - total).toFixed(2)}`;
     };
 
-    window.exportarExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(vendas);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Vendas");
-        XLSX.writeFile(wb, "Louisiana_Relatorio.xlsx");
+    window.toggleTroco = () => {
+        document.getElementById('divTroco').style.display = document.getElementById('metodoPgto').value === 'dinheiro' ? 'block' : 'none';
     };
+
+    window.logout = () => signOut(auth).then(() => location.reload());
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'F8') { e.preventDefault(); focarBusca(); }
+        if (e.key === 'F1') switchTab('venda');
+        if (e.key === 'F2') switchTab('estoque');
+        if (e.key === 'F3') switchTab('historico');
+        if (e.key === 'F9') finalizarVenda();
+    });
 </script>
 </body>
 </html>
