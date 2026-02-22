@@ -53,7 +53,10 @@
 
 <div id="appInterface" class="hidden-app flex flex-col h-full">
     <header class="bg-[#1D1F26] text-white p-4 flex justify-between items-center shadow-lg shrink-0">
-        <h1 class="text-xl font-bold tracking-tighter">LOUISIANA <span class="text-green-500">PDV</span></h1>
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-bold tracking-tighter">LOUISIANA <span class="text-green-500">PDV</span></h1>
+            <span id="scannerStatus" class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30 uppercase font-bold">Scanner Remoto Ativo</span>
+        </div>
         <nav class="flex gap-1 bg-white/10 p-1 rounded-lg">
             <button onclick="switchTab('venda')" class="tab-btn active px-4 py-2 text-sm font-semibold transition">Vendas (F1)</button>
             <button onclick="switchTab('estoque')" class="tab-btn px-4 py-2 text-sm font-semibold transition">Estoque (F2)</button>
@@ -162,6 +165,36 @@
     const auth = getAuth(app);
     const EMAIL_AUTORIZADO = "louisianapdv@gmail.com";
 
+    let produtos = [], vendas = [], carrinho = [];
+
+    // --- ESCUTA DO SCANNER REMOTO (CELULAR) ---
+    function iniciarScannerRemoto() {
+        // Ouve a coleção "bipe_remoto" por novas adições
+        onSnapshot(collection(db, "bipe_remoto"), (snapshot) => {
+            snapshot.docChanges().forEach(async (change) => {
+                if (change.type === "added") {
+                    const dados = change.doc.data();
+                    const codigoAlvo = String(dados.codigo).trim();
+                    
+                    // Procura o produto no banco local carregado
+                    const prod = produtos.find(p => String(p.cod).trim() === codigoAlvo);
+                    
+                    if (prod) {
+                        window.addCarrinho(prod.firebaseId);
+                        notificar(`Remoto: ${prod.nome} adicionado!`);
+                    } else {
+                        notificar(`Código não cadastrado: ${codigoAlvo}`);
+                    }
+
+                    // Remove o bipe do banco para não acumular
+                    try {
+                        await deleteDoc(doc(db, "bipe_remoto", change.doc.id));
+                    } catch(e) { console.log("Erro ao limpar bipe:", e); }
+                }
+            });
+        });
+    }
+
     // --- FUNÇÕES DE FOCO E ALERTA AUTOMÁTICO ---
     function focarBusca() {
         setTimeout(() => {
@@ -208,6 +241,7 @@
             document.getElementById('loginScreen').classList.add('hidden-app');
             document.getElementById('appInterface').classList.remove('hidden-app');
             inicializarApp();
+            iniciarScannerRemoto(); // Ativa o scanner remoto pós-login
             focarBusca();
         } else {
             document.getElementById('loginScreen').classList.remove('hidden-app');
@@ -217,8 +251,6 @@
     window.logout = () => signOut(auth).then(() => location.reload());
 
     // --- LOGICA DO BANCO DE DADOS ---
-    let produtos = [], vendas = [], carrinho = [];
-
     function inicializarApp() {
         onSnapshot(collection(db, "produtos"), (snapshot) => {
             produtos = snapshot.docs.map(doc => ({ firebaseId: doc.id, ...doc.data() }));
@@ -286,7 +318,7 @@
         carrinho.forEach(item => {
             totalV += item.preco * item.qtd;
             lucroV += (item.preco - item.custo) * item.qtd;
-            checarEEnviarEmailEstoque(item); // MONITORAMENTO DE ESTOQUE
+            checarEEnviarEmailEstoque(item);
             batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
         });
 
