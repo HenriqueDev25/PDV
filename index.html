@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Louisiana PDV - Authorized Access</title>
+    <title>Louisiana PDV - Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -25,7 +25,7 @@
         .card-produto:hover { border-color: var(--accent-green); transform: translateY(-5px); }
         .img-produto { width: 100%; height: 120px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; }
         .hidden-app { display: none !important; }
-        input, select { background: #262a33 !important; border: 1px solid #334155 !important; color: white !important; position: relative; z-index: 10; }
+        input, select { background: #262a33 !important; border: 1px solid #334155 !important; color: white !important; }
         input:focus { border-color: var(--accent-green) !important; outline: none; }
     </style>
 </head>
@@ -33,14 +33,14 @@
 
 <div id="loadingScreen">
     <div class="spinner"></div>
-    <p class="text-xs font-bold tracking-[0.3em] uppercase mt-6 text-green-500/50">Verificando Autorização</p>
+    <p class="text-xs font-bold tracking-[0.3em] uppercase mt-6 text-green-500/50">Louisiana PDV</p>
 </div>
 
 <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0c10]">
     <div class="glass p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl">
         <div class="text-center mb-10">
             <h1 class="text-4xl font-extrabold italic"><span class="text-white">LOUISIANA</span> <span class="text-green-500">PDV</span></h1>
-            <p class="text-slate-500 text-sm mt-2">Acesso Restrito a Usuários Autorizados</p>
+            <p class="text-slate-500 text-sm mt-2">Acesso Restrito</p>
         </div>
         <div class="space-y-4">
             <input type="email" id="loginEmail" placeholder="E-mail" class="w-full p-4 rounded-2xl">
@@ -53,7 +53,7 @@
 
 <div id="appInterface" class="hidden-app flex flex-col h-screen">
     <header class="h-20 flex items-center justify-between px-8 border-b border-white/5 bg-[#0f1115] shrink-0 z-50">
-        <h1 class="text-2xl font-black italic tracking-tighter"><span id="headerNomeLoja">PDV</span> <span class="text-green-500">SYSTEM</span></h1>
+        <h1 class="text-2xl font-black italic tracking-tighter"><span id="headerNomeLoja">LOUISIANA</span> <span class="text-green-500">PDV</span></h1>
         <nav class="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl">
             <button onclick="window.switchTab('venda')" id="btn-venda" class="tab-btn active px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase">Vendas</button>
             <button onclick="window.switchTab('estoque')" id="btn-estoque" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase text-slate-400">Estoque</button>
@@ -61,82 +61,80 @@
             <button onclick="window.switchTab('config')" id="btn-config" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase text-slate-400">Config</button>
         </nav>
         <div class="flex items-center gap-4">
-            <span id="userEmailDisplay" class="text-[10px] text-slate-500 font-bold"></span>
             <button onclick="window.logout()" class="px-5 py-2.5 text-[10px] font-black text-red-500 bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all">SAIR</button>
         </div>
     </header>
 
-    <main class="flex-1 overflow-hidden relative">
+    <main class="flex-1 overflow-hidden">
         <section id="venda" class="tab-content active p-6">
             <div class="flex h-full gap-6 overflow-hidden">
-                <div class="flex-[3] flex flex-col gap-6 overflow-hidden">
+                <div class="flex-[3] flex flex-col gap-6">
                     <input type="text" id="inputBusca" placeholder="Pesquisar produto ou código..." class="w-full pl-6 pr-6 py-5 rounded-[1.5rem] shadow-2xl text-lg font-medium" oninput="window.renderizarProdutos()">
                     <div id="gridProdutos" class="grid-pdv overflow-y-auto pr-2 custom-scroll pb-10"></div>
                 </div>
-                <div class="w-[380px] glass rounded-[2.5rem] flex flex-col shadow-2xl overflow-hidden shrink-0 border-white/10">
-                    <div class="p-6 border-b border-white/5 flex justify-between items-center"><h2 class="text-xl font-bold">Carrinho</h2></div>
+                <div class="w-[380px] glass rounded-[2.5rem] flex flex-col shadow-2xl overflow-hidden shrink-0">
+                    <div class="p-6 border-b border-white/5"><h2 class="text-xl font-bold">Carrinho <span id="qtdItens" class="text-xs text-green-500">0 Itens</span></h2></div>
                     <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 custom-scroll space-y-3"></div>
                     <div class="p-8 bg-black/40 border-t border-white/5 space-y-4">
-                        <div class="flex justify-between items-center"><span class="text-slate-400 font-bold uppercase text-[10px]">Total</span><span id="totalVenda" class="text-4xl font-black text-green-500 tracking-tighter">R$ 0,00</span></div>
-                        <select id="metodoPgto" class="w-full p-4 rounded-xl font-bold" onchange="window.toggleTroco()"><option value="Dinheiro">Dinheiro</option><option value="PIX">PIX</option><option value="Cartão">Cartão</option></select>
-                        <div id="divTroco" class="hidden flex flex-col gap-2"><label class="text-[9px] font-bold text-slate-500 uppercase ml-1">Valor Recebido</label><input type="number" id="valorRecebido" step="0.01" class="w-full p-4 rounded-xl font-black text-green-500 text-xl" oninput="window.calcTroco()"></div>
-                        <button onclick="window.finalizarVenda()" class="w-full bg-green-500 hover:bg-green-400 text-black font-black py-5 rounded-2xl transition-all uppercase text-sm">Finalizar (F9)</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="estoque" class="tab-content p-6 h-full">
-            <div class="max-w-6xl mx-auto w-full flex flex-col h-full overflow-hidden">
-                <div class="glass p-6 rounded-[2rem] mb-6 shrink-0">
-                    <form id="formProd" class="grid grid-cols-4 gap-4">
-                        <input type="hidden" id="editId">
-                        <div class="col-span-2"><input type="text" id="nome" placeholder="Nome do Produto" class="w-full p-3.5 rounded-xl" required></div>
-                        <input type="text" id="cod" placeholder="Código/EAN" class="p-3.5 rounded-xl">
-                        <input type="number" id="qtd" placeholder="Estoque" class="p-3.5 rounded-xl" required>
-                        <input type="number" id="custo" step="0.01" placeholder="Custo" class="p-3.5 rounded-xl" required>
-                        <input type="number" id="preco" step="0.01" placeholder="Venda" class="p-3.5 rounded-xl" required>
-                        <input type="text" id="imgUrl" placeholder="URL Imagem" class="p-3.5 rounded-xl">
-                        <div class="flex gap-2">
-                            <button type="submit" id="btnSalvar" class="flex-1 bg-green-500 text-black font-black rounded-xl uppercase text-xs">Salvar</button>
-                            <button type="button" onclick="window.cancelarEdicao()" id="btnCancelarEdit" class="hidden px-4 bg-slate-700 text-white rounded-xl">X</button>
+                        <div class="flex justify-between"><span class="text-slate-400 text-[10px] font-bold">TOTAL</span><span id="totalVenda" class="text-4xl font-black text-green-500">R$ 0,00</span></div>
+                        <select id="metodoPgto" class="w-full p-4 rounded-xl font-bold" onchange="window.toggleTroco()">
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="PIX">PIX</option>
+                            <option value="Cartão">Cartão</option>
+                        </select>
+                        <div id="divTroco" class="flex flex-col gap-2">
+                            <label class="text-[10px] text-slate-500 font-bold uppercase">Valor Recebido</label>
+                            <input type="number" id="valorRecebido" step="0.01" placeholder="R$ 0,00" class="w-full p-4 rounded-xl font-black text-green-500 text-xl" oninput="window.calcTroco()">
                         </div>
-                    </form>
-                </div>
-                <div id="listaEstoqueGrid" class="grid-pdv overflow-y-auto custom-scroll pb-10"></div>
-            </div>
-        </section>
-
-        <section id="historico" class="tab-content p-8 h-full">
-            <div class="max-w-6xl mx-auto w-full flex flex-col h-full overflow-hidden">
-                <div id="estatisticas" class="flex gap-6 mb-6"></div>
-                <div class="glass rounded-[2rem] overflow-hidden flex-1 flex flex-col">
-                    <div class="overflow-y-auto custom-scroll">
-                        <table class="w-full text-left">
-                            <thead class="bg-white/5 text-slate-400 text-[10px] uppercase font-black sticky top-0">
-                                <tr><th class="p-6">Data</th><th class="p-6">Itens</th><th class="p-6">Pgto</th><th class="p-6">Total</th><th class="p-6 text-center">Ação</th></tr>
-                            </thead>
-                            <tbody id="corpoTabelaVendas" class="text-sm divide-y divide-white/5"></tbody>
-                        </table>
+                        <button onclick="window.finalizarVenda()" class="w-full bg-green-500 text-black font-black py-5 rounded-2xl uppercase">Finalizar (F9)</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="config" class="tab-content p-8 h-full">
-            <div class="max-w-2xl mx-auto w-full">
-                <h2 class="text-3xl font-black mb-8 uppercase tracking-tighter">Minha Loja</h2>
-                <div class="glass p-8 rounded-[2.5rem] space-y-8">
-                    <div><label class="block text-[10px] font-black uppercase text-slate-500 mb-3">Nome da Loja</label><input type="text" id="cfgNomeLoja" class="w-full p-4 rounded-2xl"></div>
-                    <div><label class="block text-[10px] font-black uppercase text-slate-500 mb-3">Aviso de Estoque Baixo</label><input type="number" id="cfgEstoqueBaixo" class="w-full p-4 rounded-2xl"></div>
-                    <button onclick="window.salvarConfig()" class="w-full bg-green-500 text-black font-black py-4 rounded-2xl uppercase">Salvar</button>
+        <section id="estoque" class="tab-content p-6">
+            <div class="max-w-6xl mx-auto w-full flex flex-col h-full">
+                <form id="formProd" class="glass p-6 rounded-[2rem] mb-6 grid grid-cols-4 gap-4">
+                    <input type="hidden" id="editId">
+                    <div class="col-span-2"><input type="text" id="nome" placeholder="Produto" class="w-full p-3.5 rounded-xl" required></div>
+                    <input type="text" id="cod" placeholder="Código" class="p-3.5 rounded-xl">
+                    <input type="number" id="qtd" placeholder="Qtd" class="p-3.5 rounded-xl" required>
+                    <input type="number" id="custo" step="0.01" placeholder="Custo" class="p-3.5 rounded-xl" required>
+                    <input type="number" id="preco" step="0.01" placeholder="Venda" class="p-3.5 rounded-xl" required>
+                    <input type="text" id="imgUrl" placeholder="URL Imagem" class="p-3.5 rounded-xl">
+                    <button type="submit" id="btnSalvar" class="bg-green-500 text-black font-black rounded-xl">Salvar</button>
+                </form>
+                <div id="listaEstoqueGrid" class="grid-pdv overflow-y-auto custom-scroll"></div>
+            </div>
+        </section>
+
+        <section id="historico" class="tab-content p-8">
+            <div class="max-w-6xl mx-auto w-full flex flex-col h-full">
+                <div id="estatisticas" class="flex gap-6 mb-6"></div>
+                <div class="glass rounded-[2rem] overflow-hidden flex-1 overflow-y-auto custom-scroll">
+                    <table class="w-full text-left">
+                        <thead class="bg-white/5 text-slate-400 text-[10px] uppercase font-black sticky top-0">
+                            <tr><th class="p-6">Data</th><th class="p-6">Itens</th><th class="p-6">Pgto</th><th class="p-6">Total</th><th class="p-6">Ação</th></tr>
+                        </thead>
+                        <tbody id="corpoTabelaVendas" class="text-sm divide-y divide-white/5"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="config" class="tab-content p-8">
+            <div class="max-w-xl mx-auto space-y-8">
+                <h2 class="text-3xl font-black uppercase">Configurações</h2>
+                <div class="glass p-8 rounded-[2.5rem] space-y-6">
+                    <div><label class="block text-[10px] font-black text-slate-500 uppercase mb-2">Nome da Loja</label><input type="text" id="cfgNomeLoja" class="w-full p-4 rounded-2xl"></div>
+                    <button onclick="window.salvarConfig()" class="w-full bg-green-500 text-black font-black py-4 rounded-2xl uppercase">Salvar Alterações</button>
                 </div>
             </div>
         </section>
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 glass text-white px-10 py-5 rounded-[2rem] z-[200] font-black shadow-2xl pointer-events-none"></div>
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all glass text-white px-10 py-5 rounded-[2rem] z-[200] font-black pointer-events-none"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -152,162 +150,197 @@
         appId: "1:885941177258:web:98f2690e07ec0a087cf9d3"
     };
 
-    // --- CONFIGURAÇÃO DE ACESSO ---
-    const EMAILS_PERMITIDOS = [
-        "louisianapdv@gmail.com",
-        "pablohenriquerodriguesgracioli@gmail.com",
-        "financeiro@minhaloja.com"
-    ];
+    const EMAILS_PERMITIDOS = ["louisianapdv@gmail.com", "loja2@gmail.com"];
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    let produtos = [], vendas = [], carrinho = [];
-    let currentUser = null;
-    let configGerais = { nomeLoja: "MINHA LOJA", estoqueBaixo: 5 };
+    let produtos = [], vendas = [], carrinho = [], currentUser = null;
+    let configGerais = { nomeLoja: "LOUISIANA PDV", estoqueBaixo: 5 };
 
     onAuthStateChanged(auth, (user) => {
-        const splash = document.getElementById('loadingScreen');
-        const login = document.getElementById('loginScreen');
-        const appUi = document.getElementById('appInterface');
-
         if (user && EMAILS_PERMITIDOS.includes(user.email.toLowerCase())) {
             currentUser = user;
-            document.getElementById('userEmailDisplay').innerText = user.email;
-            login.classList.add('hidden-app');
-            appUi.classList.remove('hidden-app');
+            document.getElementById('loginScreen').classList.add('hidden-app');
+            document.getElementById('appInterface').classList.remove('hidden-app');
             
             const localCfg = localStorage.getItem(`pdv_cfg_${user.uid}`);
             if(localCfg) configGerais = JSON.parse(localCfg);
             aplicarConfigInterface();
 
-            // Carrega apenas dados do usuário logado
-            const qProdutos = query(collection(db, "produtos"), where("userId", "==", user.uid));
-            onSnapshot(qProdutos, (snap) => {
+            onSnapshot(query(collection(db, "produtos"), where("userId", "==", user.uid)), (snap) => {
                 produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
                 window.renderizarProdutos();
                 window.renderizarEstoque();
             });
 
-            const qVendas = query(collection(db, "vendas"), where("userId", "==", user.uid), orderBy("data", "desc"));
-            onSnapshot(qVendas, (snap) => {
+            onSnapshot(query(collection(db, "vendas"), where("userId", "==", user.uid), orderBy("data", "desc")), (snap) => {
                 vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
                 window.renderizarHistorico();
             });
         } else {
-            if (user) {
-                signOut(auth);
-                const err = document.getElementById('loginError');
-                err.innerText = "Este e-mail não possui autorização de acesso.";
-                err.classList.remove('hidden');
-            }
-            currentUser = null;
-            appUi.classList.add('hidden-app');
-            login.classList.remove('hidden-app');
+            document.getElementById('appInterface').classList.add('hidden-app');
+            document.getElementById('loginScreen').classList.remove('hidden-app');
         }
-        setTimeout(() => { splash.style.opacity = '0'; setTimeout(() => splash.style.display = 'none', 500); }, 800);
+        document.getElementById('loadingScreen').style.display = 'none';
     });
 
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value.toLowerCase();
         const s = document.getElementById('loginPassword').value;
-        const err = document.getElementById('loginError');
-
-        if (!EMAILS_PERMITIDOS.includes(e)) {
-            err.innerText = "Acesso Negado: E-mail não autorizado.";
-            err.classList.remove('hidden');
-            return;
-        }
-
-        try { 
-            await signInWithEmailAndPassword(auth, e, s); 
-        } catch (error) { 
-            err.innerText = "Senha incorreta ou erro de conexão.";
-            err.classList.remove('hidden'); 
-        }
+        if (!EMAILS_PERMITIDOS.includes(e)) return alert("Não autorizado");
+        try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { alert("Erro no login"); }
     };
 
     window.logout = () => signOut(auth).then(() => location.reload());
 
-    // --- AS DEMAIS FUNÇÕES (VENDAS, ESTOQUE, HISTORICO) SÃO IDÊNTICAS AO ANTERIOR ---
-    // Mas agora garantem que userId: currentUser.uid seja salvo em cada addDoc
-    
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        const filtrados = produtos.filter(p => (p.nome || "").toLowerCase().includes(busca) || String(p.cod || "").includes(busca));
-        grid.innerHTML = filtrados.map(p => `<div class="card-produto" onclick="window.addCarrinho('${p.firebaseId}')"><img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto"><h3 class="font-bold text-[10px] uppercase truncate text-white mb-1">${p.nome}</h3><div class="flex justify-between items-center mt-3"><span class="font-black text-green-500 text-sm">R$ ${Number(p.preco).toFixed(2)}</span><span class="text-[8px] ${Number(p.estoque) <= configGerais.estoqueBaixo ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-slate-400'} px-2 py-1 rounded font-black">${p.estoque} UN</span></div></div>`).join('');
+        grid.innerHTML = produtos.filter(p => p.nome.toLowerCase().includes(busca)).map(p => `
+            <div class="card-produto" onclick="window.addCarrinho('${p.firebaseId}')">
+                <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto">
+                <h3 class="font-bold text-[10px] uppercase truncate">${p.nome}</h3>
+                <div class="flex justify-between mt-3"><span class="text-green-500 font-black">R$ ${p.preco.toFixed(2)}</span><span class="text-[8px] opacity-50">${p.estoque} UN</span></div>
+            </div>`).join('');
     };
 
-    window.addCarrinho = (fbId) => {
-        const prod = produtos.find(p => p.firebaseId === fbId);
-        if(!prod || Number(prod.estoque) <= 0) { window.notificar("Sem estoque!"); return; }
-        const item = carrinho.find(i => i.firebaseId === fbId);
-        if(item) { item.qtd < Number(prod.estoque) ? item.qtd++ : window.notificar("Limite!"); }
-        else { carrinho.push({...prod, qtd: 1}); }
+    window.addCarrinho = (id) => {
+        const p = produtos.find(x => x.firebaseId === id);
+        if (p.estoque <= 0) return window.notificar("Sem estoque");
+        const item = carrinho.find(i => i.firebaseId === id);
+        item ? item.qtd++ : carrinho.push({...p, qtd: 1});
         window.atualizarCarrinho();
     };
 
     window.atualizarCarrinho = () => {
-        const lista = document.getElementById('carrinhoItens');
         let total = 0;
-        lista.innerHTML = carrinho.map((item, idx) => {
-            total += (Number(item.preco) * item.qtd);
-            return `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center border-l-4 border-green-500"><div><p class="font-bold text-xs">${item.nome}</p><p class="text-green-500 font-black text-[10px]">${item.qtd}x R$ ${Number(item.preco).toFixed(2)}</p></div><button onclick="window.removerItemCarrinho(${idx})" class="text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"/></svg></button></div>`;
+        document.getElementById('carrinhoItens').innerHTML = carrinho.map((i, idx) => {
+            total += (i.preco * i.qtd);
+            return `<div class="bg-white/5 p-3 rounded-xl flex justify-between"><div><p class="font-bold text-xs">${i.nome}</p><p class="text-green-500 text-[10px]">${i.qtd}x R$ ${i.preco.toFixed(2)}</p></div><button onclick="window.removerItem(${idx})">×</button></div>`;
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
+        document.getElementById('qtdItens').innerText = `${carrinho.length} Itens`;
+    };
+
+    window.removerItem = (idx) => { carrinho.splice(idx, 1); window.atualizarCarrinho(); };
+
+    window.toggleTroco = () => {
+        const m = document.getElementById('metodoPgto').value;
+        const div = document.getElementById('divTroco');
+        div.style.display = (m === 'Dinheiro') ? 'flex' : 'none';
+        if(m === 'Dinheiro') document.getElementById('valorRecebido').focus();
+    };
+
+    window.calcTroco = () => {
+        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '')) || 0;
+        const pago = parseFloat(document.getElementById('valorRecebido').value) || 0;
+        if (pago > total) window.notificar(`Troco: R$ ${(pago - total).toFixed(2)}`);
     };
 
     window.finalizarVenda = async () => {
-        if(carrinho.length === 0 || !currentUser) return;
+        if (!carrinho.length) return;
         const batch = writeBatch(db);
         let totalV = 0, lucroV = 0;
-        carrinho.forEach(item => {
-            totalV += (Number(item.preco) * item.qtd);
-            lucroV += (Number(item.preco) - Number(item.custo)) * item.qtd;
-            batch.update(doc(db, "produtos", item.firebaseId), { estoque: Number(item.estoque) - item.qtd });
+        carrinho.forEach(i => {
+            totalV += (i.preco * i.qtd);
+            lucroV += (i.preco - i.custo) * i.qtd;
+            batch.update(doc(db, "produtos", i.firebaseId), { estoque: i.estoque - i.qtd });
         });
         await addDoc(collection(db, "vendas"), {
-            userId: currentUser.uid,
-            data: new Date().toISOString(),
-            total: totalV, lucro: lucroV,
-            pagamento: document.getElementById('metodoPgto').value,
-            itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
+            userId: currentUser.uid, data: new Date().toISOString(),
+            total: totalV, lucro: lucroV, pagamento: document.getElementById('metodoPgto').value,
+            itens: carrinho.map(c => `${c.qtd}x ${c.nome}`).join(", ")
         });
         await batch.commit();
         carrinho = []; window.atualizarCarrinho(); window.notificar("Venda Concluída!");
+        document.getElementById('valorRecebido').value = "";
+    };
+
+    window.renderizarEstoque = () => {
+        document.getElementById('listaEstoqueGrid').innerHTML = produtos.map(p => `
+            <div class="glass p-4 rounded-2xl">
+                <img src="${p.img || 'https://via.placeholder.com/150'}" class="h-20 w-full object-cover rounded-xl mb-2">
+                <p class="font-bold text-[10px] truncate uppercase">${p.nome}</p>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="window.editarProd('${p.firebaseId}')" class="flex-1 bg-white/5 py-2 rounded-lg text-[9px]">Editar</button>
+                    <button onclick="window.excluirProd('${p.firebaseId}')" class="bg-red-500/10 text-red-500 px-2 rounded-lg">×</button>
+                </div>
+            </div>`).join('');
     };
 
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById('editId').value;
-        const p = {
+        const dados = {
             userId: currentUser.uid,
             nome: document.getElementById('nome').value,
-            cod: document.getElementById('cod').value || '',
+            cod: document.getElementById('cod').value,
+            qtd: parseInt(document.getElementById('qtd').value),
             custo: parseFloat(document.getElementById('custo').value),
             preco: parseFloat(document.getElementById('preco').value),
-            estoque: parseInt(document.getElementById('qtd').value),
-            img: document.getElementById('imgUrl').value || ''
+            img: document.getElementById('imgUrl').value
         };
-        id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
-        window.cancelarEdicao();
+        id ? await updateDoc(doc(db, "produtos", id), dados) : await addDoc(collection(db, "produtos"), dados);
+        document.getElementById('formProd').reset();
+        document.getElementById('editId').value = "";
     };
 
-    window.removerProd = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "produtos", id)); };
-    window.cancelarEdicao = () => { document.getElementById('formProd').reset(); document.getElementById('editId').value = ""; document.getElementById('btnSalvar').innerText = "Salvar"; document.getElementById('btnCancelarEdit').classList.add('hidden'); };
-    window.editarProduto = (id) => { const p = produtos.find(x => x.firebaseId === id); document.getElementById('editId').value = id; document.getElementById('nome').value = p.nome; document.getElementById('cod').value = p.cod; document.getElementById('custo').value = p.custo; document.getElementById('preco').value = p.preco; document.getElementById('qtd').value = p.estoque; document.getElementById('imgUrl').value = p.img || ''; document.getElementById('btnSalvar').innerText = "Atualizar"; document.getElementById('btnCancelarEdit').classList.remove('hidden'); };
-    window.renderizarEstoque = () => { const grid = document.getElementById('listaEstoqueGrid'); grid.innerHTML = produtos.map(p => `<div class="glass rounded-[1.5rem] p-4 flex flex-col h-[260px]"><img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto h-28"><h3 class="font-bold text-[10px] uppercase truncate mb-1">${p.nome}</h3><div class="mt-auto flex gap-2"><button onclick="window.editarProduto('${p.firebaseId}')" class="flex-1 bg-white/5 py-2.5 rounded-xl font-black text-[9px] uppercase">Editar</button><button onclick="window.removerProd('${p.firebaseId}')" class="bg-red-500/10 text-red-500 px-3 py-2.5 rounded-xl">Apagar</button></div></div>`).join(''); };
-    window.renderizarHistorico = () => { const corpo = document.getElementById('corpoTabelaVendas'); let tTotal = 0, lTotal = 0; corpo.innerHTML = vendas.map(v => { tTotal += Number(v.total); lTotal += Number(v.lucro); return `<tr><td class="p-6 text-slate-500 font-medium text-[10px]">${new Date(v.data).toLocaleString()}</td><td class="p-6 font-bold text-white uppercase text-[9px]">${v.itens}</td><td class="p-6 font-black uppercase text-[9px]">${v.pagamento}</td><td class="p-6 font-black">R$ ${Number(v.total).toFixed(2)}</td><td class="p-6 text-center"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-500/50">Excluir</button></td></tr>`; }).join(''); document.getElementById('estatisticas').innerHTML = `<div class="glass p-6 rounded-[1.5rem] flex-1"><p class="text-[9px] font-black text-slate-500 uppercase">Faturamento</p><p class="text-2xl font-black">R$ ${tTotal.toFixed(2)}</p></div><div class="bg-green-500 p-6 rounded-[1.5rem] flex-1"><p class="text-[9px] font-black text-black/40 uppercase">Lucro</p><p class="text-2xl font-black text-black">R$ ${lTotal.toFixed(2)}</p></div>`; };
-    window.removerVenda = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "vendas", id)); };
-    window.switchTab = (id) => { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('text-slate-400')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); document.getElementById('btn-' + id).classList.add('active'); document.getElementById('btn-' + id).classList.remove('text-slate-400'); };
-    window.toggleTroco = () => { const m = document.getElementById('metodoPgto').value; document.getElementById('divTroco').style.display = (m === 'Dinheiro') ? 'flex' : 'none'; };
-    window.calcTroco = () => { const t = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '')) || 0; const r = parseFloat(document.getElementById('valorRecebido').value) || 0; if(r > t) window.notificar(`Troco: R$ ${(r - t).toFixed(2)}`); };
-    window.salvarConfig = () => { configGerais = { nomeLoja: document.getElementById('cfgNomeLoja').value.toUpperCase() || "SISTEMA", estoqueBaixo: parseInt(document.getElementById('cfgEstoqueBaixo').value) || 0 }; localStorage.setItem(`pdv_cfg_${currentUser.uid}`, JSON.stringify(configGerais)); aplicarConfigInterface(); window.notificar("Salvo!"); };
-    function aplicarConfigInterface() { document.getElementById('headerNomeLoja').innerText = configGerais.nomeLoja; document.getElementById('cfgNomeLoja').value = configGerais.nomeLoja; document.getElementById('cfgEstoqueBaixo').value = configGerais.estoqueBaixo; }
-    window.notificar = (msg) => { const t = document.getElementById('toast'); t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100'); setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000); };
-    window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); window.atualizarCarrinho(); };
+    window.excluirProd = async (id) => confirm("Apagar?") && await deleteDoc(doc(db, "produtos", id));
+    window.editarProd = (id) => {
+        const p = produtos.find(x => x.firebaseId === id);
+        document.getElementById('editId').value = id;
+        document.getElementById('nome').value = p.nome;
+        document.getElementById('qtd').value = p.qtd;
+        document.getElementById('custo').value = p.custo;
+        document.getElementById('preco').value = p.preco;
+        document.getElementById('imgUrl').value = p.img;
+    };
+
+    window.renderizarHistorico = () => {
+        let faturamento = 0, lucroTotal = 0;
+        document.getElementById('corpoTabelaVendas').innerHTML = vendas.map(v => {
+            faturamento += v.total;
+            lucroTotal += v.lucro;
+            return `<tr><td class="p-6 opacity-50">${new Date(v.data).toLocaleDateString()}</td><td class="p-6 font-bold uppercase text-[10px]">${v.itens}</td><td class="p-6">${v.pagamento}</td><td class="p-6 font-black">R$ ${v.total.toFixed(2)}</td><td class="p-6"><button onclick="window.excluirVenda('${v.firebaseId}')">×</button></td></tr>`;
+        }).join('');
+        
+        document.getElementById('estatisticas').innerHTML = `
+            <div class="glass p-6 rounded-2xl flex-1"><p class="text-[10px] font-bold opacity-50">FATURAMENTO</p><p class="text-2xl font-black">R$ ${faturamento.toFixed(2)}</p></div>
+            <div class="bg-green-500 p-6 rounded-2xl flex-1 text-black"><p class="text-[10px] font-bold opacity-50">LUCRO ESTIMADO</p><p class="text-2xl font-black">R$ ${lucroTotal.toFixed(2)}</p></div>`;
+    };
+
+    window.excluirVenda = async (id) => confirm("Excluir?") && await deleteDoc(doc(db, "vendas", id));
+
+    window.salvarConfig = () => {
+        configGerais.nomeLoja = document.getElementById('cfgNomeLoja').value.toUpperCase();
+        localStorage.setItem(`pdv_cfg_${currentUser.uid}`, JSON.stringify(configGerais));
+        aplicarConfigInterface();
+        window.notificar("Configurações Salvas!");
+    };
+
+    function aplicarConfigInterface() {
+        document.getElementById('headerNomeLoja').innerText = configGerais.nomeLoja;
+        document.getElementById('cfgNomeLoja').value = configGerais.nomeLoja;
+    }
+
+    window.switchTab = (id) => {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('text-slate-400'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('btn-' + id).classList.add('active');
+        document.getElementById('btn-' + id).classList.remove('text-slate-400');
+    };
+
+    window.notificar = (msg) => {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
+        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
+    };
+
+    window.addEventListener('keydown', (e) => { if(e.key === 'F9') window.finalizarVenda(); });
 </script>
 </body>
 </html>
