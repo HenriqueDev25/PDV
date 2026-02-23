@@ -24,19 +24,18 @@
             overflow: hidden; 
         }
 
-        /* Glassmorphism Effect */
         .glass {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .tab-content { display: none; height: 100%; }
+        .tab-content { display: none; height: 100%; width: 100%; }
         .tab-content.active { display: flex; animation: fadeIn 0.3s ease; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .tab-btn { color: #94a3b8; border-bottom: 2px solid transparent; transition: all 0.3s; }
+        .tab-btn { color: #94a3b8; border-bottom: 2px solid transparent; transition: all 0.3s; padding: 1rem 0; }
         .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
         .prod-card {
@@ -50,23 +49,13 @@
             box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5);
         }
 
-        .img-container {
-            height: 140px;
-            background: #334155;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-
+        .img-container { height: 120px; background: #334155; border-radius: 12px; overflow: hidden; }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
 
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
-        .checkout-panel {
-            background: rgba(15, 23, 42, 0.8);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        .checkout-panel { background: rgba(15, 23, 42, 0.8); border-left: 1px solid rgba(255, 255, 255, 0.1); }
 
         input, select {
             background: rgba(255, 255, 255, 0.05) !important;
@@ -74,122 +63,186 @@
             color: white !important;
         }
 
-        input:focus { border-color: var(--accent) !important; outline: none; box-shadow: 0 0 0 3px var(--accent-glow); }
+        .carrinho-item { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 10px; margin-bottom: 8px; border-left: 3px solid var(--accent); }
     </style>
 </head>
 <body class="flex flex-col">
 
 <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950">
-    <div class="glass p-12 rounded-[2rem] w-full max-w-md text-center">
-        <div class="mb-8">
-            <div class="w-16 h-16 bg-emerald-500 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.4)]">
-                <span class="text-white text-3xl font-bold">L</span>
-            </div>
+    <div class="glass p-10 rounded-[2rem] w-full max-w-md text-center">
+        <div class="mb-6 text-center">
             <h1 class="text-2xl font-extrabold tracking-tight">LOUISIANA <span class="text-emerald-500">PRO</span></h1>
-            <p class="text-slate-400 text-sm">Acesse sua estação de trabalho</p>
+            <p class="text-slate-400 text-xs mt-2 uppercase tracking-widest">Painel Administrativo</p>
         </div>
         <div class="space-y-4">
-            <input type="email" id="loginEmail" placeholder="E-mail corporativo" class="w-full p-4 rounded-xl">
-            <input type="password" id="loginPassword" placeholder="Senha" class="w-full p-4 rounded-xl">
-            <button onclick="fazerLoginEmail()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95">ACESSAR SISTEMA</button>
+            <input type="email" id="loginEmail" placeholder="E-mail corporativo" class="w-full p-4 rounded-xl outline-none">
+            <input type="password" id="loginPassword" placeholder="Senha" class="w-full p-4 rounded-xl outline-none">
+            <button onclick="fazerLoginEmail()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition-all active:scale-95">ACESSAR SISTEMA</button>
         </div>
-        <p id="loginError" class="text-red-400 mt-4 text-xs font-bold hidden">Credenciais inválidas ou sem permissão</p>
+        <p id="loginError" class="text-red-400 mt-4 text-xs font-bold hidden">Credenciais inválidas</p>
     </div>
 </div>
 
 <div id="appInterface" class="hidden flex flex-col h-full">
-    <header class="h-20 glass px-8 flex justify-between items-center shrink-0 z-50">
-        <div class="flex items-center gap-8">
-            <h1 class="text-xl font-black tracking-tighter">LOUISIANA <span class="text-emerald-500">PRO</span></h1>
-            <nav class="flex gap-6 h-full">
-                <button onclick="switchTab('venda')" id="btn-venda" class="tab-btn active text-sm font-bold uppercase tracking-widest">Ponto de Venda</button>
-                <button onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn text-sm font-bold uppercase tracking-widest">Inventário</button>
-                <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn text-sm font-bold uppercase tracking-widest">Relatórios</button>
+    <header class="h-16 glass px-8 flex justify-between items-center shrink-0 z-50">
+        <div class="flex items-center gap-10">
+            <h1 class="text-lg font-black">LOUISIANA <span class="text-emerald-500">PRO</span></h1>
+            <nav class="flex gap-8">
+                <button onclick="switchTab('venda')" id="btn-venda" class="tab-btn active text-xs font-bold uppercase tracking-widest">Vendas</button>
+                <button onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn text-xs font-bold uppercase tracking-widest">Estoque</button>
+                <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn text-xs font-bold uppercase tracking-widest">Relatórios</button>
             </nav>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="text-right mr-4">
-                <p class="text-xs text-slate-400 font-bold uppercase">Operador</p>
-                <p class="text-sm font-bold text-emerald-500" id="userDisplay">Admin</p>
-            </div>
-            <button onclick="logout()" class="p-2 hover:bg-red-500/10 text-red-400 rounded-lg transition">Sair</button>
-        </div>
+        <button onclick="logout()" class="text-xs font-bold text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-lg transition">SAIR</button>
     </header>
 
     <main class="flex-1 relative overflow-hidden">
-        <section id="venda" class="tab-content active h-full">
-            <div class="flex-1 p-6 flex flex-col gap-6 overflow-hidden">
-                <div class="relative max-w-2xl">
-                    <input type="text" id="inputBusca" placeholder="Pesquisar catálogo ou bipar código (F8)..." 
-                        class="w-full p-5 pl-14 rounded-2xl text-lg glass shadow-2xl" oninput="renderizarProdutos()">
-                    <svg class="absolute left-5 top-5 w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <div id="gridProdutos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 overflow-y-auto custom-scroll pr-2 pb-20"></div>
+        <section id="venda" class="tab-content active">
+            <div class="flex-1 p-6 flex flex-col gap-4 overflow-hidden">
+                <input type="text" id="inputBusca" placeholder="Pesquisar ou bipar... (F8)" class="w-full p-4 rounded-xl glass shadow-lg text-lg" oninput="renderizarProdutos()">
+                <div id="gridProdutos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 overflow-y-auto custom-scroll pb-10"></div>
             </div>
 
-            <aside class="w-[400px] checkout-panel flex flex-col shadow-2xl">
-                <div class="p-6 border-b border-white/5">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-1">Check-out Digital</h2>
-                    <div class="flex justify-between items-center">
-                        <span class="text-2xl font-bold">Resumo</span>
-                        <span class="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-xs font-black" id="qtdItens">0 ITENS</span>
-                    </div>
+            <aside class="w-[380px] checkout-panel flex flex-col">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                    <span class="text-xs font-black text-slate-500 uppercase tracking-widest">Checkout</span>
+                    <span id="qtdItens" class="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-bold">0 ITENS</span>
                 </div>
-                
-                <div id="carrinhoItens" class="flex-1 overflow-y-auto custom-scroll p-6 space-y-4"></div>
-
-                <div class="p-8 glass m-4 rounded-3xl border border-white/10">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="text-slate-400 font-bold">TOTAL</span>
-                        <span id="totalVenda" class="text-4xl font-black text-emerald-500 tracking-tighter">R$ 0,00</span>
+                <div id="carrinhoItens" class="flex-1 overflow-y-auto custom-scroll p-4"></div>
+                <div class="p-6 glass m-4 rounded-2xl">
+                    <div class="flex justify-between items-end mb-4">
+                        <span class="text-slate-400 text-xs font-bold">TOTAL</span>
+                        <span id="totalVenda" class="text-3xl font-black text-emerald-500">R$ 0,00</span>
                     </div>
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="metodoPgto" class="col-span-2 p-4 rounded-xl font-bold" onchange="toggleTroco()">
-                                <option value="dinheiro">Dinheiro (💵)</option>
-                                <option value="pix">PIX (📱)</option>
-                                <option value="cartao">Cartão (💳)</option>
-                            </select>
+                    <div class="space-y-3">
+                        <select id="metodoPgto" class="w-full p-3 rounded-xl font-bold" onchange="toggleTroco()">
+                            <option value="dinheiro">Dinheiro</option>
+                            <option value="pix">PIX</option>
+                            <option value="cartao">Cartão</option>
+                        </select>
+                        <div id="divTroco">
+                            <input type="number" id="valorRecebido" placeholder="Valor Recebido" class="w-full p-3 rounded-xl text-center" oninput="calcTroco()">
+                            <p class="text-[10px] text-center mt-1 text-slate-500 uppercase">Troco: <span id="labelTroco" class="text-emerald-500 font-bold">R$ 0,00</span></p>
                         </div>
-                        <div id="divTroco" class="space-y-2">
-                            <input type="number" id="valorRecebido" placeholder="Valor Recebido" class="w-full p-4 rounded-xl font-bold text-center" oninput="calcTroco()">
-                            <div class="flex justify-between px-2 text-xs font-bold">
-                                <span class="text-slate-500 uppercase">Troco</span>
-                                <span id="labelTroco" class="text-emerald-500">R$ 0,00</span>
-                            </div>
-                        </div>
-                        <button onclick="finalizarVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-5 rounded-2xl font-black text-lg shadow-[0_10px_30px_rgba(16,185,129,0.3)] transition-all active:scale-95">FINALIZAR (F9)</button>
+                        <button onclick="finalizarVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-black text-sm transition shadow-lg active:scale-95">FINALIZAR VENDA (F9)</button>
                     </div>
                 </div>
             </aside>
         </section>
 
-        </main>
+        <section id="estoque" class="tab-content">
+            <div class="p-8 w-full overflow-y-auto custom-scroll">
+                <div class="glass p-6 rounded-2xl mb-8">
+                    <form id="formProd" class="grid grid-cols-4 gap-4">
+                        <input type="hidden" id="editId">
+                        <input type="text" id="nome" placeholder="Nome" class="p-3 rounded-xl col-span-2" required>
+                        <input type="text" id="cod" placeholder="EAN" class="p-3 rounded-xl font-bold">
+                        <input type="number" id="qtd" placeholder="Qtd" class="p-3 rounded-xl" required>
+                        <input type="number" id="custo" placeholder="Custo R$" step="0.01" class="p-3 rounded-xl" required>
+                        <input type="number" id="preco" placeholder="Venda R$" step="0.01" class="p-3 rounded-xl" required>
+                        <input type="text" id="imgUrl" placeholder="Link Imagem" class="p-3 rounded-xl col-span-2">
+                        <button type="submit" id="btnSalvar" class="bg-emerald-600 text-white font-bold rounded-xl col-span-4 py-3">SALVAR NO SISTEMA</button>
+                    </form>
+                </div>
+                <div id="listaEstoqueGrid" class="grid grid-cols-5 gap-4"></div>
+            </div>
+        </section>
+
+        <section id="historico" class="tab-content">
+            <div class="p-8 w-full overflow-y-auto">
+                <div id="estatisticas" class="flex gap-4 mb-8"></div>
+                <div class="glass rounded-2xl overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-white/5 uppercase font-bold text-slate-400">
+                            <tr><th class="p-4">Data</th><th class="p-4">Itens</th><th class="p-4">Total</th><th class="p-4">Lucro</th><th class="p-4">Ação</th></tr>
+                        </thead>
+                        <tbody id="corpoTabelaVendas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 
-<div id="toast" class="fixed top-24 left-1/2 -translate-x-1/2 opacity-0 glass px-8 py-4 rounded-2xl z-[200] font-bold shadow-2xl transition-all duration-300 pointer-events-none border-l-4 border-emerald-500"></div>
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 glass px-8 py-3 rounded-xl font-bold transition-all duration-300 z-[300]"></div>
 
 <script type="module">
-    // Mantenha aqui toda a lógica de Firebase enviada anteriormente.
-    // Basta adicionar as funções de renderização atualizadas:
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBuob65d4nwic1hXTGSsLtc38dEoD1H0zU",
+        authDomain: "pdv26-aa76b.firebaseapp.com",
+        projectId: "pdv26-aa76b",
+        storageBucket: "pdv26-aa76b.firebasestorage.app",
+        messagingSenderId: "885941177258",
+        appId: "1:885941177258:web:98f2690e07ec0a087cf9d3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const EMAIL_AUTORIZADO = "louisianapdv@gmail.com";
+
+    let produtos = [], vendas = [], carrinho = [];
+
+    // EXPOR FUNÇÕES PARA O WINDOW (Essencial para não dar erro no HTML)
+    window.fazerLoginEmail = async () => {
+        const e = document.getElementById('loginEmail').value;
+        const s = document.getElementById('loginPassword').value;
+        try { await signInWithEmailAndPassword(auth, e, s); } 
+        catch (err) { document.getElementById('loginError').classList.remove('hidden'); }
+    };
+
+    window.logout = () => signOut(auth).then(() => location.reload());
+
+    window.switchTab = (id) => {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('btn-' + id).classList.add('active');
+        if(id === 'venda') focarBusca();
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appInterface').classList.remove('hidden');
+            inicializarApp();
+        }
+    });
+
+    function inicializarApp() {
+        onSnapshot(collection(db, "produtos"), (snap) => {
+            produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+            window.renderizarProdutos();
+            window.renderizarEstoque();
+        });
+        onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
+            vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+            window.renderizarHistorico();
+        });
+    }
 
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
         const filtrados = produtos.filter(p => (p.nome || "").toLowerCase().includes(busca) || String(p.cod).includes(busca));
-        
         grid.innerHTML = filtrados.map(p => `
-            <div class="prod-card p-4 rounded-3xl cursor-pointer flex flex-col h-full" onclick="addCarrinho('${p.firebaseId}')">
-                <div class="img-container mb-4">
-                    <img src="${p.img || 'https://via.placeholder.com/200?text=Louisiana'}" onerror="this.src='https://via.placeholder.com/200'">
-                    <span class="absolute top-2 right-2 bg-slate-900/80 px-2 py-1 rounded-lg text-[10px] font-bold">ID: ${String(p.cod).slice(-4)}</span>
-                </div>
-                <h3 class="font-bold text-sm text-slate-200 mb-1 truncate">${p.nome}</h3>
-                <div class="flex justify-between items-end mt-auto">
-                    <p class="text-xl font-black text-emerald-400">R$ ${p.preco.toFixed(2)}</p>
-                    <p class="text-[10px] font-bold text-slate-500">${p.estoque} EM STOCK</p>
-                </div>
+            <div class="prod-card p-4 rounded-2xl cursor-pointer" onclick="addCarrinho('${p.firebaseId}')">
+                <div class="img-container mb-3"><img src="${p.img || 'https://via.placeholder.com/200'}" onerror="this.src='https://via.placeholder.com/200'"></div>
+                <h3 class="font-bold text-xs truncate">${p.nome}</h3>
+                <div class="flex justify-between mt-2"><span class="text-emerald-400 font-black">R$ ${p.preco.toFixed(2)}</span><span class="text-[9px] text-slate-500">${p.estoque} UN</span></div>
             </div>`).join('');
+    };
+
+    window.addCarrinho = (id) => {
+        const p = produtos.find(x => x.firebaseId === id);
+        if(!p || p.estoque <= 0) return window.notificar("Sem estoque!");
+        const item = carrinho.find(i => i.firebaseId === id);
+        item ? (item.qtd < p.estoque ? item.qtd++ : window.notificar("Limite atingido")) : carrinho.push({...p, qtd: 1});
+        window.atualizarCarrinho();
     };
 
     window.atualizarCarrinho = () => {
@@ -197,24 +250,112 @@
         let total = 0;
         container.innerHTML = carrinho.map((item, idx) => {
             total += item.preco * item.qtd;
-            return `
-                <div class="flex justify-between items-center group animate-fadeIn">
-                    <div class="flex-1 truncate">
-                        <p class="text-sm font-bold text-slate-200 truncate">${item.nome}</p>
-                        <p class="text-xs text-slate-500 font-bold">${item.qtd} UN x R$ ${item.preco.toFixed(2)}</p>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-black text-emerald-500">R$ ${(item.preco * item.qtd).toFixed(2)}</span>
-                        <button onclick="removerItemCarrinho(${idx})" class="p-2 opacity-0 group-hover:opacity-100 text-red-400 hover:bg-red-500/10 rounded-lg transition">✕</button>
-                    </div>
-                </div>`;
+            return `<div class="carrinho-item flex justify-between items-center">
+                <div class="truncate pr-2"><p class="font-bold text-[11px] truncate">${item.nome}</p><p class="text-emerald-500 text-[10px] font-black">${item.qtd}x R$ ${item.preco.toFixed(2)}</p></div>
+                <button onclick="removerItemCarrinho(${idx})" class="text-red-400 p-2">✕</button>
+            </div>`;
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
         document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} ITENS`;
-        window.calcTroco();
     };
 
-    // ... Restante das funções do script anterior ...
+    window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); window.atualizarCarrinho(); };
+
+    window.finalizarVenda = async () => {
+        if(carrinho.length === 0) return;
+        const batch = writeBatch(db);
+        let totalV = 0, lucroV = 0;
+        carrinho.forEach(item => {
+            totalV += item.preco * item.qtd;
+            lucroV += (item.preco - item.custo) * item.qtd;
+            batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
+        });
+        await addDoc(collection(db, "vendas"), { data: new Date().toISOString(), total: totalV, lucro: lucroV, pagamento: document.getElementById('metodoPgto').value, itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ') });
+        await batch.commit();
+        carrinho = []; window.atualizarCarrinho(); window.notificar("Venda Concluída!");
+    };
+
+    // FUNÇÕES DE ESTOQUE
+    document.getElementById('formProd').onsubmit = async (e) => {
+        e.preventDefault();
+        const p = { 
+            nome: document.getElementById('nome').value, 
+            cod: document.getElementById('cod').value, 
+            estoque: parseInt(document.getElementById('qtd').value), 
+            custo: parseFloat(document.getElementById('custo').value), 
+            preco: parseFloat(document.getElementById('preco').value), 
+            img: document.getElementById('imgUrl').value 
+        };
+        const id = document.getElementById('editId').value;
+        id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
+        e.target.reset(); document.getElementById('editId').value = ""; window.notificar("Salvo!");
+    };
+
+    window.renderizarEstoque = () => {
+        const grid = document.getElementById('listaEstoqueGrid');
+        grid.innerHTML = produtos.map(p => `
+            <div class="glass p-3 rounded-xl">
+                <img src="${p.img}" class="w-full h-20 object-cover rounded-lg mb-2">
+                <p class="font-bold text-[10px] truncate">${p.nome}</p>
+                <div class="flex gap-2 mt-2">
+                    <button onclick="editarProd('${p.firebaseId}')" class="flex-1 bg-blue-500/20 text-blue-400 text-[10px] py-1 rounded">EDITAR</button>
+                    <button onclick="removerProd('${p.firebaseId}')" class="bg-red-500/20 text-red-400 text-[10px] px-2 rounded">🗑</button>
+                </div>
+            </div>`).join('');
+    };
+
+    window.editarProd = (id) => {
+        const p = produtos.find(x => x.firebaseId === id);
+        document.getElementById('editId').value = id;
+        document.getElementById('nome').value = p.nome;
+        document.getElementById('cod').value = p.cod;
+        document.getElementById('qtd').value = p.estoque;
+        document.getElementById('custo').value = p.custo;
+        document.getElementById('preco').value = p.preco;
+        document.getElementById('imgUrl').value = p.img;
+        window.scrollTo(0,0);
+    };
+
+    window.removerProd = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "produtos", id)); };
+
+    window.renderizarHistorico = () => {
+        const corpo = document.getElementById('corpoTabelaVendas');
+        corpo.innerHTML = vendas.map(v => `
+            <tr class="border-b border-white/5">
+                <td class="p-4 text-slate-500">${new Date(v.data).toLocaleDateString()}</td>
+                <td class="p-4 truncate max-w-[200px]">${v.itens}</td>
+                <td class="p-4 font-bold">R$ ${v.total.toFixed(2)}</td>
+                <td class="p-4 text-emerald-500 font-bold">R$ ${v.lucro.toFixed(2)}</td>
+                <td class="p-4"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-400">🗑</button></td>
+            </tr>`).join('');
+    };
+
+    window.removerVenda = async (id) => { if(confirm("Excluir registro?")) await deleteDoc(doc(db, "vendas", id)); };
+
+    window.notificar = (msg) => {
+        const t = document.getElementById('toast');
+        t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
+        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 2500);
+    };
+
+    window.calcTroco = () => {
+        const t = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ',''));
+        const r = parseFloat(document.getElementById('valorRecebido').value) || 0;
+        document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, r-t).toFixed(2)}`;
+    };
+
+    window.toggleTroco = () => {
+        document.getElementById('divTroco').style.opacity = document.getElementById('metodoPgto').value === 'dinheiro' ? '1' : '0.3';
+    };
+
+    function focarBusca() { const b = document.getElementById('inputBusca'); if(b){ b.focus(); b.select(); } }
+
+    window.addEventListener('keydown', (e) => {
+        if(e.key === 'F1') window.switchTab('venda');
+        if(e.key === 'F2') window.switchTab('estoque');
+        if(e.key === 'F8') focarBusca();
+        if(e.key === 'F9') window.finalizarVenda();
+    });
 </script>
 </body>
 </html>
