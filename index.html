@@ -24,7 +24,7 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
         .carrinho-item { background: #1D1F26; border-left: 4px solid #22c55e; transition: all 0.2s; }
-        .scroll-area { overflow-y: auto; height: 100%; padding-bottom: 120px; }
+        .scroll-area { overflow-y: auto; height: 100%; padding-bottom: 150px; }
 
         .grid-pdv {
             display: grid;
@@ -37,7 +37,6 @@
         #loginScreen { background-color: #1D1F26; }
         .hidden-app { display: none !important; }
 
-        /* Estilo da Tabela de Relatório */
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 1rem; overflow: hidden; }
         th { background: #f8fafc; text-align: left; padding: 12px; font-size: 11px; text-transform: uppercase; color: #64748b; border-bottom: 2px solid #e2e8f0; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
@@ -64,10 +63,10 @@
             <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30 uppercase font-bold animate-pulse">Scanner Ativo</span>
         </div>
         <nav class="flex gap-1 bg-white/10 p-1 rounded-lg">
-            <button onclick="switchTab('venda')" class="tab-btn active px-4 py-2 text-sm font-semibold transition">Vendas (F1)</button>
-            <button onclick="switchTab('estoque')" class="tab-btn px-4 py-2 text-sm font-semibold transition">Estoque (F2)</button>
-            <button onclick="switchTab('historico')" class="tab-btn px-4 py-2 text-sm font-semibold transition">Relatórios (F3)</button>
-            <button onclick="logout()" class="ml-4 px-3 py-2 text-xs font-bold text-red-400 border border-red-400/20 rounded-lg hover:bg-red-500 transition">Sair</button>
+            <button onclick="switchTab('venda')" id="btn-venda" class="tab-btn active px-4 py-2 text-sm font-semibold transition">Vendas (F1)</button>
+            <button onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn px-4 py-2 text-sm font-semibold transition">Estoque (F2)</button>
+            <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn px-4 py-2 text-sm font-semibold transition">Relatórios (F3)</button>
+            <button onclick="logout()" class="ml-4 px-3 py-2 text-xs font-bold text-red-400 border border-red-400/20 rounded-lg hover:bg-red-500 hover:text-white transition">Sair</button>
         </nav>
     </header>
 
@@ -76,7 +75,7 @@
             <div class="flex h-full p-4 gap-6">
                 <div class="flex-[3] flex flex-col gap-4 overflow-hidden">
                     <div class="relative shrink-0">
-                        <input type="text" id="inputBusca" placeholder="Pesquisar ou bipar... (F8)" 
+                        <input type="text" id="inputBusca" placeholder="Pesquisar nome ou bipar código... (F8)" 
                             class="w-full bg-white border-2 border-slate-200 p-4 pl-12 rounded-2xl shadow-sm outline-none text-lg focus:border-[#1D1F26] transition" 
                             oninput="renderizarProdutos()">
                         <span class="absolute left-4 top-5 text-slate-400">🔍</span>
@@ -84,16 +83,16 @@
                     <div id="gridProdutos" class="grid-pdv scroll-area custom-scroll"></div>
                 </div>
 
-                <div class="flex-1 bg-[#1D1F26] rounded-3xl flex flex-col text-white shadow-2xl min-w-[360px] overflow-hidden">
+                <div class="flex-1 bg-[#1D1F26] rounded-3xl flex flex-col text-white shadow-2xl min-w-[380px] overflow-hidden">
                     <div class="p-5 border-b border-white/10 flex justify-between items-center">
-                        <span class="font-bold uppercase tracking-widest text-xs text-slate-400">Checkout</span>
+                        <span class="font-bold uppercase tracking-widest text-xs text-slate-400">Carrinho Atual</span>
                         <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold" id="qtdItens">0 Itens</span>
                     </div>
                     <div id="carrinhoItens" class="flex-1 scroll-area p-4 space-y-3 custom-scroll"></div>
                     <div class="p-6 bg-white/5 border-t border-white/10">
                         <div class="flex justify-between items-end mb-4">
                             <span class="text-slate-400 text-sm">Total a pagar</span>
-                            <span id="totalVenda" class="text-3xl font-bold">R$ 0,00</span>
+                            <span id="totalVenda" class="text-3xl font-bold text-green-400">R$ 0,00</span>
                         </div>
                         <div class="space-y-3">
                             <select id="metodoPgto" class="w-full bg-white/10 p-3 rounded-xl border border-white/10 text-white outline-none" onchange="toggleTroco()">
@@ -102,12 +101,12 @@
                                 <option value="cartao">Cartão</option>
                             </select>
                             <div id="divTroco">
-                                <input type="number" id="valorRecebido" placeholder="Valor recebido" class="w-full bg-green-500/10 border border-green-500/30 p-3 rounded-xl text-green-400 outline-none" oninput="calcTroco()">
+                                <input type="number" id="valorRecebido" placeholder="Valor recebido" class="w-full bg-white/10 border border-white/10 p-3 rounded-xl text-white outline-none focus:border-green-500" oninput="calcTroco()">
                                 <div class="flex justify-between mt-2 px-2 text-xs text-slate-400">
                                     <span>Troco:</span><span id="labelTroco" class="font-bold text-green-400">R$ 0,00</span>
                                 </div>
                             </div>
-                            <button onclick="finalizarVenda()" class="w-full bg-green-600 hover:bg-green-500 p-4 rounded-xl font-bold text-lg transition uppercase tracking-widest">Finalizar (F9)</button>
+                            <button onclick="finalizarVenda()" class="w-full bg-green-600 hover:bg-green-500 p-4 rounded-xl font-bold text-lg transition uppercase tracking-widest shadow-lg active:scale-95">Finalizar (F9)</button>
                         </div>
                     </div>
                 </div>
@@ -125,7 +124,7 @@
                         <input type="number" id="custo" placeholder="Custo R$" step="0.01" class="p-3 border rounded-xl" required>
                         <input type="number" id="preco" placeholder="Venda R$" step="0.01" class="p-3 border rounded-xl" required>
                         <input type="number" id="qtd" placeholder="Quantidade" class="p-3 border rounded-xl" required>
-                        <input type="text" id="imgUrl" placeholder="Link da Imagem" class="p-3 border rounded-xl">
+                        <input type="text" id="imgUrl" placeholder="URL da Imagem" class="p-3 border rounded-xl">
                         <div class="col-span-4 flex gap-2">
                             <button type="submit" id="btnSalvar" class="flex-1 bg-[#1D1F26] text-white py-3 rounded-xl font-bold uppercase hover:bg-black transition">Salvar Produto</button>
                             <button type="button" onclick="cancelarEdicao()" id="btnCancelarEdit" class="hidden bg-red-100 text-red-600 px-6 rounded-xl font-bold uppercase">Cancelar</button>
@@ -141,22 +140,21 @@
                 <div class="flex justify-between items-end">
                     <div id="estatisticas" class="flex gap-4"></div>
                     <div class="flex gap-2">
-                        <button onclick="exportarExcel()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-xs uppercase shadow-lg">Planilha Excel</button>
+                        <button onclick="exportarExcel()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-xs uppercase shadow-lg hover:bg-blue-700 transition">Planilha Excel</button>
                         <button onclick="limparTodoHistorico()" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs uppercase shadow-lg hover:bg-red-700 transition">Limpar Histórico</button>
                     </div>
                 </div>
-                
                 <div class="flex-1 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                     <div class="overflow-y-auto custom-scroll flex-1">
-                        <table>
+                        <table id="tabelaVendas">
                             <thead>
                                 <tr>
                                     <th>Data / Hora</th>
-                                    <th>Itens Vendidos</th>
+                                    <th>Itens</th>
                                     <th>Pagamento</th>
-                                    <th>Total (R$)</th>
-                                    <th>Lucro (R$)</th>
-                                    <th>Ação</th>
+                                    <th>Total</th>
+                                    <th>Lucro</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="corpoTabelaVendas"></tbody>
@@ -168,13 +166,16 @@
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 bg-[#1D1F26] text-white px-8 py-4 rounded-2xl z-[200] font-bold shadow-2xl"></div>
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 pointer-events-none transition-all duration-500 bg-[#1D1F26] text-white px-8 py-4 rounded-2xl z-[200] font-bold shadow-2xl"></div>
+
+
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+    // CONFIGURAÇÃO DO FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyBuob65d4nwic1hXTGSsLtc38dEoD1H0zU",
         authDomain: "pdv26-aa76b.firebaseapp.com",
@@ -191,38 +192,16 @@
 
     let produtos = [], vendas = [], carrinho = [];
 
-    // --- SCANNER REMOTO ---
-    function iniciarScannerRemoto() {
-        onSnapshot(collection(db, "bipe_remoto"), (snapshot) => {
-            snapshot.docChanges().forEach(async (change) => {
-                if (change.type === "added") {
-                    const codigoAlvo = String(change.doc.data().codigo).trim();
-                    const inputBusca = document.getElementById('inputBusca');
-                    const abaEstoqueAtiva = document.getElementById('estoque').classList.contains('active');
-
-                    if (abaEstoqueAtiva) {
-                        document.getElementById('cod').value = codigoAlvo;
-                        notificar("Código capturado!");
-                    } else {
-                        inputBusca.value = codigoAlvo;
-                        renderizarProdutos();
-                        const prod = produtos.find(p => String(p.cod).trim() === codigoAlvo);
-                        if (prod) {
-                            window.addCarrinho(prod.firebaseId);
-                            setTimeout(() => { inputBusca.value = ""; renderizarProdutos(); }, 1200);
-                        }
-                    }
-                    try { await deleteDoc(doc(db, "bipe_remoto", change.doc.id)); } catch(e) {}
-                }
-            });
-        });
-    }
-
-    // --- CORE LOGIN ---
+    // --- FUNÇÕES DE LOGIN ---
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { document.getElementById('loginError').classList.remove('hidden'); }
+        try { 
+            await signInWithEmailAndPassword(auth, e, s); 
+        } catch (err) { 
+            document.getElementById('loginError').classList.remove('hidden'); 
+            window.notificar("Falha no login!");
+        }
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -231,152 +210,180 @@
             document.getElementById('appInterface').classList.remove('hidden-app');
             inicializarApp();
             iniciarScannerRemoto();
-            focarBusca();
         } else {
             document.getElementById('loginScreen').classList.remove('hidden-app');
+            document.getElementById('appInterface').classList.add('hidden-app');
         }
     });
 
+    window.logout = () => signOut(auth).then(() => location.reload());
+
+    // --- INICIALIZAÇÃO DE DADOS ---
     function inicializarApp() {
         onSnapshot(collection(db, "produtos"), (snap) => {
             produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-            renderizarProdutos();
-            renderizarEstoque();
+            window.renderizarProdutos();
+            window.renderizarEstoque();
         });
         onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
             vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-            renderizarHistorico();
+            window.renderizarHistorico();
         });
     }
 
+    // --- SCANNER REMOTO (Via Firestore) ---
+    function iniciarScannerRemoto() {
+        onSnapshot(collection(db, "bipe_remoto"), (snapshot) => {
+            snapshot.docChanges().forEach(async (change) => {
+                if (change.type === "added") {
+                    const codigo = String(change.doc.data().codigo).trim();
+                    processarBipe(codigo);
+                    try { await deleteDoc(doc(db, "bipe_remoto", change.doc.id)); } catch(e) {}
+                }
+            });
+        });
+    }
+
+    function processarBipe(codigo) {
+        const abaEstoqueAtiva = document.getElementById('estoque').classList.contains('active');
+        if (abaEstoqueAtiva) {
+            document.getElementById('cod').value = codigo;
+            window.notificar("Código capturado!");
+        } else {
+            const p = produtos.find(p => String(p.cod).trim() === codigo);
+            if (p) {
+                window.addCarrinho(p.firebaseId);
+                window.notificar(`Adicionado: ${p.nome}`);
+            } else {
+                window.notificar("Produto não encontrado!");
+            }
+        }
+    }
+
+    // --- INTERFACE (TABS E BUSCA) ---
     window.switchTab = (id) => {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        document.getElementById('btn-' + id).classList.add('active');
         if(id === 'venda') focarBusca();
     };
 
-    // --- RENDERIZAÇÃO ---
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        const filtrados = produtos.filter(p => (p.nome || "").toLowerCase().includes(busca) || String(p.cod || "").includes(busca));
+        const filtrados = produtos.filter(p => 
+            (p.nome || "").toLowerCase().includes(busca) || 
+            String(p.cod || "").includes(busca)
+        );
         
         grid.innerHTML = filtrados.map(p => `
-            <div class="bg-white rounded-2xl border border-slate-200 p-3 cursor-pointer hover:border-green-500 transition shadow-sm flex flex-col h-full" onclick="addCarrinho('${p.firebaseId}')">
-                <img src="${p.img}" class="img-produto mb-3" onerror="this.src='https://via.placeholder.com/200'">
+            <div class="bg-white rounded-2xl border border-slate-200 p-3 cursor-pointer hover:border-green-500 transition shadow-sm flex flex-col h-full active:scale-95" onclick="addCarrinho('${p.firebaseId}')">
+                <img src="${p.img || 'https://via.placeholder.com/200'}" class="img-produto mb-3">
                 <h3 class="font-bold text-[11px] uppercase truncate text-slate-700">${p.nome}</h3>
-                <div class="mt-auto pt-2 flex justify-between items-center">
-                    <span class="font-black text-sm text-slate-900">R$ ${p.preco.toFixed(2)}</span>
-                    <span class="text-[9px] bg-slate-100 px-2 py-1 rounded font-bold uppercase text-slate-500">${p.estoque} UN</span>
+                <div class="mt-auto pt-2 flex justify-between items-center border-t border-slate-50">
+                    <span class="font-black text-sm text-slate-900">R$ ${(p.preco || 0).toFixed(2)}</span>
+                    <span class="text-[9px] bg-slate-100 px-2 py-1 rounded font-bold text-slate-500">${p.estoque} UN</span>
                 </div>
             </div>`).join('');
+    };
+
+    // --- LÓGICA DO CARRINHO ---
+    window.addCarrinho = (fbId) => {
+        const prod = produtos.find(p => p.firebaseId === fbId);
+        if(!prod || prod.estoque <= 0) { window.notificar("Estoque insuficiente!"); return; }
+        
+        const item = carrinho.find(i => i.firebaseId === fbId);
+        if(item) {
+            if(item.qtd < prod.estoque) item.qtd++;
+            else window.notificar("Limite atingido!");
+        } else {
+            carrinho.push({...prod, qtd: 1});
+        }
+        window.atualizarCarrinho();
+        focarBusca();
+    };
+
+    window.atualizarCarrinho = () => {
+        const container = document.getElementById('carrinhoItens');
+        let total = 0;
+        container.innerHTML = carrinho.map((item, idx) => {
+            total += item.preco * item.qtd;
+            return `
+                <div class="carrinho-item p-3 rounded-xl flex justify-between items-center text-white">
+                    <div class="truncate flex-1 pr-2">
+                        <p class="font-bold text-xs truncate">${item.nome}</p>
+                        <p class="text-green-400 text-[10px] font-black">${item.qtd}x R$ ${item.preco.toFixed(2)}</p>
+                    </div>
+                    <button onclick="removerItemCarrinho(${idx})" class="text-red-400 hover:text-white p-2">✕</button>
+                </div>`;
+        }).join('');
+        document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
+        document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} Itens`;
+        window.calcTroco();
+    };
+
+    window.removerItemCarrinho = (idx) => {
+        carrinho.splice(idx, 1);
+        window.atualizarCarrinho();
+    };
+
+    window.finalizarVenda = async () => {
+        if(carrinho.length === 0) return;
+        const totalV = carrinho.reduce((a, b) => a + (b.preco * b.qtd), 0);
+        const lucroV = carrinho.reduce((a, b) => a + ((b.preco - b.custo) * b.qtd), 0);
+        
+        const batch = writeBatch(db);
+        carrinho.forEach(item => {
+            const ref = doc(db, "produtos", item.firebaseId);
+            batch.update(ref, { estoque: item.estoque - item.qtd });
+        });
+
+        await addDoc(collection(db, "vendas"), {
+            data: new Date().toISOString(),
+            total: totalV,
+            lucro: lucroV,
+            pagamento: document.getElementById('metodoPgto').value,
+            itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
+        });
+
+        await batch.commit();
+        carrinho = [];
+        window.atualizarCarrinho();
+        window.notificar("Venda Concluída!");
+        focarBusca();
+    };
+
+    // --- GESTÃO DE ESTOQUE ---
+    document.getElementById('formProd').onsubmit = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editId').value;
+        const p = {
+            nome: document.getElementById('nome').value,
+            cod: document.getElementById('cod').value || "0",
+            custo: parseFloat(document.getElementById('custo').value),
+            preco: parseFloat(document.getElementById('preco').value),
+            estoque: parseInt(document.getElementById('qtd').value),
+            img: document.getElementById('imgUrl').value || ""
+        };
+        id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
+        window.cancelarEdicao();
+        window.notificar("Produto Atualizado!");
     };
 
     window.renderizarEstoque = () => {
         const grid = document.getElementById('listaEstoqueGrid');
         grid.innerHTML = produtos.map(p => `
             <div class="bg-white rounded-2xl border border-slate-200 p-3 shadow-sm flex flex-col">
-                <img src="${p.img}" class="img-produto mb-3" onerror="this.src='https://via.placeholder.com/200'">
-                <h3 class="font-bold text-[11px] uppercase truncate mb-1">${p.nome}</h3>
-                <p class="text-[9px] text-slate-400 mb-3 font-mono">${p.cod}</p>
-                <div class="flex gap-1 mt-auto">
+                <img src="${p.img || 'https://via.placeholder.com/200'}" class="img-produto mb-3">
+                <h3 class="font-bold text-[10px] uppercase truncate">${p.nome}</h3>
+                <div class="flex gap-1 mt-3">
                     <button onclick="editarProduto('${p.firebaseId}')" class="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg font-bold text-[10px] uppercase">Editar</button>
-                    <button onclick="removerProd('${p.firebaseId}')" class="bg-red-50 text-red-500 py-2 rounded-lg font-bold text-[10px] uppercase">Apagar</button>
+                    <button onclick="removerProd('${p.firebaseId}')" class="bg-red-50 text-red-500 px-3 py-2 rounded-lg">🗑</button>
                 </div>
             </div>`).join('');
     };
 
-    // --- RELATÓRIOS CORRIGIDO ---
-    window.renderizarHistorico = () => {
-        const corpoTabela = document.getElementById('corpoTabelaVendas');
-        const stats = document.getElementById('estatisticas');
-        let t = 0, l = 0;
-        
-        vendas.forEach(v => { t += v.total; l += v.lucro; });
-
-        stats.innerHTML = `
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm min-w-[150px]"><p class="text-[10px] text-slate-400 font-black uppercase">Vendas Brutas</p><p class="text-xl font-black">R$ ${t.toFixed(2)}</p></div>
-            <div class="bg-green-600 text-white p-4 rounded-2xl shadow-lg min-w-[150px]"><p class="text-[10px] text-green-100 font-black uppercase">Lucro Líquido</p><p class="text-xl font-black">R$ ${l.toFixed(2)}</p></div>
-        `;
-
-        corpoTabela.innerHTML = vendas.map(v => `
-            <tr>
-                <td class="font-bold text-slate-500">${new Date(v.data).toLocaleString()}</td>
-                <td class="max-w-xs truncate" title="${v.itens}">${v.itens}</td>
-                <td class="uppercase font-black text-[10px] text-slate-400">${v.pagamento}</td>
-                <td class="font-black">R$ ${v.total.toFixed(2)}</td>
-                <td class="text-green-600 font-bold">R$ ${v.lucro.toFixed(2)}</td>
-                <td><button onclick="removerVenda('${v.firebaseId}')" class="text-red-400 font-bold hover:text-red-600">Excluir</button></td>
-            </tr>
-        `).join('');
-    };
-
-    window.removerVenda = async (id) => {
-        if(confirm("Deseja excluir esta venda do histórico? Isso não retornará os itens ao estoque.")) {
-            await deleteDoc(doc(db, "vendas", id));
-            notificar("Venda removida.");
-        }
-    };
-
-    window.limparTodoHistorico = async () => {
-        if(confirm("CUIDADO! Isso apagará TODO o histórico de vendas para sempre. Deseja continuar?")) {
-            const querySnapshot = await getDocs(collection(db, "vendas"));
-            const batch = writeBatch(db);
-            querySnapshot.forEach((d) => batch.delete(d.ref));
-            await batch.commit();
-            notificar("Histórico limpo!");
-        }
-    };
-
-    // --- LOGICA DE VENDA ---
-    window.addCarrinho = (fbId) => {
-        const prod = produtos.find(p => p.firebaseId === fbId);
-        if(!prod || prod.estoque <= 0) { notificar("Sem estoque!"); return; }
-        const item = carrinho.find(i => i.firebaseId === fbId);
-        item ? item.qtd++ : carrinho.push({...prod, qtd: 1});
-        atualizarCarrinho();
-        focarBusca();
-    };
-
-    window.atualizarCarrinho = () => {
-        const lista = document.getElementById('carrinhoItens');
-        let total = 0;
-        lista.innerHTML = carrinho.map((item, idx) => {
-            total += item.preco * item.qtd;
-            return `<div class="carrinho-item p-3 rounded-xl flex justify-between text-white text-xs mb-2 items-center">
-                <div class="truncate pr-2"><p class="font-bold truncate">${item.nome}</p><p class="text-green-400 font-bold">${item.qtd}x R$ ${item.preco.toFixed(2)}</p></div>
-                <button onclick="removerItemCarrinho(${idx})" class="text-red-400 font-black hover:bg-red-500/10 px-2 py-1 rounded">X</button>
-            </div>`;
-        }).join('');
-        document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
-        document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} Itens`;
-    };
-
-    window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); atualizarCarrinho(); focarBusca(); };
-
-    window.finalizarVenda = async () => {
-        if(carrinho.length === 0) return;
-        const batch = writeBatch(db);
-        let totalV = 0, lucroV = 0;
-        carrinho.forEach(item => {
-            totalV += item.preco * item.qtd;
-            lucroV += (item.preco - item.custo) * item.qtd;
-            batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
-        });
-        await addDoc(collection(db, "vendas"), {
-            data: new Date().toISOString(),
-            total: totalV, lucro: lucroV,
-            pagamento: document.getElementById('metodoPgto').value,
-            itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
-        });
-        await batch.commit();
-        carrinho = []; atualizarCarrinho();
-        document.getElementById('valorRecebido').value = '';
-        notificar("Venda Concluída!"); focarBusca();
-    };
-
-    // --- CADASTRO E ESTOQUE ---
     window.editarProduto = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
         document.getElementById('editId').value = id;
@@ -388,7 +395,6 @@
         document.getElementById('imgUrl').value = p.img;
         document.getElementById('btnSalvar').innerText = "ATUALIZAR PRODUTO";
         document.getElementById('btnCancelarEdit').classList.remove('hidden');
-        window.scrollTo(0,0);
     };
 
     window.cancelarEdicao = () => {
@@ -398,12 +404,63 @@
         document.getElementById('btnCancelarEdit').classList.add('hidden');
     };
 
-    window.removerProd = async (id) => { if(confirm("Apagar produto?")) await deleteDoc(doc(db, "produtos", id)); };
+    window.removerProd = async (id) => { if(confirm("Apagar produto definitivamente?")) await deleteDoc(doc(db, "produtos", id)); };
+
+    // --- RELATÓRIOS E UTILITÁRIOS ---
+    window.renderizarHistorico = () => {
+        const corpo = document.getElementById('corpoTabelaVendas');
+        const stats = document.getElementById('estatisticas');
+        let totalBruto = 0, totalLucro = 0;
+        
+        corpo.innerHTML = vendas.map(v => {
+            totalBruto += v.total || 0;
+            totalLucro += v.lucro || 0;
+            return `
+                <tr>
+                    <td class="text-slate-400 text-xs">${new Date(v.data).toLocaleString()}</td>
+                    <td class="max-w-[200px] truncate font-semibold">${v.itens}</td>
+                    <td class="uppercase text-[10px] font-bold text-slate-400">${v.pagamento}</td>
+                    <td class="font-black">R$ ${v.total.toFixed(2)}</td>
+                    <td class="text-green-600 font-bold">R$ ${v.lucro.toFixed(2)}</td>
+                    <td><button onclick="removerVenda('${v.firebaseId}')" class="text-red-300 hover:text-red-600">Remover</button></td>
+                </tr>`;
+        }).join('');
+
+        stats.innerHTML = `
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm min-w-[160px]"><p class="text-[10px] text-slate-400 font-black uppercase">Faturamento</p><p class="text-xl font-black">R$ ${totalBruto.toFixed(2)}</p></div>
+            <div class="bg-green-600 text-white p-4 rounded-2xl shadow-lg min-w-[160px]"><p class="text-[10px] text-green-100 font-black uppercase">Lucro Real</p><p class="text-xl font-black">R$ ${totalLucro.toFixed(2)}</p></div>
+        `;
+    };
+
+    window.removerVenda = async (id) => { if(confirm("Excluir registro de venda?")) await deleteDoc(doc(db, "vendas", id)); };
+
+    window.exportarExcel = () => {
+        const ws = XLSX.utils.json_to_sheet(vendas.map(v => ({
+            Data: new Date(v.data).toLocaleString(),
+            Itens: v.itens,
+            Pagamento: v.pagamento,
+            Total: v.total,
+            Lucro: v.lucro
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Vendas");
+        XLSX.writeFile(wb, "Relatorio_Louisiana.xlsx");
+    };
 
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
         t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
-        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
+        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 2500);
+    };
+
+    window.calcTroco = () => {
+        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '')) || 0;
+        const rec = parseFloat(document.getElementById('valorRecebido').value) || 0;
+        document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, rec - total).toFixed(2)}`;
+    };
+
+    window.toggleTroco = () => {
+        document.getElementById('divTroco').style.display = document.getElementById('metodoPgto').value === 'dinheiro' ? 'block' : 'none';
     };
 
     function focarBusca() {
@@ -411,52 +468,13 @@
         if(b) { b.focus(); b.select(); }
     }
 
-    document.getElementById('formProd').onsubmit = async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('editId').value;
-        const p = {
-            nome: document.getElementById('nome').value,
-            cod: document.getElementById('cod').value || '0',
-            custo: parseFloat(document.getElementById('custo').value),
-            preco: parseFloat(document.getElementById('preco').value),
-            estoque: parseInt(document.getElementById('qtd').value),
-            img: document.getElementById('imgUrl').value || ''
-        };
-        id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
-        cancelarEdicao();
-        notificar("Produto Salvo!");
-    };
-
-    window.exportarExcel = () => {
-        const dataParaExportar = vendas.map(v => ({
-            Data: new Date(v.data).toLocaleString(),
-            Itens: v.itens,
-            Pagamento: v.pagamento,
-            Total: v.total,
-            Lucro: v.lucro
-        }));
-        const ws = XLSX.utils.json_to_sheet(dataParaExportar);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Vendas");
-        XLSX.writeFile(wb, "Louisiana_Vendas.xlsx");
-    };
-
-    window.calcTroco = () => {
-        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', ''));
-        const rec = parseFloat(document.getElementById('valorRecebido').value) || 0;
-        document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, rec - total).toFixed(2)}`;
-    };
-
-    window.toggleTroco = () => document.getElementById('divTroco').style.display = document.getElementById('metodoPgto').value === 'dinheiro' ? 'block' : 'none';
-
-    window.logout = () => signOut(auth).then(() => location.reload());
-
+    // TECLAS DE ATALHO
     window.addEventListener('keydown', (e) => {
+        if (e.key === 'F1') { e.preventDefault(); window.switchTab('venda'); }
+        if (e.key === 'F2') { e.preventDefault(); window.switchTab('estoque'); }
+        if (e.key === 'F3') { e.preventDefault(); window.switchTab('historico'); }
         if (e.key === 'F8') { e.preventDefault(); focarBusca(); }
-        if (e.key === 'F1') switchTab('venda');
-        if (e.key === 'F2') switchTab('estoque');
-        if (e.key === 'F3') switchTab('historico');
-        if (e.key === 'F9') finalizarVenda();
+        if (e.key === 'F9') { e.preventDefault(); window.finalizarVenda(); }
     });
 </script>
 </body>
