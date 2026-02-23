@@ -8,91 +8,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --bg-dark: #0f1115;
-            --card-dark: #1a1d23;
-            --accent-green: #22c55e;
-        }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: var(--bg-dark); 
-            color: white;
-            height: 100vh; 
-            overflow: hidden; 
-            margin: 0; 
-        }
-
-        #loadingScreen {
-            position: fixed; inset: 0; z-index: 200;
-            background-color: var(--bg-dark);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 3px solid rgba(34, 197, 94, 0.1);
-            border-top-color: var(--accent-green);
-            border-radius: 50%;
-            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-
+        :root { --bg-dark: #0f1115; --card-dark: #1a1d23; --accent-green: #22c55e; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: white; height: 100vh; overflow: hidden; margin: 0; }
         .glass { background: rgba(26, 29, 35, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-out; }
         .tab-content.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .tab-btn.active { background: var(--accent-green); color: black; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
-        
-        .grid-pdv { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 1rem;
-        }
-        .card-produto {
-            background: var(--card-dark);
-            border: 1px solid rgba(255,255,255,0.03);
-            border-radius: 1.25rem;
-            padding: 1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-        .card-produto:hover { 
-            border-color: var(--accent-green); 
-            transform: translateY(-5px);
-        }
+        .tab-btn.active { background: var(--accent-green); color: black; }
+        .grid-pdv { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+        .card-produto { background: var(--card-dark); border-radius: 1.25rem; padding: 1rem; cursor: pointer; transition: 0.2s; }
+        .card-produto:hover { border-color: var(--accent-green); transform: translateY(-3px); }
         .img-produto { width: 100%; height: 120px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; }
-
         .hidden-app { display: none !important; }
         input, select { background: #262a33 !important; border: 1px solid #334155 !important; color: white !important; }
         
-        /* Estilo para o Modo Seguro (Blur no lucro) */
-        .modo-seguro-ativo .valor-lucro { filter: blur(6px); }
+        /* Estilo Impressão Termica (80mm) */
+        @media print {
+            body * { visibility: hidden; }
+            #areaImpressao, #areaImpressao * { visibility: visible; }
+            #areaImpressao { position: absolute; left: 0; top: 0; width: 80mm; color: black !important; background: white !important; padding: 5mm; }
+            .no-print { display: none !important; }
+        }
+        
+        #modalRecibo { background: rgba(0,0,0,0.9); backdrop-filter: blur(4px); }
+        .cupom-fiscal { width: 80mm; background: white; color: #000; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.2; padding: 15px; border-radius: 4px; }
     </style>
 </head>
-<body class="">
+<body>
 
-<div id="loadingScreen">
-    <div class="spinner"></div>
-    <p class="text-xs font-bold tracking-[0.3em] uppercase mt-6 text-green-500/50">Carregando</p>
+<div id="modalRecibo" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-4">
+    <div class="flex flex-col items-center gap-4">
+        <div id="areaImpressao" class="cupom-fiscal shadow-2xl">
+            <div id="conteudoCupom"></div>
+        </div>
+        <div class="flex gap-2 no-print">
+            <button onclick="window.print()" class="bg-blue-600 px-4 py-2 rounded-lg font-bold text-sm">IMPRIMIR</button>
+            <button onclick="enviarWhats('cliente')" class="bg-green-600 px-4 py-2 rounded-lg font-bold text-sm">WHATS CLIENTE</button>
+            <button onclick="enviarWhats('comanda')" class="bg-orange-600 px-4 py-2 rounded-lg font-bold text-sm">WHATS COMANDA</button>
+            <button onclick="fecharModal()" class="bg-red-600 px-4 py-2 rounded-lg font-bold text-sm">FECHAR</button>
+        </div>
+    </div>
 </div>
 
-<div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0c10]">
-    <div class="glass p-10 rounded-[2.5rem] w-full max-w-md">
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold tracking-tighter italic"><span class="txt-nome-loja">LOUISIANA</span> <span class="text-green-500">PDV</span></h1>
-        </div>
-        <div class="space-y-4">
-            <input type="email" id="loginEmail" placeholder="E-mail" class="w-full p-4 rounded-2xl">
-            <input type="password" id="loginPassword" placeholder="Senha" class="w-full p-4 rounded-2xl">
-            <button onclick="fazerLoginEmail()" class="w-full bg-green-500 text-black font-extrabold py-4 rounded-2xl">ENTRAR</button>
-        </div>
-        <p id="loginError" class="text-red-400 mt-6 text-center text-xs font-bold hidden">Acesso negado.</p>
-    </div>
+<div id="loadingScreen" class="fixed inset-0 z-[200] bg-[#0f1115] flex flex-col items-center justify-center">
+    <div class="w-10 h-10 border-4 border-green-500/20 border-t-green-500 rounded-full animate-spin"></div>
 </div>
 
 <div id="appInterface" class="hidden-app flex flex-col h-screen">
@@ -108,7 +67,6 @@
     </header>
 
     <main class="flex-1 overflow-hidden">
-        
         <section id="venda" class="tab-content active p-6">
             <div class="flex h-full gap-6">
                 <div class="flex-1 flex flex-col gap-6">
@@ -119,18 +77,13 @@
                     <div class="p-6 border-b border-white/5 font-bold uppercase text-xs">Carrinho</div>
                     <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 custom-scroll space-y-2"></div>
                     <div class="p-6 bg-black/20 border-t border-white/5 space-y-4">
-                        <div class="flex justify-between font-black text-2xl text-green-500">
-                            <span>Total</span>
-                            <span id="totalVenda">R$ 0,00</span>
-                        </div>
+                        <div class="flex justify-between font-black text-2xl text-green-500"><span>Total</span><span id="totalVenda">R$ 0,00</span></div>
                         <select id="metodoPgto" class="w-full p-4 rounded-xl font-bold" onchange="toggleTroco()">
                             <option value="Dinheiro">Dinheiro</option>
                             <option value="PIX">PIX</option>
                             <option value="Cartão">Cartão</option>
                         </select>
-                        <div id="divTroco" class="hidden">
-                            <input type="number" id="valorRecebido" placeholder="Valor Pago" class="w-full p-4 rounded-xl" oninput="calcTroco()">
-                        </div>
+                        <div id="divTroco" class="hidden"><input type="number" id="valorRecebido" placeholder="Valor Pago" class="w-full p-4 rounded-xl"></div>
                         <button onclick="finalizarVenda()" class="w-full bg-green-500 text-black font-black py-4 rounded-xl uppercase">Finalizar (F9)</button>
                     </div>
                 </div>
@@ -140,13 +93,12 @@
         <section id="estoque" class="tab-content p-6 h-full">
             <div class="glass p-6 rounded-2xl mb-6">
                 <form id="formProd" class="grid grid-cols-4 gap-4">
-                    <input type="hidden" id="editId">
                     <input type="text" id="nome" placeholder="Produto" class="p-3 rounded-lg col-span-2" required>
-                    <input type="number" id="qtd" placeholder="Qtd" class="p-3 rounded-lg" required>
+                    <input type="number" id="qtd" placeholder="Estoque" class="p-3 rounded-lg" required>
                     <input type="number" id="preco" step="0.01" placeholder="Venda" class="p-3 rounded-lg" required>
                     <input type="number" id="custo" step="0.01" placeholder="Custo" class="p-3 rounded-lg">
                     <input type="text" id="imgUrl" placeholder="URL Imagem" class="p-3 rounded-lg col-span-2">
-                    <button type="submit" id="btnSalvar" class="bg-green-500 text-black font-bold rounded-lg">Salvar</button>
+                    <button type="submit" class="bg-green-500 text-black font-bold rounded-lg">Salvar</button>
                 </form>
             </div>
             <div id="listaEstoqueGrid" class="grid-pdv overflow-y-auto custom-scroll"></div>
@@ -154,17 +106,9 @@
 
         <section id="historico" class="tab-content p-6">
             <div id="estatisticas" class="flex gap-4 mb-6"></div>
-            <div class="glass rounded-2xl overflow-hidden overflow-y-auto custom-scroll">
+            <div class="glass rounded-2xl overflow-y-auto custom-scroll">
                 <table class="w-full text-left">
-                    <thead class="bg-white/5 uppercase text-[10px] font-bold">
-                        <tr>
-                            <th class="p-4">Data</th>
-                            <th class="p-4">Itens</th>
-                            <th class="p-4">Total</th>
-                            <th class="p-4">Lucro</th>
-                            <th class="p-4">Ação</th>
-                        </tr>
-                    </thead>
+                    <thead class="bg-white/5 text-[10px] font-bold"><tr><th class="p-4">Data</th><th class="p-4">Itens</th><th class="p-4">Total</th><th class="p-4">Lucro</th><th class="p-4">Ação</th></tr></thead>
                     <tbody id="corpoTabelaVendas" class="text-xs"></tbody>
                 </table>
             </div>
@@ -172,39 +116,22 @@
 
         <section id="config" class="tab-content p-8 h-full">
             <div class="max-w-2xl mx-auto space-y-6">
-                <h2 class="text-2xl font-black uppercase italic">Configurações do Sistema</h2>
-                
+                <h2 class="text-2xl font-black uppercase italic">Configurações</h2>
                 <div class="glass p-6 rounded-3xl space-y-6">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-slate-500 mb-2">Nome do Estabelecimento</label>
-                        <input type="text" id="cfgNomeLoja" class="w-full p-4 rounded-xl" placeholder="LOUISIANA PDV">
+                        <label class="block text-[10px] font-bold text-slate-500 mb-2 uppercase">Nome da Loja</label>
+                        <input type="text" id="cfgNomeLoja" class="w-full p-4 rounded-xl">
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-2">Alerta Estoque Baixo</label>
-                            <input type="number" id="cfgEstoqueBaixo" class="w-full p-4 rounded-xl">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase text-slate-500 mb-2">Cor de Destaque (Hex)</label>
-                            <input type="text" id="cfgCorDestaque" class="w-full p-4 rounded-xl" placeholder="#22c55e">
-                        </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-2 uppercase">Telefone Whats (Comanda)</label>
+                        <input type="text" id="cfgTelWhats" class="w-full p-4 rounded-xl" placeholder="5511999999999">
                     </div>
-
-                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
-                        <span class="text-sm font-bold">Modo Seguro (Esconder Lucro nos Relatórios)</span>
-                        <input type="checkbox" id="cfgModoSeguro" class="w-5 h-5 accent-green-500">
-                    </div>
-
-                    <button onclick="salvarConfig()" class="w-full bg-green-500 text-black font-black py-4 rounded-xl uppercase tracking-tighter hover:bg-green-400">Salvar Ajustes</button>
+                    <button onclick="salvarConfig()" class="w-full bg-green-500 text-black font-black py-4 rounded-xl uppercase">Salvar Ajustes</button>
                 </div>
             </div>
         </section>
-
     </main>
 </div>
-
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all glass text-white px-8 py-4 rounded-full z-[200] font-bold"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -225,14 +152,11 @@
     const auth = getAuth(app);
     const EMAIL_AUTORIZADO = "louisianapdv@gmail.com";
 
-    let produtos = [], vendas = [], carrinho = [];
+    let produtos = [], vendas = [], carrinho = [], vendaAtual = null;
 
-    // CONFIGURAÇÕES
     let configGerais = JSON.parse(localStorage.getItem('pdv_settings')) || {
         nomeLoja: "LOUISIANA",
-        estoqueBaixo: 5,
-        corDestaque: "#22c55e",
-        modoSeguro: false
+        telWhats: ""
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -240,164 +164,113 @@
             document.getElementById('loginScreen').classList.add('hidden-app');
             document.getElementById('appInterface').classList.remove('hidden-app');
             aplicarConfiguracoes();
-            
-            onSnapshot(collection(db, "produtos"), (snap) => {
-                produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                renderizarProdutos();
-                renderizarEstoque();
-            });
-            onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
-                vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                renderizarHistorico();
-            });
+            onSnapshot(collection(db, "produtos"), (snap) => { produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() })); renderizarProdutos(); renderizarEstoque(); });
+            onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => { vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() })); renderizarHistorico(); });
         }
         document.getElementById('loadingScreen').style.display = 'none';
     });
 
-    // FUNÇÕES DE AJUSTE
-    function aplicarConfiguracoes() {
-        document.querySelectorAll('.txt-nome-loja').forEach(el => el.innerText = configGerais.nomeLoja);
-        document.documentElement.style.setProperty('--accent-green', configGerais.corDestaque);
-        
-        // Inputs da aba config
-        document.getElementById('cfgNomeLoja').value = configGerais.nomeLoja;
-        document.getElementById('cfgEstoqueBaixo').value = configGerais.estoqueBaixo;
-        document.getElementById('cfgCorDestaque').value = configGerais.corDestaque;
-        document.getElementById('cfgModoSeguro').checked = configGerais.modoSeguro;
-
-        if(configGerais.modoSeguro) document.body.classList.add('modo-seguro-ativo');
-        else document.body.classList.remove('modo-seguro-ativo');
-    }
-
     window.salvarConfig = () => {
-        configGerais = {
-            nomeLoja: document.getElementById('cfgNomeLoja').value.toUpperCase() || "LOUISIANA",
-            estoqueBaixo: parseInt(document.getElementById('cfgEstoqueBaixo').value) || 0,
-            corDestaque: document.getElementById('cfgCorDestaque').value || "#22c55e",
-            modoSeguro: document.getElementById('cfgModoSeguro').checked
-        };
+        configGerais = { nomeLoja: document.getElementById('cfgNomeLoja').value.toUpperCase(), telWhats: document.getElementById('cfgTelWhats').value };
         localStorage.setItem('pdv_settings', JSON.stringify(configGerais));
         aplicarConfiguracoes();
-        renderizarProdutos(); // Para atualizar o alerta de estoque
-        notificar("Configurações Salvas!");
+        alert("Salvo!");
     };
 
-    // LOGICA ORIGINAL DO PDV
-    window.switchTab = (id) => {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-slate-400'));
-        document.getElementById(id).classList.add('active');
-        document.getElementById('btn-' + id).classList.add('active');
-    };
+    function aplicarConfiguracoes() {
+        document.querySelectorAll('.txt-nome-loja').forEach(el => el.innerText = configGerais.nomeLoja);
+        document.getElementById('cfgNomeLoja').value = configGerais.nomeLoja;
+        document.getElementById('cfgTelWhats').value = configGerais.telWhats;
+    }
 
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        grid.innerHTML = produtos.filter(p => p.nome.toLowerCase().includes(busca)).map(p => {
-            const isBaixo = p.estoque <= configGerais.estoqueBaixo;
-            return `
-                <div class="card-produto" onclick="addCarrinho('${p.firebaseId}')">
-                    <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto">
-                    <p class="text-[10px] font-bold uppercase truncate">${p.nome}</p>
-                    <div class="flex justify-between mt-2 items-center">
-                        <span class="text-green-500 font-bold">R$ ${parseFloat(p.preco).toFixed(2)}</span>
-                        <span class="text-[9px] ${isBaixo ? 'text-red-500 font-black' : 'text-slate-500'}">${p.estoque} UN</span>
-                    </div>
-                </div>`;
-        }).join('');
+        grid.innerHTML = produtos.filter(p => p.nome.toLowerCase().includes(busca)).map(p => `
+            <div class="card-produto" onclick="addCarrinho('${p.firebaseId}')">
+                <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto">
+                <p class="text-[10px] font-bold uppercase truncate">${p.nome}</p>
+                <div class="flex justify-between mt-2">
+                    <span class="text-green-500 font-bold">R$ ${parseFloat(p.preco).toFixed(2)}</span>
+                    <span class="text-slate-500 text-[9px]">${p.estoque} UN</span>
+                </div>
+            </div>`).join('');
     };
 
     window.addCarrinho = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
-        if(p.estoque <= 0) return notificar("Sem estoque!");
         const item = carrinho.find(i => i.firebaseId === id);
         if(item) item.qtd++; else carrinho.push({...p, qtd: 1});
         atualizarCarrinho();
     };
 
     function atualizarCarrinho() {
-        const lista = document.getElementById('carrinhoItens');
         let total = 0;
-        lista.innerHTML = carrinho.map((i, idx) => {
+        document.getElementById('carrinhoItens').innerHTML = carrinho.map(i => {
             total += (i.preco * i.qtd);
-            return `<div class="bg-white/5 p-3 rounded-lg flex justify-between">
-                <span class="text-xs">${i.qtd}x ${i.nome}</span>
-                <span class="font-bold">R$ ${(i.preco * i.qtd).toFixed(2)}</span>
-            </div>`;
+            return `<div class="bg-white/5 p-3 rounded-lg flex justify-between text-xs"><span>${i.qtd}x ${i.nome}</span><b>R$ ${(i.preco*i.qtd).toFixed(2)}</b></div>`;
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
     }
 
     window.finalizarVenda = async () => {
         if(!carrinho.length) return;
+        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ',''));
+        vendaAtual = {
+            data: new Date().toLocaleString(),
+            itens: [...carrinho],
+            total: total,
+            pgto: document.getElementById('metodoPgto').value
+        };
+
         const batch = writeBatch(db);
-        let total = 0, lucro = 0;
+        let lucro = 0;
         carrinho.forEach(i => {
-            total += (i.preco * i.qtd);
             lucro += (i.preco - (i.custo || 0)) * i.qtd;
             batch.update(doc(db, "produtos", i.firebaseId), { estoque: i.estoque - i.qtd });
         });
-        await addDoc(collection(db, "vendas"), { data: new Date().toISOString(), total, lucro, itens: carrinho.map(c=>c.nome).join(', ') });
+        await addDoc(collection(db, "vendas"), { data: new Date().toISOString(), total, lucro, itens: carrinho.map(c=>`${c.qtd}x ${c.nome}`).join(', ') });
         await batch.commit();
+        
+        gerarConteudoCupom();
+        document.getElementById('modalRecibo').classList.remove('hidden');
         carrinho = []; atualizarCarrinho();
-        notificar("Venda Concluída!");
     };
 
-    // FORMULÁRIO ESTOQUE
-    document.getElementById('formProd').onsubmit = async (e) => {
-        e.preventDefault();
-        const p = {
-            nome: document.getElementById('nome').value,
-            qtd: parseInt(document.getElementById('qtd').value),
-            preco: parseFloat(document.getElementById('preco').value),
-            custo: parseFloat(document.getElementById('custo').value || 0),
-            img: document.getElementById('imgUrl').value
-        };
-        await addDoc(collection(db, "produtos"), p);
-        e.target.reset();
+    function gerarConteudoCupom() {
+        const itensHtml = vendaAtual.itens.map(i => `<div>${i.qtd} x ${i.nome.padEnd(15).substring(0,15)} R$${(i.preco*i.qtd).toFixed(2)}</div>`).join('');
+        document.getElementById('conteudoCupom').innerHTML = `
+            <div style="text-align:center; font-weight:bold; margin-bottom:10px;">${configGerais.nomeLoja}</div>
+            <div style="border-bottom:1px dashed #000; margin-bottom:5px;"></div>
+            <div style="font-size:10px; margin-bottom:10px;">DATA: ${vendaAtual.data}</div>
+            <div style="margin-bottom:10px;">${itensHtml}</div>
+            <div style="border-bottom:1px dashed #000; margin-bottom:5px;"></div>
+            <div style="font-weight:bold;">TOTAL: R$ ${vendaAtual.total.toFixed(2)}</div>
+            <div>PGTO: ${vendaAtual.pgto}</div>
+            <div style="border-bottom:1px dashed #000; margin-top:5px; margin-bottom:10px;"></div>
+            <div style="text-align:center; font-size:10px;">OBRIGADO PELA PREFERENCIA!</div>
+        `;
+    }
+
+    window.enviarWhats = (tipo) => {
+        let msg = "";
+        if(tipo === 'cliente') {
+            msg = `*${configGerais.nomeLoja} - Recibo*\n\nData: ${vendaAtual.data}\n` + 
+                  vendaAtual.itens.map(i => `${i.qtd}x ${i.nome} - R$${(i.preco*i.qtd).toFixed(2)}`).join('\n') +
+                  `\n\n*Total: R$ ${vendaAtual.total.toFixed(2)}*\nPagamento: ${vendaAtual.pgto}`;
+        } else {
+            msg = `*NOVA COMANDA*\n\n` + vendaAtual.itens.map(i => `[ ] ${i.qtd}x ${i.nome}`).join('\n');
+        }
+        const url = `https://api.whatsapp.com/send?phone=${tipo === 'comanda' ? configGerais.telWhats : ""}&text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
     };
 
-    window.renderizarEstoque = () => {
-        document.getElementById('listaEstoqueGrid').innerHTML = produtos.map(p => `
-            <div class="glass p-4 rounded-xl flex flex-col items-center">
-                <img src="${p.img}" class="h-20 w-20 object-cover rounded-lg mb-2">
-                <p class="text-[10px] font-bold uppercase">${p.nome}</p>
-                <p class="text-green-500 font-bold">R$ ${p.preco}</p>
-                <button onclick="removerProd('${p.firebaseId}')" class="text-red-500 text-[10px] mt-2 uppercase font-bold">Excluir</button>
-            </div>`).join('');
-    };
-
+    window.fecharModal = () => { document.getElementById('modalRecibo').classList.add('hidden'); };
+    window.switchTab = (id) => { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-slate-400')); document.getElementById(id).classList.add('active'); document.getElementById('btn-' + id).classList.add('active'); };
+    window.renderizarEstoque = () => { document.getElementById('listaEstoqueGrid').innerHTML = produtos.map(p => `<div class="glass p-4 rounded-xl text-center"><img src="${p.img}" class="h-20 w-full object-cover rounded mb-2"><p class="text-[10px] font-bold uppercase">${p.nome}</p><button onclick="removerProd('${p.firebaseId}')" class="text-red-500 text-[10px] font-bold">EXCLUIR</button></div>`).join(''); };
     window.removerProd = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "produtos", id)); };
-
-    window.renderizarHistorico = () => {
-        let tTotal = 0, lTotal = 0;
-        document.getElementById('corpoTabelaVendas').innerHTML = vendas.map(v => {
-            tTotal += v.total; lTotal += v.lucro;
-            return `<tr>
-                <td class="p-4">${new Date(v.data).toLocaleDateString()}</td>
-                <td class="p-4 truncate max-w-[150px]">${v.itens}</td>
-                <td class="p-4 font-bold">R$ ${v.total.toFixed(2)}</td>
-                <td class="p-4 text-green-500 font-bold"><span class="valor-lucro">R$ ${v.lucro.toFixed(2)}</span></td>
-                <td class="p-4"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-500">Excluir</button></td>
-            </tr>`;
-        }).join('');
-        document.getElementById('estatisticas').innerHTML = `
-            <div class="glass p-4 rounded-xl flex-1">Total: R$ ${tTotal.toFixed(2)}</div>
-            <div class="glass p-4 rounded-xl flex-1">Lucro: <span class="valor-lucro text-green-500">R$ ${lTotal.toFixed(2)}</span></div>`;
-    };
-
+    window.renderizarHistorico = () => { document.getElementById('corpoTabelaVendas').innerHTML = vendas.map(v => `<tr><td class="p-4">${new Date(v.data).toLocaleDateString()}</td><td class="p-4">${v.itens}</td><td class="p-4">R$ ${v.total.toFixed(2)}</td><td class="p-4 text-green-500">R$ ${v.lucro.toFixed(2)}</td><td class="p-4"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-500">X</button></td></tr>`).join(''); };
     window.removerVenda = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "vendas", id)); };
-
-    window.notificar = (m) => {
-        const t = document.getElementById('toast');
-        t.innerText = m; t.style.opacity = '1';
-        setTimeout(() => t.style.opacity = '0', 3000);
-    };
-
-    window.fazerLoginEmail = async () => {
-        try { await signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); }
-        catch { document.getElementById('loginError').classList.remove('hidden'); }
-    };
     window.logout = () => signOut(auth).then(() => location.reload());
     window.toggleTroco = () => { document.getElementById('divTroco').classList.toggle('hidden', document.getElementById('metodoPgto').value !== 'Dinheiro'); };
 </script>
