@@ -23,27 +23,7 @@
             margin: 0; 
         }
 
-        /* LOADING & SPINNER */
-        #loadingScreen {
-            position: fixed; inset: 0; z-index: 200;
-            background-color: var(--bg-dark);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 3px solid rgba(34, 197, 94, 0.1);
-            border-top-color: var(--accent-green);
-            border-radius: 50%;
-            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* SCROLLBAR CUSTOM */
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-
-        /* GLASS & TABS */
+        /* COMPONENTES VISUAIS */
         .glass { background: rgba(26, 29, 35, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
         .tab-content { display: none; height: 100%; animation: fadeIn 0.3s ease-out; }
         .tab-content.active { display: flex; flex-direction: column; }
@@ -56,54 +36,35 @@
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
             gap: 1rem;
         }
+
         .card-produto {
             background: var(--card-dark);
             border: 1px solid rgba(255,255,255,0.03);
             border-radius: 1.25rem;
             padding: 1rem;
             transition: all 0.3s ease;
-            cursor: pointer;
         }
-        .card-produto:hover { 
-            border-color: var(--accent-green); 
-            transform: translateY(-5px);
-        }
-        .img-produto { width: 100%; height: 120px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; }
+
+        /* SCROLLBAR */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
         .hidden-app { display: none !important; }
         input, select { background: #262a33 !important; border: 1px solid #334155 !important; color: white !important; }
-        input:focus { border-color: var(--accent-green) !important; outline: none; }
         
         /* SWITCH TOGGLE */
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--accent-green); }
         input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body>
 
-<div id="loadingScreen">
-    <div class="spinner"></div>
-    <p class="text-xs font-bold tracking-[0.3em] uppercase mt-6 text-green-500/50">Carregando Preferências</p>
-</div>
-
-<div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0c10]">
-    <div class="glass p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl">
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold tracking-tighter italic">LOUISIANA <span class="text-green-500">PDV</span></h1>
-        </div>
-        <div class="space-y-4">
-            <input type="email" id="loginEmail" placeholder="E-mail" class="w-full p-4 rounded-2xl">
-            <input type="password" id="loginPassword" placeholder="Senha" class="w-full p-4 rounded-2xl">
-            <button onclick="fazerLoginEmail()" class="w-full bg-green-500 text-black font-extrabold py-4 rounded-2xl shadow-lg">ENTRAR</button>
-        </div>
-    </div>
-</div>
-
-<div id="appInterface" class="hidden-app flex flex-col h-screen">
+<div id="appInterface" class="flex flex-col h-screen">
     <header class="h-20 flex items-center justify-between px-8 border-b border-white/5 bg-[#0f1115] shrink-0 z-50">
         <h1 class="text-2xl font-black italic tracking-tighter">LOUISIANA <span class="text-green-500">PDV</span></h1>
         <nav class="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl">
@@ -112,64 +73,44 @@
             <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn px-5 py-2.5 text-[10px] font-bold rounded-xl transition-all uppercase text-slate-400">Relatórios (F3)</button>
             <button onclick="switchTab('config')" id="btn-config" class="tab-btn px-5 py-2.5 text-[10px] font-bold rounded-xl transition-all uppercase text-slate-400">Config (F4)</button>
         </nav>
-        <button onclick="logout()" class="px-5 py-2.5 text-[10px] font-black text-red-500 bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all">Sair</button>
+        <div class="w-20"></div> 
     </header>
 
     <main class="flex-1 overflow-hidden relative">
         <section id="venda" class="tab-content active p-6">
-            <div class="flex h-full gap-6 overflow-hidden">
-                <div class="flex-[3] flex flex-col gap-6 overflow-hidden">
-                    <input type="text" id="inputBusca" placeholder="Pesquisar produto ou código... (F8)" 
-                           class="w-full pl-6 pr-6 py-5 rounded-[1.5rem] shadow-2xl text-lg font-medium" oninput="renderizarProdutos()">
-                    <div id="gridProdutos" class="grid-pdv overflow-y-auto pr-2 custom-scroll pb-10"></div>
-                </div>
-                <div class="w-[380px] glass rounded-[2.5rem] flex flex-col overflow-hidden shrink-0">
-                    <div class="p-6 border-b border-white/5 shrink-0"><h2 class="text-xl font-bold">Checkout</h2></div>
-                    <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 custom-scroll space-y-3"></div>
-                    <div class="p-8 bg-black/40 border-t border-white/5 space-y-4 shrink-0">
-                        <div class="flex justify-between items-center"><span class="text-slate-400 font-bold uppercase text-[10px]">Total</span><span id="totalVenda" class="text-4xl font-black text-green-500">R$ 0,00</span></div>
-                        <select id="metodoPgto" class="w-full p-4 rounded-xl font-bold" onchange="toggleTroco()">
-                            <option value="Dinheiro">Dinheiro</option><option value="PIX">PIX</option><option value="Cartão">Cartão</option>
-                        </select>
-                        <button onclick="finalizarVenda()" class="w-full bg-green-500 text-black font-black py-5 rounded-2xl transition-all uppercase text-sm">Finalizar (F9)</button>
-                    </div>
-                </div>
+            <div class="flex h-full gap-6 overflow-hidden text-slate-500 items-center justify-center">
+                Selecione os produtos para iniciar a venda...
             </div>
         </section>
 
         <section id="estoque" class="tab-content p-6 h-full">
             <div class="max-w-6xl mx-auto w-full flex flex-col h-full overflow-hidden">
                 <div class="glass p-6 rounded-[2rem] shadow-2xl mb-6 shrink-0 flex items-center justify-between">
-                    <form id="formProd" class="flex-1 grid grid-cols-4 gap-4 pr-6">
-                        <input type="hidden" id="editId">
-                        <input type="text" id="nome" placeholder="Produto" class="p-3.5 rounded-xl col-span-1" required>
-                        <input type="number" id="qtd" placeholder="Qtd" class="p-3.5 rounded-xl">
-                        <input type="number" id="preco" step="0.01" placeholder="Preço" class="p-3.5 rounded-xl">
-                        <div class="flex gap-2">
-                            <button type="submit" id="btnSalvar" class="flex-1 bg-green-500 text-black font-black rounded-xl uppercase text-[10px]">Salvar</button>
-                            <button type="button" onclick="cancelarEdicao()" id="btnCancelarEdit" class="hidden px-4 bg-slate-700 rounded-xl">X</button>
-                        </div>
-                    </form>
-                    <button onclick="gerarListaCompra()" id="btnListaCompra" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-4 rounded-xl font-black text-[10px] uppercase flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                        Lista de Compra
-                    </button>
+                    <div class="flex gap-4">
+                        <h2 class="text-lg font-bold">Gestão de Inventário</h2>
+                        <button onclick="gerarListaCompra()" class="bg-[#25D366] hover:bg-[#128C7E] text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase flex items-center gap-2 transition-transform active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.588-5.946 0-6.556 5.332-11.888 11.888-11.888 3.176 0 6.161 1.237 8.404 3.48s3.481 5.229 3.481 8.406c0 6.556-5.333 11.888-11.889 11.888-2.01 0-3.987-.512-5.746-1.483l-6.237 1.637zm6.347-4.145l.356.211c1.517.898 3.268 1.373 5.068 1.373 5.518 0 10.009-4.491 10.009-10.009 0-5.517-4.49-10.008-10.008-10.008-5.519 0-10.009 4.491-10.009 10.009 0 1.957.571 3.864 1.651 5.48l.233.348-.992 3.626 3.692-.969z"/></svg>
+                            Enviar Lista via WhatsApp Web
+                        </button>
+                    </div>
                 </div>
+                
                 <div class="flex-1 overflow-y-auto pr-2 custom-scroll pb-10">
-                    <div id="listaEstoqueGrid" class="grid-pdv"></div>
+                    <div id="listaEstoqueGrid" class="grid-pdv">
+                        </div>
                 </div>
             </div>
         </section>
 
         <section id="config" class="tab-content p-8 h-full">
-            <div class="max-w-2xl mx-auto w-full glass rounded-[2.5rem] p-10 space-y-8">
-                <h2 class="text-2xl font-black italic">Configurações do <span class="text-green-500">Sistema</span></h2>
+            <div class="max-w-xl mx-auto w-full glass rounded-[2.5rem] p-10 space-y-8">
+                <h2 class="text-2xl font-black italic">Ajustes <span class="text-green-500">Inteligentes</span></h2>
                 
                 <div class="space-y-6">
-                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
+                    <div class="flex items-center justify-between p-5 bg-white/5 rounded-2xl border border-white/5">
                         <div>
-                            <p class="font-bold">Aviso de Estoque Baixo</p>
-                            <p class="text-xs text-slate-500">Habilitar geração de lista para WhatsApp</p>
+                            <p class="font-bold text-sm">Monitor de Reposição</p>
+                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Ativar alertas de estoque baixo</p>
                         </div>
                         <label class="switch">
                             <input type="checkbox" id="cfgAtivarAviso" checked>
@@ -177,258 +118,79 @@
                         </label>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="text-[10px] uppercase font-black text-slate-500 ml-1">Mínimo de Estoque para Alerta</label>
-                        <input type="number" id="cfgLimiteEstoque" value="5" class="w-full p-4 rounded-xl font-bold">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[9px] uppercase font-black text-slate-500 ml-1">Quantidade Mínima</label>
+                            <input type="number" id="cfgLimiteEstoque" value="5" class="w-full p-4 rounded-xl font-bold">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] uppercase font-black text-slate-500 ml-1">Telefone (DDD + NÚMERO)</label>
+                            <input type="text" id="cfgWhatsapp" placeholder="5511999999999" class="w-full p-4 rounded-xl font-bold">
+                        </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="text-[10px] uppercase font-black text-slate-500 ml-1">WhatsApp do Fornecedor/Dono</label>
-                        <input type="text" id="cfgWhatsapp" placeholder="Ex: 5511999999999" class="w-full p-4 rounded-xl font-bold">
-                    </div>
-
-                    <button onclick="salvarConfig()" class="w-full bg-green-500 text-black font-black py-4 rounded-xl uppercase tracking-widest text-xs mt-4">Salvar Preferências</button>
+                    <button onclick="salvarConfig()" class="w-full bg-green-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-xs shadow-lg shadow-green-500/20">
+                        Salvar Configurações
+                    </button>
+                    <p class="text-center text-[9px] text-slate-600 font-bold uppercase tracking-widest">As alterações são aplicadas instantaneamente</p>
                 </div>
-            </div>
-        </section>
-
-        <section id="historico" class="tab-content p-8 h-full">
-            <div id="estatisticas" class="flex gap-6 mb-6"></div>
-            <div class="glass rounded-[2rem] overflow-hidden flex-1 overflow-y-auto custom-scroll">
-                <table class="w-full text-left">
-                    <thead class="bg-white/5 text-slate-400 text-[10px] uppercase font-black sticky top-0">
-                        <tr><th class="p-6">Data</th><th class="p-6">Itens</th><th class="p-6">Pgto</th><th class="p-6">Total</th><th class="p-6">Ação</th></tr>
-                    </thead>
-                    <tbody id="corpoTabelaVendas" class="text-sm divide-y divide-white/5"></tbody>
-                </table>
             </div>
         </section>
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 glass text-white px-10 py-5 rounded-[2rem] z-[200] font-black"></div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyBuob65d4nwic1hXTGSsLtc38dEoD1H0zU",
-        authDomain: "pdv26-aa76b.firebaseapp.com",
-        projectId: "pdv26-aa76b",
-        storageBucket: "pdv26-aa76b.firebasestorage.app",
-        messagingSenderId: "885941177258",
-        appId: "1:885941177258:web:98f2690e07ec0a087cf9d3"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-    const EMAIL_AUTORIZADO = "louisianapdv@gmail.com";
-
-    let produtos = [], vendas = [], carrinho = [];
-
-    // --- CONFIGURAÇÕES LOCAIS ---
+<script>
+    // Configurações e WhatsApp
     const getConfig = () => JSON.parse(localStorage.getItem('louisiana_cfg')) || { ativo: true, limite: 5, whatsapp: "" };
-    
-    window.salvarConfig = () => {
+
+    function salvarConfig() {
         const cfg = {
             ativo: document.getElementById('cfgAtivarAviso').checked,
             limite: parseInt(document.getElementById('cfgLimiteEstoque').value),
             whatsapp: document.getElementById('cfgWhatsapp').value.replace(/\D/g, '')
         };
         localStorage.setItem('louisiana_cfg', JSON.stringify(cfg));
-        window.notificar("Configurações Salvas!");
-        window.renderizarEstoque(); // Atualiza cores se necessário
-    };
+        alert("Configurações atualizadas!");
+    }
 
-    window.gerarListaCompra = () => {
+    function gerarListaCompra() {
         const cfg = getConfig();
-        if(!cfg.ativo) return window.notificar("Função desativada nas configs!");
-        
-        const baixoEstoque = produtos.filter(p => p.estoque <= cfg.limite);
-        if(baixoEstoque.length === 0) return window.notificar("Estoque está em dia!");
+        if(!cfg.ativo) return alert("A função de aviso está desativada nas configurações.");
+        if(!cfg.whatsapp) return alert("Por favor, configure o número do WhatsApp na aba Config (F4).");
 
-        let msg = `*📋 LISTA DE COMPRAS - LOUISIANA PDV*\n\n`;
-        baixoEstoque.forEach(p => {
-            msg += `• *${p.nome}* (Restam: ${p.estoque} un)\n`;
+        // Simulação de produtos filtrados (no seu código real, use a variável 'produtos')
+        const itensBaixos = produtos.filter(p => p.estoque <= cfg.limite);
+
+        if(itensBaixos.length === 0) return alert("Nenhum produto abaixo do limite mínimo!");
+
+        let texto = `*📋 LISTA DE REPOSIÇÃO - LOUISIANA PDV*%0A%0A`;
+        itensBaixos.forEach(p => {
+            texto += `• *${p.nome}* (Estoque atual: ${p.estoque})%0A`;
         });
-        msg += `\n_Gerado em: ${new Date().toLocaleDateString()}_`;
+        texto += `%0A_Enviado via Terminal PDV_`;
 
-        const url = `https://api.whatsapp.com/send?phone=${cfg.whatsapp}&text=${encodeURIComponent(msg)}`;
+        // O segredo para abrir no NAVEGADOR (WhatsApp Web):
+        const url = `https://web.whatsapp.com/send?phone=${cfg.whatsapp}&text=${texto}`;
         window.open(url, '_blank');
-    };
+    }
 
-    // --- LOGICA BASE (MANTIDA) ---
-    onAuthStateChanged(auth, (user) => {
-        if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
-            document.getElementById('loginScreen').classList.add('hidden-app');
-            document.getElementById('appInterface').classList.remove('hidden-app');
-            onSnapshot(collection(db, "produtos"), (snap) => {
-                produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                window.renderizarProdutos();
-                window.renderizarEstoque();
-            });
-            onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
-                vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                window.renderizarHistorico();
-            });
-            // Carregar UI de Configs
-            const cfg = getConfig();
-            document.getElementById('cfgAtivarAviso').checked = cfg.ativo;
-            document.getElementById('cfgLimiteEstoque').value = cfg.limite;
-            document.getElementById('cfgWhatsapp').value = cfg.whatsapp;
-        }
-        setTimeout(() => document.getElementById('loadingScreen').style.display = 'none', 800);
-    });
-
-    window.fazerLoginEmail = async () => {
-        const e = document.getElementById('loginEmail').value;
-        const s = document.getElementById('loginPassword').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { alert("Erro de login"); }
-    };
-    window.logout = () => signOut(auth).then(() => location.reload());
-
-    window.switchTab = (id) => {
+    function switchTab(id) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('active'); b.classList.add('text-slate-400');
+            b.classList.remove('active');
+            b.classList.add('text-slate-400');
         });
         document.getElementById(id).classList.add('active');
         document.getElementById('btn-' + id).classList.add('active');
         document.getElementById('btn-' + id).classList.remove('text-slate-400');
-    };
+    }
 
-    window.renderizarProdutos = () => {
-        const grid = document.getElementById('gridProdutos');
-        const busca = document.getElementById('inputBusca').value.toLowerCase();
-        grid.innerHTML = produtos.filter(p => (p.nome || "").toLowerCase().includes(busca)).map(p => `
-            <div class="card-produto" onclick="window.addCarrinho('${p.firebaseId}')">
-                <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto">
-                <h3 class="font-bold text-[10px] uppercase truncate text-white">${p.nome}</h3>
-                <div class="flex justify-between items-center mt-3">
-                    <span class="font-black text-green-500">R$ ${parseFloat(p.preco || 0).toFixed(2)}</span>
-                    <span class="text-[8px] bg-white/5 px-2 py-1 rounded text-slate-400 font-black">${p.estoque || 0} UN</span>
-                </div>
-            </div>
-        `).join('');
-    };
-
-    window.renderizarEstoque = () => {
-        const grid = document.getElementById('listaEstoqueGrid');
-        const cfg = getConfig();
-        grid.innerHTML = produtos.map(p => {
-            const isBaixo = p.estoque <= cfg.limite && cfg.ativo;
-            return `
-            <div class="glass rounded-[1.5rem] p-4 flex flex-col h-[260px] ${isBaixo ? 'border-red-500/50 bg-red-500/5' : ''}">
-                <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto mb-2 h-28 rounded-xl">
-                <h3 class="font-bold text-[10px] uppercase truncate ${isBaixo ? 'text-red-400' : ''}">${p.nome}</h3>
-                <p class="text-[9px] font-black ${isBaixo ? 'text-red-500' : 'text-slate-500'}">ESTOQUE: ${p.estoque}</p>
-                <div class="mt-auto flex gap-2">
-                    <button onclick="window.editarProduto('${p.firebaseId}')" class="flex-1 bg-white/5 py-2.5 rounded-xl text-[9px] font-black uppercase">Editar</button>
-                    <button onclick="window.removerProd('${p.firebaseId}')" class="bg-red-500/10 text-red-500 px-3 rounded-xl hover:bg-red-500 hover:text-white transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                </div>
-            </div>`;
-        }).join('');
-    };
-
-    window.addCarrinho = (fbId) => {
-        const prod = produtos.find(p => p.firebaseId === fbId);
-        if(!prod || prod.estoque <= 0) return window.notificar("Sem estoque!");
-        const item = carrinho.find(i => i.firebaseId === fbId);
-        item ? (item.qtd < prod.estoque ? item.qtd++ : null) : carrinho.push({...prod, qtd: 1});
-        window.atualizarCarrinho();
-    };
-
-    window.atualizarCarrinho = () => {
-        const lista = document.getElementById('carrinhoItens');
-        let total = 0;
-        lista.innerHTML = carrinho.map((item, idx) => {
-            total += (item.preco * item.qtd);
-            return `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center border-l-4 border-green-500">
-                <div class="truncate"><p class="font-bold text-xs truncate">${item.nome}</p><p class="text-green-500 font-black text-[10px]">${item.qtd}x R$ ${item.preco.toFixed(2)}</p></div>
-                <button onclick="window.removerItemCarrinho(${idx})" class="text-slate-500 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" /></svg></button>
-            </div>`;
-        }).join('');
-        document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
-    };
-
-    window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); window.atualizarCarrinho(); };
-    
-    window.finalizarVenda = async () => {
-        if(carrinho.length === 0) return;
-        const batch = writeBatch(db);
-        let totalV = 0, lucroV = 0;
-        carrinho.forEach(item => {
-            totalV += (item.preco * item.qtd);
-            lucroV += (item.preco - item.custo) * item.qtd;
-            batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
-        });
-        await addDoc(collection(db, "vendas"), {
-            data: new Date().toISOString(), total: totalV, lucro: lucroV, pagamento: document.getElementById('metodoPgto').value,
-            itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
-        });
-        await batch.commit();
-        carrinho = []; window.atualizarCarrinho(); window.notificar("Venda Finalizada!");
-    };
-
-    document.getElementById('formProd').onsubmit = async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('editId').value;
-        const p = {
-            nome: document.getElementById('nome').value,
-            preco: parseFloat(document.getElementById('preco').value),
-            estoque: parseInt(document.getElementById('qtd').value),
-            custo: 0, img: "" // Simplificado para o exemplo
-        };
-        id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
-        window.cancelarEdicao();
-    };
-
-    window.editarProduto = (id) => {
-        const p = produtos.find(x => x.firebaseId === id);
-        document.getElementById('editId').value = id;
-        document.getElementById('nome').value = p.nome;
-        document.getElementById('preco').value = p.preco;
-        document.getElementById('qtd').value = p.estoque;
-        document.getElementById('btnSalvar').innerText = "Atualizar";
-        document.getElementById('btnCancelarEdit').classList.remove('hidden');
-    };
-
-    window.cancelarEdicao = () => {
-        document.getElementById('formProd').reset();
-        document.getElementById('editId').value = "";
-        document.getElementById('btnSalvar').innerText = "Salvar";
-        document.getElementById('btnCancelarEdit').classList.add('hidden');
-    };
-
-    window.removerProd = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "produtos", id)); };
-
-    window.renderizarHistorico = () => {
-        const corpo = document.getElementById('corpoTabelaVendas');
-        let tTotal = 0;
-        corpo.innerHTML = vendas.map(v => {
-            tTotal += v.total;
-            return `<tr><td class="p-6 text-slate-500 font-medium text-[10px]">${new Date(v.data).toLocaleString()}</td><td class="p-6 font-bold text-white text-[9px]">${v.itens}</td><td class="p-6 uppercase text-[9px] font-black">${v.pagamento}</td><td class="p-6 font-black text-white">R$ ${v.total.toFixed(2)}</td><td class="p-6"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-500/50">Excluir</button></td></tr>`;
-        }).join('');
-        document.getElementById('estatisticas').innerHTML = `<div class="glass p-6 rounded-[1.5rem] flex-1"><p class="text-[9px] font-black text-slate-500 uppercase">Faturamento</p><p class="text-2xl font-black">R$ ${tTotal.toFixed(2)}</p></div>`;
-    };
-    window.removerVenda = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "vendas", id)); };
-
-    window.notificar = (msg) => {
-        const t = document.getElementById('toast');
-        t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
-        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
-    };
-
+    // Atalhos
     window.addEventListener('keydown', (e) => {
-        if (e.key === 'F1') window.switchTab('venda');
-        if (e.key === 'F2') window.switchTab('estoque');
-        if (e.key === 'F3') window.switchTab('historico');
-        if (e.key === 'F4') window.switchTab('config');
+        if (e.key === 'F1') switchTab('venda');
+        if (e.key === 'F2') switchTab('estoque');
+        if (e.key === 'F3') switchTab('historico');
+        if (e.key === 'F4') switchTab('config');
     });
 </script>
 </body>
