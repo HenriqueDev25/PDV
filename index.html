@@ -28,27 +28,6 @@
             color: #1e293b;
         }
 
-        /* --- TELA DE CARREGAMENTO --- */
-        #loadingScreen {
-            position: fixed; inset: 0; z-index: 9999;
-            background: var(--bg-dark);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease-out, visibility 0.5s;
-        }
-        /* Classe para esconder o loader suavemente */
-        #loadingScreen.loaded {
-            opacity: 0; visibility: hidden; pointer-events: none;
-        }
-        /* Spinner animado */
-        .spinner {
-            width: 50px; height: 50px;
-            border: 4px solid rgba(16, 185, 129, 0.1);
-            border-left-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         /* Tabs Refinadas */
         .tab-content { display: none; height: 100%; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
@@ -59,7 +38,7 @@
             background: var(--primary); border-radius: 10px; box-shadow: 0 0 10px var(--primary);
         }
 
-        /* Grade de Produtos */
+        /* Grade de Produtos - Quadrados Menores */
         .grid-pdv {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -89,22 +68,29 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Login Glassmorphism */
-        #loginScreenContainer { background: radial-gradient(circle at top left, #1e293b, #0f172a); }
+        /* Login Glassmorphism e Loading */
+        #loginScreen { background: radial-gradient(circle at top left, #1e293b, #0f172a); }
         .hidden-app { display: none !important; }
+        .loading-hidden { opacity: 0; pointer-events: none; z-index: -1; }
     </style>
 </head>
 <body class="flex flex-col">
 
-<div id="loadingScreen">
-    <div class="mb-6 text-center">
-        <h1 class="text-3xl font-extrabold tracking-tight text-white">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
-        <p class="text-emerald-500/70 text-sm mt-2 font-medium uppercase tracking-widest animate-pulse">Iniciando Sistema</p>
+<div id="loadingScreen" class="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-[#0f172a] text-white transition-all duration-700">
+    <div class="mb-8 animate-pulse text-center">
+            <svg class="w-20 h-20 text-emerald-500 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <h1 class="text-4xl font-extrabold tracking-tight">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
     </div>
-    <div class="spinner"></div>
+    <div class="flex items-center gap-3 text-emerald-400 font-bold uppercase tracking-widest text-sm">
+        <svg class="animate-spin h-6 w-6 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Iniciando Sistema...</span>
+    </div>
 </div>
 
-<div id="loginScreenContainer" class="fixed inset-0 z-[100] flex flex-col items-center justify-center text-white p-6 hidden-app">
+<div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center text-white p-6 hidden-app">
     <div class="bg-white/5 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] border border-white/10 shadow-2xl text-center w-full max-w-md">
         <div class="mb-8">
             <div class="inline-block p-4 bg-emerald-500/10 rounded-2xl mb-4">
@@ -278,19 +264,43 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    const EMAIL_AUTORIZADO = "louisianapdv@gmail.com";
+    
+    // VARIÁVEL DE SESSÃO MULTI-TENANT
+    let currentUser = null;
 
     let produtos = [], vendas = [], carrinho = [];
+
+    // --- CONTROLE DE CARREGAMENTO ---
+    let loadState = { auth: false, produtos: false, vendas: false };
+
+    function checkLoadingComplete() {
+        if (loadState.auth && !currentUser) {
+             hideLoader();
+             return;
+        }
+        if (loadState.auth && loadState.produtos && loadState.vendas && currentUser) {
+             hideLoader();
+        }
+    }
+
+    function hideLoader() {
+        const loader = document.getElementById('loadingScreen');
+        if(loader && !loader.classList.contains('loading-hidden')) {
+            loader.classList.add('loading-hidden');
+            setTimeout(() => { if(loader) loader.remove(); }, 800);
+        }
+    }
 
     // --- FUNÇÕES UTILITÁRIAS INTERNAS ---
     function focarBusca() {
         const b = document.getElementById('inputBusca');
-        if(b) { b.focus(); b.select(); }
+        if(b && document.getElementById('venda').classList.contains('active')) { b.focus(); b.select(); }
     }
 
-    // --- SCANNER REMOTO ---
+    // --- SCANNER REMOTO (POR USUÁRIO) ---
     function iniciarScannerRemoto() {
-        onSnapshot(collection(db, "bipe_remoto"), (snapshot) => {
+        if (!currentUser) return;
+        onSnapshot(collection(db, `usuarios/${currentUser.uid}/bipe_remoto`), (snapshot) => {
             snapshot.docChanges().forEach(async (change) => {
                 if (change.type === "added") {
                     const codigoAlvo = String(change.doc.data().codigo).trim();
@@ -309,13 +319,13 @@
                             setTimeout(() => { inputBusca.value = ""; window.renderizarProdutos(); }, 1200);
                         }
                     }
-                    try { await deleteDoc(doc(db, "bipe_remoto", change.doc.id)); } catch(e) {}
+                    try { await deleteDoc(doc(db, `usuarios/${currentUser.uid}/bipe_remoto`, change.doc.id)); } catch(e) {}
                 }
             });
         });
     }
 
-    // --- LOGIN E AUTH ---
+    // --- LOGIN ---
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
@@ -326,44 +336,45 @@
         }
     };
 
-    // ONDE A MÁGICA DO LOADER ACONTECE
     onAuthStateChanged(auth, (user) => {
-        const loader = document.getElementById('loadingScreen');
-        const loginContainer = document.getElementById('loginScreenContainer'); // ID atualizado
-
-        if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
-            // Logado: Esconde login, mostra app
-            loginContainer.classList.add('hidden-app');
+        if (user) {
+            currentUser = user;
+            document.getElementById('loginScreen').classList.add('hidden-app');
             document.getElementById('appInterface').classList.remove('hidden-app');
             inicializarApp();
             iniciarScannerRemoto();
-            focarBusca();
+            if (document.activeElement !== document.getElementById('inputBusca')) {
+                 focarBusca();
+            }
         } else {
-            // Deslogado: Mostra login, esconde app
-            loginContainer.classList.remove('hidden-app');
-            document.getElementById('appInterface').classList.add('hidden-app');
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden-app');
         }
-
-        // INDEPENDENTE DO RESULTADO, ESCONDE O LOADER SUAVEMENTE
-        if(loader && !loader.classList.contains('loaded')) {
-             // Um pequeno delay para garantir que a transição visual ocorra suavemente
-            setTimeout(() => {
-                loader.classList.add('loaded');
-                // Opcional: Remover do DOM após a animação para liberar memória
-                setTimeout(() => loader.remove(), 550); 
-            }, 500);
-        }
+        loadState.auth = true;
+        checkLoadingComplete();
     });
 
+    // --- SNAPSHOTS (POR USUÁRIO) ---
     function inicializarApp() {
-        onSnapshot(collection(db, "produtos"), (snap) => {
+        if (!currentUser) return;
+
+        onSnapshot(collection(db, `usuarios/${currentUser.uid}/produtos`), (snap) => {
             produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
             window.renderizarProdutos();
             window.renderizarEstoque();
+            if(!loadState.produtos) {
+                loadState.produtos = true;
+                checkLoadingComplete();
+            }
         });
-        onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
+
+        onSnapshot(query(collection(db, `usuarios/${currentUser.uid}/vendas`), orderBy("data", "desc")), (snap) => {
             vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
             window.renderizarHistorico();
+            if(!loadState.vendas) {
+                loadState.vendas = true;
+                checkLoadingComplete();
+            }
         });
     }
 
@@ -440,12 +451,14 @@
         `).join('');
     };
 
-    // --- OPERAÇÕES E CARRINHO ---
-    window.removerVenda = async (id) => { if(confirm("Remover do histórico?")) await deleteDoc(doc(db, "vendas", id)); };
+    // --- OPERAÇÕES E CARRINHO (POR USUÁRIO) ---
+    window.removerVenda = async (id) => { 
+        if(confirm("Remover do histórico?")) await deleteDoc(doc(db, `usuarios/${currentUser.uid}/vendas`, id)); 
+    };
 
     window.limparTodoHistorico = async () => {
         if(confirm("Apagar TODO o histórico?")) {
-            const querySnapshot = await getDocs(collection(db, "vendas"));
+            const querySnapshot = await getDocs(collection(db, `usuarios/${currentUser.uid}/vendas`));
             const batch = writeBatch(db);
             querySnapshot.forEach((d) => batch.delete(d.ref));
             await batch.commit();
@@ -493,30 +506,43 @@
     };
 
     window.finalizarVenda = async () => {
-        if(carrinho.length === 0) return;
-        const batch = writeBatch(db);
-        let totalV = 0, lucroV = 0;
+        if(carrinho.length === 0 || !currentUser) return;
+        const btnFinalizar = document.querySelector('button[onclick="finalizarVenda()"]');
+        if(btnFinalizar) btnFinalizar.disabled = true;
         
-        carrinho.forEach(item => {
-            totalV += (item.preco || 0) * item.qtd;
-            lucroV += ((item.preco || 0) - (item.custo || 0)) * item.qtd;
-            batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
-        });
-        
-        await addDoc(collection(db, "vendas"), {
-            data: new Date().toISOString(),
-            total: totalV, 
-            lucro: lucroV,
-            pagamento: document.getElementById('metodoPgto').value,
-            itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
-        });
-        
-        await batch.commit();
-        window.limparCarrinho();
-        window.notificar("Venda Concluída!"); 
+        try {
+            const batch = writeBatch(db);
+            let totalV = 0, lucroV = 0;
+            
+            carrinho.forEach(item => {
+                totalV += (item.preco || 0) * item.qtd;
+                lucroV += ((item.preco || 0) - (item.custo || 0)) * item.qtd;
+                // Atualiza o estoque na pasta do usuário
+                batch.update(doc(db, `usuarios/${currentUser.uid}/produtos`, item.firebaseId), { estoque: item.estoque - item.qtd });
+            });
+            
+            // Adiciona a venda na pasta do usuário
+            await addDoc(collection(db, `usuarios/${currentUser.uid}/vendas`), {
+                data: new Date().toISOString(),
+                total: totalV, 
+                lucro: lucroV,
+                pagamento: document.getElementById('metodoPgto').value,
+                itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
+            });
+            
+            await batch.commit();
+            window.limparCarrinho();
+            window.notificar("Venda Concluída!"); 
+        } catch (error) {
+            console.error("Erro na venda:", error);
+            window.notificar("Erro ao finalizar venda.");
+        } finally {
+             if(btnFinalizar) btnFinalizar.disabled = false;
+             focarBusca();
+        }
     };
 
-    // --- CADASTRO E UTILIDADES ---
+    // --- CADASTRO E UTILIDADES (POR USUÁRIO) ---
     window.editarProduto = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
         document.getElementById('editId').value = id;
@@ -538,7 +564,9 @@
         document.getElementById('btnCancelarEdit').classList.add('hidden');
     };
 
-    window.removerProd = async (id) => { if(confirm("Apagar produto?")) await deleteDoc(doc(db, "produtos", id)); };
+    window.removerProd = async (id) => { 
+        if(confirm("Apagar produto?")) await deleteDoc(doc(db, `usuarios/${currentUser.uid}/produtos`, id)); 
+    };
 
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
@@ -553,6 +581,8 @@
 
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
+        if(!currentUser) return;
+
         const id = document.getElementById('editId').value;
         const p = {
             nome: document.getElementById('nome').value,
@@ -562,7 +592,14 @@
             estoque: parseInt(document.getElementById('qtd').value) || 0,
             img: document.getElementById('imgUrl').value || ''
         };
-        id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
+
+        // Salva na pasta do usuário
+        if(id) {
+            await updateDoc(doc(db, `usuarios/${currentUser.uid}/produtos`, id), p);
+        } else {
+            await addDoc(collection(db, `usuarios/${currentUser.uid}/produtos`), p);
+        }
+
         window.cancelarEdicao();
         window.notificar("Sistema Atualizado!");
     };
@@ -589,7 +626,12 @@
     };
 
     window.toggleTroco = () => document.getElementById('divTroco').style.display = document.getElementById('metodoPgto').value === 'dinheiro' ? 'block' : 'none';
-    window.logout = () => signOut(auth).then(() => location.reload());
+    
+    window.logout = () => {
+        const loader = document.getElementById('loadingScreen');
+        if(loader) loader.classList.remove('loading-hidden');
+        signOut(auth).then(() => location.reload());
+    };
 
     window.addEventListener('keydown', (e) => {
         if (e.key === 'F8') { e.preventDefault(); focarBusca(); }
