@@ -29,6 +29,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.5s ease;
         }
+
         .spinner {
             width: 40px; height: 40px;
             border: 3px solid rgba(34, 197, 94, 0.1);
@@ -70,7 +71,15 @@
         .img-produto { width: 100%; height: 120px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; }
 
         .hidden-app { display: none !important; }
-        input, select { background: #262a33 !important; border: 1px solid #334155 !important; color: white !important; }
+        
+        /* Ajuste de inputs para garantir digitação e foco */
+        input, select { 
+            background: #262a33 !important; 
+            border: 1px solid #334155 !important; 
+            color: white !important;
+            position: relative;
+            z-index: 10;
+        }
         input:focus { border-color: var(--accent-green) !important; outline: none; box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2); }
     </style>
 </head>
@@ -90,7 +99,7 @@
         <div class="space-y-4">
             <input type="email" id="loginEmail" placeholder="E-mail" class="w-full p-4 rounded-2xl">
             <input type="password" id="loginPassword" placeholder="Senha" class="w-full p-4 rounded-2xl">
-            <button onclick="fazerLoginEmail()" class="w-full bg-green-500 hover:bg-green-400 text-black font-extrabold py-4 rounded-2xl transition duration-300 shadow-lg shadow-green-500/20">ENTRAR</button>
+            <button onclick="window.fazerLoginEmail()" class="w-full bg-green-500 hover:bg-green-400 text-black font-extrabold py-4 rounded-2xl transition duration-300 shadow-lg shadow-green-500/20">ENTRAR</button>
         </div>
         <p id="loginError" class="text-red-400 mt-6 text-center text-xs font-bold hidden px-4 py-2 bg-red-400/10 rounded-lg">Acesso negado.</p>
     </div>
@@ -100,12 +109,12 @@
     <header class="h-20 flex items-center justify-between px-8 border-b border-white/5 bg-[#0f1115] shrink-0 z-50">
         <h1 class="text-2xl font-black italic tracking-tighter"><span id="headerNomeLoja">LOUISIANA</span> <span class="text-green-500">PDV</span></h1>
         <nav class="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl">
-            <button onclick="switchTab('venda')" id="btn-venda" class="tab-btn active px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider">Vendas (F1)</button>
-            <button onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Estoque (F2)</button>
-            <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Relatórios (F3)</button>
-            <button onclick="switchTab('config')" id="btn-config" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Config (F4)</button>
+            <button onclick="window.switchTab('venda')" id="btn-venda" class="tab-btn active px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider">Vendas (F1)</button>
+            <button onclick="window.switchTab('estoque')" id="btn-estoque" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Estoque (F2)</button>
+            <button onclick="window.switchTab('historico')" id="btn-historico" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Relatórios (F3)</button>
+            <button onclick="window.switchTab('config')" id="btn-config" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Config (F4)</button>
         </nav>
-        <button onclick="logout()" class="px-5 py-2.5 text-[10px] font-black text-red-500 bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all uppercase">Sair</button>
+        <button onclick="window.logout()" class="px-5 py-2.5 text-[10px] font-black text-red-500 bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all uppercase">Sair</button>
     </header>
 
     <main class="flex-1 overflow-hidden relative">
@@ -114,7 +123,7 @@
                 <div class="flex-[3] flex flex-col gap-6 overflow-hidden">
                     <div class="relative shrink-0">
                         <input type="text" id="inputBusca" placeholder="Pesquisar produto ou código... (F8)" 
-                               class="w-full pl-6 pr-6 py-5 rounded-[1.5rem] shadow-2xl text-lg font-medium" oninput="renderizarProdutos()">
+                               class="w-full pl-6 pr-6 py-5 rounded-[1.5rem] shadow-2xl text-lg font-medium" oninput="window.renderizarProdutos()">
                     </div>
                     <div id="gridProdutos" class="grid-pdv overflow-y-auto pr-2 custom-scroll pb-10"></div>
                 </div>
@@ -124,20 +133,32 @@
                         <h2 class="text-xl font-bold">Checkout <span class="text-green-500 ml-2 text-xs" id="qtdItens">0 Itens</span></h2>
                     </div>
                     <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 custom-scroll space-y-3"></div>
-                    <div class="p-8 bg-black/40 border-t border-white/5 space-y-6 shrink-0">
+                    
+                    <div class="p-8 bg-black/40 border-t border-white/5 space-y-4 shrink-0">
                         <div class="flex justify-between items-center">
                             <span class="text-slate-400 font-bold uppercase text-[10px]">Total</span>
                             <span id="totalVenda" class="text-4xl font-black text-green-500 tracking-tighter">R$ 0,00</span>
                         </div>
-                        <select id="metodoPgto" class="w-full p-4 rounded-xl font-bold" onchange="toggleTroco()">
-                            <option value="Dinheiro">Dinheiro</option>
-                            <option value="PIX">PIX</option>
-                            <option value="Cartão">Cartão</option>
-                        </select>
-                        <div id="divTroco" class="flex items-center gap-3">
-                            <input type="number" id="valorRecebido" placeholder="Valor pago" class="w-full p-4 rounded-xl font-bold text-green-500" oninput="calcTroco()">
+                        
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-bold text-slate-500 uppercase ml-1">Pagamento</label>
+                            <select id="metodoPgto" class="w-full p-4 rounded-xl font-bold cursor-pointer" onchange="window.toggleTroco()">
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="PIX">PIX</option>
+                                <option value="Cartão">Cartão</option>
+                            </select>
                         </div>
-                        <button onclick="finalizarVenda()" class="w-full bg-green-500 hover:bg-green-400 text-black font-black py-5 rounded-2xl transition-all uppercase tracking-widest text-sm">Finalizar (F9)</button>
+
+                        <div id="divTroco" class="flex flex-col gap-2">
+                            <label class="text-[9px] font-bold text-slate-500 uppercase ml-1">Valor Recebido</label>
+                            <input type="number" id="valorRecebido" step="0.01" placeholder="0.00" 
+                                   class="w-full p-4 rounded-xl font-black text-green-500 text-xl" 
+                                   oninput="window.calcTroco()">
+                        </div>
+
+                        <button onclick="window.finalizarVenda()" class="w-full bg-green-500 hover:bg-green-400 text-black font-black py-5 rounded-2xl transition-all uppercase tracking-widest text-sm mt-2">
+                            Finalizar (F9)
+                        </button>
                     </div>
                 </div>
             </div>
@@ -156,7 +177,7 @@
                         <div class="col-span-1"><input type="text" id="imgUrl" placeholder="URL da Imagem" class="w-full p-3.5 rounded-xl"></div>
                         <div class="flex gap-2">
                             <button type="submit" id="btnSalvar" class="flex-1 bg-green-500 hover:bg-green-400 text-black font-black rounded-xl uppercase text-xs">Salvar</button>
-                            <button type="button" onclick="cancelarEdicao()" id="btnCancelarEdit" class="hidden px-4 bg-slate-700 text-white font-black rounded-xl uppercase text-[10px]">X</button>
+                            <button type="button" onclick="window.cancelarEdicao()" id="btnCancelarEdit" class="hidden px-4 bg-slate-700 text-white font-black rounded-xl uppercase text-[10px]">X</button>
                         </div>
                     </form>
                 </div>
@@ -198,17 +219,17 @@
                         <input type="text" id="cfgNomeLoja" class="w-full p-4 rounded-2xl" placeholder="Ex: Louisiana Store">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-500 mb-3 ml-2">Alerta de Estoque Baixo (unidades)</label>
-                        <input type="number" id="cfgEstoqueBaixo" class="w-full p-4 rounded-2xl" placeholder="Ex: 5">
+                        <label class="block text-[10px] font-black uppercase text-slate-500 mb-3 ml-2">Alerta de Estoque Baixo</label>
+                        <input type="number" id="cfgEstoqueBaixo" class="w-full p-4 rounded-2xl">
                     </div>
                     <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
                         <div>
                             <p class="font-bold text-sm">Simular Impressão</p>
-                            <p class="text-xs text-slate-400">Abrir recibo em nova aba após venda</p>
+                            <p class="text-xs text-slate-400">Abrir recibo após venda</p>
                         </div>
                         <input type="checkbox" id="cfgImpressao" class="w-6 h-6 accent-green-500">
                     </div>
-                    <button onclick="salvarConfig()" class="w-full bg-green-500 text-black font-black py-4 rounded-2xl uppercase tracking-widest text-xs hover:bg-green-400 transition-all">Salvar Configurações</button>
+                    <button onclick="window.salvarConfig()" class="w-full bg-green-500 text-black font-black py-4 rounded-2xl uppercase tracking-widest text-xs hover:bg-green-400 transition-all">Salvar</button>
                 </div>
             </div>
         </section>
@@ -248,13 +269,10 @@
         const login = document.getElementById('loginScreen');
         const appUi = document.getElementById('appInterface');
 
-        aplicarConfigInterface();
-
         if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
             login.classList.add('hidden-app');
             appUi.classList.remove('hidden-app');
             
-            // Listeners em tempo real
             onSnapshot(collection(db, "produtos"), (snap) => {
                 produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
                 window.renderizarProdutos();
@@ -268,22 +286,14 @@
             appUi.classList.add('hidden-app');
             login.classList.remove('hidden-app');
         }
+        aplicarConfigInterface();
         setTimeout(() => {
             splash.style.opacity = '0';
             setTimeout(() => splash.style.display = 'none', 500);
         }, 800);
     });
 
-    // Funções de Interface
-    function aplicarConfigInterface() {
-        document.getElementById('displayNomeLojaLogin').innerText = configGerais.nomeLoja;
-        document.getElementById('headerNomeLoja').innerText = configGerais.nomeLoja;
-        document.getElementById('cfgNomeLoja').value = configGerais.nomeLoja;
-        document.getElementById('cfgEstoqueBaixo').value = configGerais.estoqueBaixo;
-        document.getElementById('cfgImpressao').checked = configGerais.impressao;
-    }
-
-    // Exportação para o Escopo Global (Essencial para o HTML acessar)
+    // --- FUNÇÕES GLOBAIS ---
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
@@ -299,14 +309,9 @@
             b.classList.remove('active');
             b.classList.add('text-slate-400');
         });
-        const target = document.getElementById(id);
-        if(target) target.classList.add('active');
-        
-        const btn = document.getElementById('btn-' + id);
-        if(btn) {
-            btn.classList.add('active');
-            btn.classList.remove('text-slate-400');
-        }
+        document.getElementById(id).classList.add('active');
+        document.getElementById('btn-' + id).classList.add('active');
+        document.getElementById('btn-' + id).classList.remove('text-slate-400');
         if(id === 'venda') document.getElementById('inputBusca')?.focus();
     };
 
@@ -315,19 +320,16 @@
         const busca = document.getElementById('inputBusca').value.toLowerCase();
         const filtrados = produtos.filter(p => (p.nome || "").toLowerCase().includes(busca) || String(p.cod || "").includes(busca));
         
-        grid.innerHTML = filtrados.map(p => {
-            const isBaixo = Number(p.estoque) <= configGerais.estoqueBaixo;
-            return `
-                <div class="card-produto" onclick="addCarrinho('${p.firebaseId}')">
-                    <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto" onerror="this.src='https://via.placeholder.com/150'">
-                    <h3 class="font-bold text-[10px] uppercase truncate text-white mb-1">${p.nome}</h3>
-                    <div class="flex justify-between items-center mt-3">
-                        <span class="font-black text-green-500 text-sm">R$ ${parseFloat(p.preco || 0).toFixed(2)}</span>
-                        <span class="text-[8px] ${isBaixo ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-slate-400'} px-2 py-1 rounded font-black">${p.estoque || 0} UN</span>
-                    </div>
+        grid.innerHTML = filtrados.map(p => `
+            <div class="card-produto" onclick="window.addCarrinho('${p.firebaseId}')">
+                <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto" onerror="this.src='https://via.placeholder.com/150'">
+                <h3 class="font-bold text-[10px] uppercase truncate text-white mb-1">${p.nome}</h3>
+                <div class="flex justify-between items-center mt-3">
+                    <span class="font-black text-green-500 text-sm">R$ ${Number(p.preco).toFixed(2)}</span>
+                    <span class="text-[8px] ${Number(p.estoque) <= configGerais.estoqueBaixo ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-slate-400'} px-2 py-1 rounded font-black">${p.estoque} UN</span>
                 </div>
-            `;
-        }).join('');
+            </div>
+        `).join('');
     };
 
     window.addCarrinho = (fbId) => {
@@ -335,11 +337,8 @@
         if(!prod || Number(prod.estoque) <= 0) { window.notificar("Sem estoque!"); return; }
         const item = carrinho.find(i => i.firebaseId === fbId);
         if(item) {
-            if(item.qtd < Number(prod.estoque)) {
-                item.qtd++;
-            } else {
-                window.notificar("Estoque insuficiente");
-            }
+            if(item.qtd < Number(prod.estoque)) item.qtd++;
+            else window.notificar("Limite do estoque!");
         } else {
             carrinho.push({...prod, qtd: 1});
         }
@@ -352,8 +351,8 @@
         lista.innerHTML = carrinho.map((item, idx) => {
             total += (Number(item.preco) * item.qtd);
             return `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center border-l-4 border-green-500">
-                <div class="truncate"><p class="font-bold text-xs truncate">${item.nome}</p><p class="text-green-500 font-black text-[10px]">${item.qtd}x R$ ${parseFloat(item.preco).toFixed(2)}</p></div>
-                <button onclick="removerItemCarrinho(${idx})" class="text-slate-500 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                <div class="truncate"><p class="font-bold text-xs truncate">${item.nome}</p><p class="text-green-500 font-black text-[10px]">${item.qtd}x R$ ${Number(item.preco).toFixed(2)}</p></div>
+                <button onclick="window.removerItemCarrinho(${idx})" class="text-slate-500 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             </div>`;
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
@@ -361,13 +360,19 @@
     };
 
     window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); window.atualizarCarrinho(); };
-    window.toggleTroco = () => { document.getElementById('divTroco').style.display = (document.getElementById('metodoPgto').value === 'Dinheiro') ? 'flex' : 'none'; };
-    
+
+    window.toggleTroco = () => {
+        const m = document.getElementById('metodoPgto').value;
+        const div = document.getElementById('divTroco');
+        const inp = document.getElementById('valorRecebido');
+        div.style.display = (m === 'Dinheiro') ? 'flex' : 'none';
+        if(m === 'Dinheiro') setTimeout(() => inp.focus(), 50);
+    };
+
     window.calcTroco = () => {
-        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '').replace(',', '.')) || 0;
+        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '')) || 0;
         const recebido = parseFloat(document.getElementById('valorRecebido').value) || 0;
-        const troco = Math.max(0, recebido - total);
-        if(recebido > 0) window.notificar(`Troco: R$ ${troco.toFixed(2)}`);
+        if(recebido > total) window.notificar(`Troco: R$ ${(recebido - total).toFixed(2)}`);
     };
 
     window.finalizarVenda = async () => {
@@ -381,36 +386,42 @@
             batch.update(doc(db, "produtos", item.firebaseId), { estoque: Number(item.estoque) - item.qtd });
         });
         
-        const vendaData = {
+        await addDoc(collection(db, "vendas"), {
             data: new Date().toISOString(),
-            total: totalV, 
-            lucro: lucroV, 
-            pagamento: document.getElementById('metodoPgto').value,
+            total: totalV, lucro: lucroV, pagamento: document.getElementById('metodoPgto').value,
             itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
-        };
+        });
+        await batch.commit();
 
-        try {
-            await addDoc(collection(db, "vendas"), vendaData);
-            await batch.commit();
-
-            if(configGerais.impressao) {
-                const ticket = `LOUISIANA PDV\nData: ${new Date().toLocaleString()}\nTotal: R$ ${totalV.toFixed(2)}\nObrigado!`;
-                const win = window.open("", "_blank");
-                win.document.write(`<pre>${ticket}</pre>`);
-                win.print();
-                win.close();
-            }
-
-            carrinho = []; 
-            document.getElementById('valorRecebido').value = '';
-            window.atualizarCarrinho();
-            window.notificar("Venda Concluída!");
-        } catch (err) {
-            window.notificar("Erro ao processar!");
+        if(configGerais.impressao) {
+            const ticket = `LOUISIANA PDV\nTotal: R$ ${totalV.toFixed(2)}\nObrigado!`;
+            const win = window.open("", "_blank");
+            win.document.write(`<pre>${ticket}</pre>`);
+            win.print(); win.close();
         }
+
+        carrinho = [];
+        document.getElementById('valorRecebido').value = '';
+        window.atualizarCarrinho();
+        window.notificar("Venda Concluída!");
     };
 
-    // Gestão de Estoque
+    window.renderizarEstoque = () => {
+        const grid = document.getElementById('listaEstoqueGrid');
+        grid.innerHTML = produtos.map(p => `
+            <div class="glass rounded-[1.5rem] p-4 flex flex-col h-[260px]">
+                <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto mb-2 h-28 rounded-xl" onerror="this.src='https://via.placeholder.com/150'">
+                <h3 class="font-bold text-[10px] uppercase truncate mb-1">${p.nome}</h3>
+                <div class="mt-auto flex gap-2">
+                    <button onclick="window.editarProduto('${p.firebaseId}')" class="flex-1 bg-white/5 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-wider">Editar</button>
+                    <button onclick="window.removerProd('${p.firebaseId}')" class="bg-red-500/10 text-red-500 px-3 py-2.5 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    };
+
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById('editId').value;
@@ -424,12 +435,11 @@
         };
         id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
         window.cancelarEdicao();
-        window.notificar("Salvo!");
+        window.notificar("Salvo com sucesso!");
     };
 
     window.editarProduto = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
-        if(!p) return;
         document.getElementById('editId').value = id;
         document.getElementById('nome').value = p.nome;
         document.getElementById('cod').value = p.cod;
@@ -439,7 +449,6 @@
         document.getElementById('imgUrl').value = p.img || '';
         document.getElementById('btnSalvar').innerText = "Atualizar";
         document.getElementById('btnCancelarEdit').classList.remove('hidden');
-        window.switchTab('estoque');
     };
 
     window.cancelarEdicao = () => {
@@ -449,23 +458,7 @@
         document.getElementById('btnCancelarEdit').classList.add('hidden');
     };
 
-    window.removerProd = async (id) => { if(confirm("Excluir produto permanentemente?")) await deleteDoc(doc(db, "produtos", id)); };
-
-    window.renderizarEstoque = () => {
-        const grid = document.getElementById('listaEstoqueGrid');
-        grid.innerHTML = produtos.map(p => `
-            <div class="glass rounded-[1.5rem] p-4 flex flex-col h-[260px]">
-                <img src="${p.img || 'https://via.placeholder.com/150'}" class="img-produto mb-2 h-28 rounded-xl" onerror="this.src='https://via.placeholder.com/150'">
-                <h3 class="font-bold text-[10px] uppercase truncate mb-1">${p.nome}</h3>
-                <div class="mt-auto flex gap-2">
-                    <button onclick="editarProduto('${p.firebaseId}')" class="flex-1 bg-white/5 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-wider">Editar</button>
-                    <button onclick="removerProd('${p.firebaseId}')" class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-3 py-2.5 rounded-xl transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                </div>
-            </div>
-        `).join('');
-    };
+    window.removerProd = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "produtos", id)); };
 
     window.renderizarHistorico = () => {
         const corpo = document.getElementById('corpoTabelaVendas');
@@ -478,7 +471,7 @@
                 <td class="p-6 uppercase text-[9px] font-black">${v.pagamento}</td>
                 <td class="p-6 font-black text-white">R$ ${Number(v.total).toFixed(2)}</td>
                 <td class="p-6 text-green-500 font-black">R$ ${Number(v.lucro).toFixed(2)}</td>
-                <td class="p-6 text-center"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-500/50 hover:text-red-500">Excluir</button></td>
+                <td class="p-6 text-center"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-500/50 hover:text-red-500">Excluir</button></td>
             </tr>`;
         }).join('');
         document.getElementById('estatisticas').innerHTML = `
@@ -487,12 +480,12 @@
                 <p class="text-2xl font-black">R$ ${tTotal.toFixed(2)}</p>
             </div>
             <div class="bg-green-500 p-6 rounded-[1.5rem] flex-1">
-                <p class="text-[9px] font-black text-black/40 uppercase tracking-widest">Lucro Estimado</p>
+                <p class="text-[9px] font-black text-black/40 uppercase tracking-widest">Lucro</p>
                 <p class="text-2xl font-black text-black">R$ ${lTotal.toFixed(2)}</p>
             </div>`;
     };
 
-    window.removerVenda = async (id) => { if(confirm("Remover venda do histórico?")) await deleteDoc(doc(db, "vendas", id)); };
+    window.removerVenda = async (id) => { if(confirm("Remover?")) await deleteDoc(doc(db, "vendas", id)); };
 
     window.salvarConfig = () => {
         configGerais = {
@@ -502,9 +495,16 @@
         };
         localStorage.setItem('pdv_configs', JSON.stringify(configGerais));
         aplicarConfigInterface();
-        window.renderizarProdutos();
         window.notificar("Configurações Salvas!");
     };
+
+    function aplicarConfigInterface() {
+        document.getElementById('displayNomeLojaLogin').innerText = configGerais.nomeLoja;
+        document.getElementById('headerNomeLoja').innerText = configGerais.nomeLoja;
+        document.getElementById('cfgNomeLoja').value = configGerais.nomeLoja;
+        document.getElementById('cfgEstoqueBaixo').value = configGerais.estoqueBaixo;
+        document.getElementById('cfgImpressao').checked = configGerais.impressao;
+    }
 
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
@@ -512,14 +512,13 @@
         setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
     };
 
-    // Atalhos
     window.addEventListener('keydown', (e) => {
-        if (e.key === 'F1') { e.preventDefault(); window.switchTab('venda'); }
-        if (e.key === 'F2') { e.preventDefault(); window.switchTab('estoque'); }
-        if (e.key === 'F3') { e.preventDefault(); window.switchTab('historico'); }
-        if (e.key === 'F4') { e.preventDefault(); window.switchTab('config'); }
+        if (e.key === 'F1') window.switchTab('venda');
+        if (e.key === 'F2') window.switchTab('estoque');
+        if (e.key === 'F3') window.switchTab('historico');
+        if (e.key === 'F4') window.switchTab('config');
         if (e.key === 'F8') { e.preventDefault(); document.getElementById('inputBusca')?.focus(); }
-        if (e.key === 'F9') { e.preventDefault(); window.finalizarVenda(); }
+        if (e.key === 'F9') window.finalizarVenda();
     });
 </script>
 </body>
