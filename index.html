@@ -22,11 +22,10 @@
             border-radius: var(--radius-pro);
             padding: 10px 14px;
             font-size: 14px;
-            transition: border 0.2s;
             background: #fff;
             outline: none;
         }
-        .sharp-input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+        .sharp-input:focus { border-color: var(--accent); ring: 1px solid var(--accent); }
 
         .btn-pro {
             background: var(--primary);
@@ -34,10 +33,8 @@
             border-radius: var(--radius-pro);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             transition: all 0.2s;
         }
-        .btn-pro:hover { background: #000; }
 
         .tab-btn { 
             font-weight: 600; font-size: 12px; color: #64748b;
@@ -49,11 +46,15 @@
         .tab-content { display: none; height: 100%; width: 100%; }
         .tab-content.active { display: flex; }
 
+        /* Estilo dos Cards com Imagem */
         .prod-card {
             background: #fff; border: 1px solid #e2e8f0; border-radius: var(--radius-pro);
-            transition: transform 0.1s, border 0.1s; cursor: pointer;
+            transition: all 0.2s; cursor: pointer; overflow: hidden;
         }
-        .prod-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .prod-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        .img-box { width: 100%; height: 120px; background: #f1f5f9; overflow: hidden; border-bottom: 1px solid #f1f5f9; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
 
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; }
@@ -61,35 +62,35 @@
 </head>
 <body>
 
-<div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-50">
-    <div class="w-full max-w-[380px] p-8 bg-white border border-slate-200 rounded-sm shadow-sm">
+<div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-100">
+    <div class="w-full max-w-[380px] p-8 bg-white border border-slate-200 rounded-sm shadow-xl">
         <h1 class="text-xl font-black mb-6 uppercase tracking-tighter">LOUISIANA <span class="text-blue-600">PDV</span></h1>
         <div class="space-y-4">
             <div class="flex flex-col gap-1">
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Usuário (E-mail)</label>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">E-mail de Acesso</label>
                 <input type="email" id="loginEmail" class="sharp-input" placeholder="admin@louisiana.com">
             </div>
             <div class="flex flex-col gap-1">
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Senha do Sistema</label>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Senha</label>
                 <input type="password" id="loginPassword" class="sharp-input" placeholder="••••••••">
             </div>
-            <button onclick="fazerLoginEmail()" class="w-full btn-pro py-4 mt-2">Acessar Terminal</button>
+            <button onclick="fazerLoginEmail()" class="w-full btn-pro py-4 mt-2">Entrar no Sistema</button>
         </div>
-        <p id="loginError" class="text-red-500 mt-4 text-center text-[11px] font-black hidden uppercase">Falha na Autenticação</p>
+        <p id="loginError" class="text-red-500 mt-4 text-center text-[11px] font-black hidden uppercase">Acesso Negado</p>
     </div>
 </div>
 
 <div id="appInterface" class="hidden flex flex-col h-full">
     <header class="h-14 bg-white px-8 flex justify-between items-center border-b border-slate-200 shrink-0">
         <div class="flex items-center h-full">
-            <span class="font-black text-sm mr-12 tracking-tighter">LOUISIANA <span class="text-blue-600">SYS</span></span>
+            <span class="font-black text-sm mr-12 tracking-tighter">LOUISIANA <span class="text-blue-600">PRO</span></span>
             <nav class="flex h-full">
-                <div onclick="switchTab('venda')" id="btn-venda" class="tab-btn active uppercase">Vendas (F1)</div>
-                <div onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn uppercase">Inventário (F2)</div>
+                <div onclick="switchTab('venda')" id="btn-venda" class="tab-btn active uppercase">Vender (F1)</div>
+                <div onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn uppercase">Produtos (F2)</div>
                 <div onclick="switchTab('historico')" id="btn-historico" class="tab-btn uppercase">Relatórios (F3)</div>
             </nav>
         </div>
-        <button onclick="logout()" class="text-[10px] font-bold text-slate-400 hover:text-red-600 transition">ENCERRAR SESSÃO</button>
+        <button onclick="logout()" class="text-[10px] font-bold text-slate-400 hover:text-red-600 transition">SAIR</button>
     </header>
 
     <main class="flex-1 relative overflow-hidden">
@@ -97,36 +98,36 @@
             <div class="flex-1 p-6 flex flex-col gap-4 overflow-hidden">
                 <div class="flex items-center bg-white border border-slate-200 px-4 rounded-sm">
                     <span class="text-slate-400">🔍</span>
-                    <input type="text" id="inputBusca" placeholder="Pesquisar ou usar scanner... (F8)" class="flex-1 p-3 text-sm outline-none" oninput="renderizarProdutos()">
+                    <input type="text" id="inputBusca" placeholder="Pesquise por nome ou use o scanner... (F8)" class="flex-1 p-3 text-sm outline-none" oninput="renderizarProdutos()">
                 </div>
-                <div id="gridProdutos" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 overflow-y-auto custom-scroll pr-1 pb-10"></div>
+                <div id="gridProdutos" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-y-auto custom-scroll pr-1 pb-10"></div>
             </div>
 
             <aside class="w-[360px] bg-white border-l border-slate-200 flex flex-col">
                 <div class="p-5 border-b border-slate-100 bg-slate-50/50">
-                    <h2 class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Carrinho Ativo</h2>
-                    <p id="qtdItens" class="text-xs font-bold text-slate-900 mt-1">ITENS: 0</p>
+                    <h2 class="text-[10px] font-black uppercase text-slate-400">Checkout Ativo</h2>
+                    <p id="qtdItens" class="text-xs font-bold text-slate-900 mt-1 uppercase">0 Itens</p>
                 </div>
                 <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 space-y-2 custom-scroll"></div>
-                <div class="p-6 border-t border-slate-100 bg-white">
+                <div class="p-6 border-t border-slate-100 bg-white shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
                     <div class="flex justify-between items-end mb-6">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">Total a Pagar</span>
-                        <span id="totalVenda" class="text-3xl font-black text-slate-900">R$ 0,00</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">Total Geral</span>
+                        <span id="totalVenda" class="text-3xl font-black text-slate-900 tracking-tighter">R$ 0,00</span>
                     </div>
                     <div class="space-y-3">
-                        <select id="metodoPgto" class="w-full sharp-input font-bold" onchange="toggleTroco()">
+                        <select id="metodoPgto" class="w-full sharp-input font-bold text-sm" onchange="toggleTroco()">
                             <option value="dinheiro">💵 DINHEIRO</option>
                             <option value="pix">📱 MB WAY / PIX</option>
                             <option value="cartao">💳 CARTÃO</option>
                         </select>
                         <div id="divTroco">
-                            <input type="number" id="valorRecebido" placeholder="Valor Recebido" class="w-full sharp-input text-center font-bold h-12" oninput="calcTroco()">
+                            <input type="number" id="valorRecebido" placeholder="Valor Pago" class="w-full sharp-input text-center font-bold h-12" oninput="calcTroco()">
                             <div class="flex justify-between mt-2 px-1">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase">Troco:</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Troco a devolver:</span>
                                 <span id="labelTroco" class="text-blue-600 font-black text-sm">R$ 0,00</span>
                             </div>
                         </div>
-                        <button onclick="finalizarVenda()" class="w-full btn-pro py-4 text-xs">Finalizar Operação (F9)</button>
+                        <button onclick="finalizarVenda()" class="w-full btn-pro py-4 text-xs">Confirmar Venda (F9)</button>
                     </div>
                 </div>
             </aside>
@@ -134,32 +135,36 @@
 
         <section id="estoque" class="tab-content">
             <div class="p-8 w-full overflow-y-auto bg-slate-50 custom-scroll">
-                <div class="bg-white p-6 border border-slate-200 rounded-sm mb-8">
-                    <h3 class="text-[10px] font-black uppercase text-slate-400 mb-6 border-b pb-2">Cadastro de Mercadoria</h3>
+                <div class="bg-white p-6 border border-slate-200 rounded-sm mb-8 shadow-sm">
+                    <h3 class="text-[10px] font-black uppercase text-slate-400 mb-6 border-b pb-2">Gerenciar Item</h3>
                     <form id="formProd" class="grid grid-cols-12 gap-4">
                         <input type="hidden" id="editId">
                         <div class="col-span-8 flex flex-col gap-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase">Nome do Produto</label>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Descrição da Mercadoria</label>
                             <input type="text" id="nome" class="sharp-input" required>
                         </div>
                         <div class="col-span-4 flex flex-col gap-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase">Código (Scanner)</label>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Código EAN / Scanner</label>
                             <input type="text" id="cod" class="sharp-input">
                         </div>
                         <div class="col-span-3 flex flex-col gap-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase">Stock</label>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Qtd Stock</label>
                             <input type="number" id="qtd" class="sharp-input" required>
                         </div>
                         <div class="col-span-3 flex flex-col gap-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase">Custo Unit.</label>
-                            <input type="number" id="custo" step="0.01" class="sharp-input" required>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase text-red-500">Preço de Custo (R$)</label>
+                            <input type="number" id="custo" step="0.01" class="sharp-input border-red-100" required>
                         </div>
                         <div class="col-span-3 flex flex-col gap-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase">Venda Unit.</label>
-                            <input type="number" id="preco" step="0.01" class="sharp-input" required>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase text-green-600">Preço de Venda (R$)</label>
+                            <input type="number" id="preco" step="0.01" class="sharp-input border-green-100" required>
+                        </div>
+                        <div class="col-span-3 flex flex-col gap-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">URL da Imagem</label>
+                            <input type="text" id="imgUrl" class="sharp-input" placeholder="https://...">
                         </div>
                         <div class="col-span-12">
-                            <button type="submit" class="bg-slate-900 text-white px-8 py-3 rounded-sm text-[10px] font-black uppercase">Atualizar Base de Dados</button>
+                            <button type="submit" class="bg-slate-900 text-white px-10 py-3 rounded-sm text-[10px] font-black uppercase hover:bg-black">Gravar Produto</button>
                         </div>
                     </form>
                 </div>
@@ -170,10 +175,10 @@
         <section id="historico" class="tab-content">
             <div class="p-8 w-full overflow-y-auto bg-slate-50">
                 <div id="estatisticas" class="grid grid-cols-3 gap-6 mb-8"></div>
-                <div class="bg-white border border-slate-200 rounded-sm overflow-hidden shadow-sm">
+                <div class="bg-white border border-slate-200 rounded-sm overflow-hidden">
                     <table class="w-full text-left text-[11px]">
                         <thead class="bg-slate-50 border-b border-slate-200 uppercase font-bold text-slate-400">
-                            <tr><th class="p-4">Timestamp</th><th class="p-4">Relatório de Itens</th><th class="p-4">Total</th><th class="p-4 text-blue-600">Lucro</th><th class="p-4">Remover</th></tr>
+                            <tr><th class="p-4">Data/Hora</th><th class="p-4">Itens</th><th class="p-4">Venda Total</th><th class="p-4 text-blue-600">Lucro Real</th><th class="p-4">Ação</th></tr>
                         </thead>
                         <tbody id="corpoTabelaVendas" class="divide-y divide-slate-100"></tbody>
                     </table>
@@ -183,7 +188,7 @@
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 opacity-0 bg-slate-900 text-white px-6 py-3 rounded-sm font-bold text-xs transition-all z-[300]"></div>
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 opacity-0 bg-slate-900 text-white px-6 py-3 rounded-sm font-bold text-[10px] transition-all z-[300] uppercase tracking-wider"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -206,15 +211,12 @@
 
     let produtos = [], vendas = [], carrinho = [], scannerBuffer = "";
 
-    // EXPOSIÇÃO GLOBAL - Isso resolve o erro de "ReferenceError"
+    // FUNÇÕES GLOBAIS (Resolvendo ReferenceError)
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
-        try { 
-            await signInWithEmailAndPassword(auth, e, s); 
-        } catch (err) { 
-            document.getElementById('loginError').classList.remove('hidden'); 
-        }
+        try { await signInWithEmailAndPassword(auth, e, s); } 
+        catch (err) { document.getElementById('loginError').classList.remove('hidden'); }
     };
 
     window.logout = () => signOut(auth).then(() => location.reload());
@@ -224,6 +226,7 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.getElementById('btn-' + id).classList.add('active');
+        if(id === 'venda') document.getElementById('inputBusca').focus();
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -271,19 +274,24 @@
         const busca = document.getElementById('inputBusca').value.toLowerCase();
         const filtrados = produtos.filter(p => (p.nome || "").toLowerCase().includes(busca) || String(p.cod).includes(busca));
         grid.innerHTML = filtrados.map(p => `
-            <div class="prod-card p-4 flex flex-col h-full" onclick="addCarrinho('${p.firebaseId}')">
-                <h3 class="font-bold text-[11px] text-slate-800 uppercase truncate">${p.nome}</h3>
-                <p class="text-[9px] text-slate-400 mt-1">COD: ${p.cod || '---'}</p>
-                <div class="mt-auto flex justify-between items-center pt-4">
-                    <span class="text-blue-600 font-black">R$ ${p.preco.toFixed(2)}</span>
-                    <span class="text-[9px] font-bold bg-slate-100 px-2 py-1">${p.estoque} UN</span>
+            <div class="prod-card flex flex-col h-full" onclick="addCarrinho('${p.firebaseId}')">
+                <div class="img-box">
+                    <img src="${p.img || 'https://via.placeholder.com/150?text=Louisiana'}" onerror="this.src='https://via.placeholder.com/150?text=SEM+IMAGEM'">
+                </div>
+                <div class="p-3 flex flex-col flex-1">
+                    <h3 class="font-bold text-[10px] text-slate-800 uppercase truncate">${p.nome}</h3>
+                    <p class="text-[9px] text-slate-400 mt-1">REF: ${p.cod || '---'}</p>
+                    <div class="mt-auto flex justify-between items-center pt-3">
+                        <span class="text-blue-600 font-black text-xs">R$ ${p.preco.toFixed(2)}</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase">${p.estoque} UN</span>
+                    </div>
                 </div>
             </div>`).join('');
     };
 
     window.addCarrinho = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
-        if(!p || p.estoque <= 0) return window.notificar("MERCADORIA ESGOTADA");
+        if(!p || p.estoque <= 0) return window.notificar("ESTOQUE ESGOTADO");
         const item = carrinho.find(i => i.firebaseId === id);
         item ? (item.qtd < p.estoque ? item.qtd++ : null) : carrinho.push({...p, qtd: 1});
         window.atualizarCarrinho();
@@ -294,7 +302,7 @@
         let total = 0;
         container.innerHTML = carrinho.map((item, idx) => {
             total += item.preco * item.qtd;
-            return `<div class="bg-white border border-slate-200 p-3 flex justify-between items-center rounded-sm shadow-sm">
+            return `<div class="bg-white border border-slate-200 p-3 flex justify-between items-center rounded-sm">
                 <div class="truncate flex-1">
                     <p class="font-bold text-[10px] uppercase truncate text-slate-700">${item.nome}</p>
                     <p class="text-blue-600 text-[10px] font-black">${item.qtd} UN x R$ ${item.preco.toFixed(2)}</p>
@@ -303,7 +311,7 @@
             </div>`;
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
-        document.getElementById('qtdItens').innerText = `ITENS: ${carrinho.reduce((a,b)=>a+b.qtd,0)}`;
+        document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} ITENS NO CARRINHO`;
         window.calcTroco();
     };
 
@@ -324,7 +332,7 @@
             itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ') 
         });
         await batch.commit();
-        carrinho = []; window.atualizarCarrinho(); window.notificar("VENDA REGISTRADA");
+        carrinho = []; window.atualizarCarrinho(); window.notificar("VENDA FINALIZADA COM SUCESSO");
     };
 
     window.renderizarHistorico = () => {
@@ -333,42 +341,45 @@
         let totalF = 0, totalL = 0;
         corpo.innerHTML = vendas.map(v => {
             totalF += v.total; totalL += v.lucro;
-            return `<tr>
-                <td class="p-4 text-slate-400">${new Date(v.data).toLocaleString()}</td>
-                <td class="p-4 font-bold text-slate-700">${v.itens}</td>
+            return `<tr class="hover:bg-slate-50">
+                <td class="p-4 text-slate-400 font-medium">${new Date(v.data).toLocaleString()}</td>
+                <td class="p-4 font-bold text-slate-700 uppercase text-[10px]">${v.itens}</td>
                 <td class="p-4 font-bold">R$ ${v.total.toFixed(2)}</td>
                 <td class="p-4 text-blue-600 font-black">R$ ${v.lucro.toFixed(2)}</td>
-                <td class="p-4"><button onclick="removerVenda('${v.firebaseId}')" class="text-slate-300">🗑</button></td>
+                <td class="p-4"><button onclick="removerVenda('${v.firebaseId}')" class="text-slate-200 hover:text-red-500">🗑</button></td>
             </tr>`;
         }).join('');
         stats.innerHTML = `
-            <div class="bg-white border p-6"><p class="text-[9px] font-bold text-slate-400 uppercase">Faturamento Bruto</p><p class="text-2xl font-black">R$ ${totalF.toFixed(2)}</p></div>
-            <div class="bg-white border border-t-blue-600 p-6"><p class="text-[9px] font-bold text-blue-600 uppercase">Lucro Líquido</p><p class="text-2xl font-black text-blue-600">R$ ${totalL.toFixed(2)}</p></div>
-            <div class="bg-white border p-6"><p class="text-[9px] font-bold text-slate-400 uppercase">Total Vendas</p><p class="text-2xl font-black">${vendas.length}</p></div>`;
+            <div class="bg-white border p-6"><p class="text-[9px] font-bold text-slate-400 uppercase">Faturamento</p><p class="text-2xl font-black">R$ ${totalF.toFixed(2)}</p></div>
+            <div class="bg-white border border-t-blue-600 p-6"><p class="text-[9px] font-bold text-blue-600 uppercase">Lucro do Período</p><p class="text-2xl font-black text-blue-600">R$ ${totalL.toFixed(2)}</p></div>
+            <div class="bg-white border p-6"><p class="text-[9px] font-bold text-slate-400 uppercase">Total Operações</p><p class="text-2xl font-black">${vendas.length}</p></div>`;
     };
 
-    // INVENTÁRIO
+    // INVENTÁRIO COM IMAGEM
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
         const p = { 
             nome: document.getElementById('nome').value, cod: document.getElementById('cod').value, 
             estoque: parseInt(document.getElementById('qtd').value), custo: parseFloat(document.getElementById('custo').value), 
-            preco: parseFloat(document.getElementById('preco').value)
+            preco: parseFloat(document.getElementById('preco').value), img: document.getElementById('imgUrl').value
         };
         const id = document.getElementById('editId').value;
         id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
-        e.target.reset(); document.getElementById('editId').value = ""; window.notificar("SISTEMA ATUALIZADO");
+        e.target.reset(); document.getElementById('editId').value = ""; window.notificar("ESTOQUE ATUALIZADO");
     };
 
     window.renderizarEstoque = () => {
         const grid = document.getElementById('listaEstoqueGrid');
         grid.innerHTML = produtos.map(p => `
-            <div class="bg-white border p-4 shadow-sm">
-                <p class="font-black text-[10px] truncate uppercase text-slate-700">${p.nome}</p>
-                <p class="text-[9px] text-slate-400">COD: ${p.cod}</p>
-                <div class="flex gap-2 mt-4">
-                    <button onclick="editarProd('${p.firebaseId}')" class="flex-1 bg-slate-100 text-slate-600 text-[9px] font-black py-2 hover:bg-slate-900 hover:text-white transition uppercase">Editar</button>
-                    <button onclick="removerProd('${p.firebaseId}')" class="text-red-300 px-2">🗑</button>
+            <div class="bg-white border border-slate-200 overflow-hidden shadow-sm">
+                <div class="h-24 bg-slate-50"><img src="${p.img}" class="w-full h-full object-cover"></div>
+                <div class="p-3">
+                    <p class="font-black text-[10px] truncate uppercase text-slate-700">${p.nome}</p>
+                    <p class="text-[9px] text-slate-400 mt-1">CUSTO: R$ ${p.custo.toFixed(2)}</p>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="editarProd('${p.firebaseId}')" class="flex-1 bg-slate-100 text-slate-600 text-[9px] font-black py-2 uppercase hover:bg-blue-600 hover:text-white transition">Editar</button>
+                        <button onclick="removerProd('${p.firebaseId}')" class="text-slate-300 hover:text-red-500 px-1">🗑</button>
+                    </div>
                 </div>
             </div>`).join('');
     };
@@ -381,11 +392,12 @@
         document.getElementById('qtd').value = p.estoque;
         document.getElementById('custo').value = p.custo;
         document.getElementById('preco').value = p.preco;
+        document.getElementById('imgUrl').value = p.img || "";
         window.switchTab('estoque');
     };
 
-    window.removerProd = async (id) => { if(confirm("Remover do inventário?")) await deleteDoc(doc(db, "produtos", id)); };
-    window.removerVenda = async (id) => { if(confirm("Anular este registro?")) await deleteDoc(doc(db, "vendas", id)); };
+    window.removerProd = async (id) => { if(confirm("EXCLUIR PERMANENTEMENTE?")) await deleteDoc(doc(db, "produtos", id)); };
+    window.removerVenda = async (id) => { if(confirm("REMOVER VENDA DO HISTÓRICO?")) await deleteDoc(doc(db, "vendas", id)); };
 
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
