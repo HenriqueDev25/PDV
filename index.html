@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Louisiana PDV - Premium Edition</title>
+    <title>Louisiana PDV - Pro Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -71,25 +71,27 @@
         .hidden-app { display: none !important; }
         input, select { background: #262a33 !important; border: 1px solid #334155 !important; color: white !important; }
         input:focus { border-color: var(--accent-green) !important; outline: none; box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2); }
+        
+        .modo-seguro .valor-lucro { filter: blur(5px); pointer-events: none; }
     </style>
 </head>
 <body>
 
 <div id="loadingScreen">
     <div class="spinner"></div>
-    <p class="text-xs font-bold tracking-[0.3em] uppercase mt-6 text-green-500/50">Sincronizando Banco de Dados</p>
+    <p class="text-xs font-bold tracking-[0.3em] uppercase mt-6 text-green-500/50">Sincronizando Sistema</p>
 </div>
 
 <div id="loginScreen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0c10]">
     <div class="glass p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl">
         <div class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold tracking-tighter italic"><span id="displayNomeLojaLogin">LOUISIANA</span> <span class="text-green-500">PDV</span></h1>
-            <p class="text-slate-500 text-sm mt-2 font-medium">Painel de Controle</p>
+            <h1 class="text-4xl font-extrabold tracking-tighter italic"><span class="nome-loja-txt">LOUISIANA</span> <span class="text-green-500">PDV</span></h1>
+            <p class="text-slate-500 text-sm mt-2 font-medium uppercase tracking-widest">Acesso Restrito</p>
         </div>
         <div class="space-y-4">
             <input type="email" id="loginEmail" placeholder="E-mail" class="w-full p-4 rounded-2xl">
             <input type="password" id="loginPassword" placeholder="Senha" class="w-full p-4 rounded-2xl">
-            <button onclick="fazerLoginEmail()" class="w-full bg-green-500 hover:bg-green-400 text-black font-extrabold py-4 rounded-2xl transition duration-300 shadow-lg shadow-green-500/20">ENTRAR</button>
+            <button onclick="fazerLoginEmail()" class="w-full bg-green-500 hover:bg-green-400 text-black font-extrabold py-4 rounded-2xl transition duration-300">ENTRAR</button>
         </div>
         <p id="loginError" class="text-red-400 mt-6 text-center text-xs font-bold hidden px-4 py-2 bg-red-400/10 rounded-lg">Acesso negado.</p>
     </div>
@@ -97,12 +99,12 @@
 
 <div id="appInterface" class="hidden-app flex flex-col h-screen">
     <header class="h-20 flex items-center justify-between px-8 border-b border-white/5 bg-[#0f1115] shrink-0 z-50">
-        <h1 class="text-2xl font-black italic tracking-tighter"><span id="headerNomeLoja">LOUISIANA</span> <span class="text-green-500">PDV</span></h1>
+        <h1 class="text-2xl font-black italic tracking-tighter"><span class="nome-loja-txt">LOUISIANA</span> <span class="text-green-500">PDV</span></h1>
         <nav class="flex items-center gap-2 bg-white/5 p-1.5 rounded-2xl">
             <button onclick="switchTab('venda')" id="btn-venda" class="tab-btn active px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider">Vendas (F1)</button>
             <button onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Estoque (F2)</button>
             <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Relatórios (F3)</button>
-            <button onclick="switchTab('config')" id="btn-config" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Config (F4)</button>
+            <button onclick="switchTab('config')" id="btn-config" class="tab-btn px-6 py-2.5 text-xs font-bold rounded-xl transition-all uppercase tracking-wider text-slate-400">Ajustes (F4)</button>
         </nav>
         <button onclick="logout()" class="px-5 py-2.5 text-[10px] font-black text-red-500 bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all uppercase">Sair</button>
     </header>
@@ -112,21 +114,26 @@
         <section id="venda" class="tab-content active p-6">
             <div class="flex h-full gap-6 overflow-hidden">
                 <div class="flex-[3] flex flex-col gap-6 overflow-hidden">
-                    <div class="relative shrink-0">
+                    <div class="flex gap-4">
                         <input type="text" id="inputBusca" placeholder="Pesquisar produto ou código... (F8)" 
-                               class="w-full pl-6 pr-6 py-5 rounded-[1.5rem] shadow-2xl text-lg font-medium" oninput="renderizarProdutos()">
+                               class="flex-1 pl-6 pr-6 py-5 rounded-[1.5rem] shadow-2xl text-lg font-medium" oninput="renderizarProdutos()">
                     </div>
                     <div id="gridProdutos" class="grid-pdv overflow-y-auto pr-2 custom-scroll pb-10"></div>
                 </div>
 
-                <div class="w-[380px] glass rounded-[2.5rem] flex flex-col shadow-2xl overflow-hidden shrink-0 border-white/10">
-                    <div class="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
-                        <h2 class="text-xl font-bold">Checkout <span class="text-green-500 ml-2 text-xs" id="qtdItens">0 Itens</span></h2>
+                <div class="w-[380px] glass rounded-[2.5rem] flex flex-col shadow-2xl overflow-hidden shrink-0">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <h2 class="text-xl font-bold uppercase tracking-tighter">Carrinho</h2>
+                        <span class="bg-green-500 text-black px-3 py-1 rounded-full text-[10px] font-black" id="qtdItens">0 ITENS</span>
                     </div>
                     <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 custom-scroll space-y-3"></div>
-                    <div class="p-8 bg-black/40 border-t border-white/5 space-y-6 shrink-0">
+                    <div class="p-8 bg-black/40 border-t border-white/5 space-y-4">
+                        <div class="flex justify-between text-slate-400 text-[10px] font-black uppercase">
+                            <span>Subtotal</span>
+                            <span id="subtotalCarrinho">R$ 0,00</span>
+                        </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-slate-400 font-bold uppercase text-[10px]">Total</span>
+                            <span class="text-slate-400 font-bold uppercase text-[10px]">Total Final</span>
                             <span id="totalVenda" class="text-4xl font-black text-green-500 tracking-tighter">R$ 0,00</span>
                         </div>
                         <select id="metodoPgto" class="w-full p-4 rounded-xl font-bold" onchange="toggleTroco()">
@@ -135,9 +142,9 @@
                             <option value="Cartão">Cartão</option>
                         </select>
                         <div id="divTroco" class="flex items-center gap-3">
-                            <input type="number" id="valorRecebido" placeholder="Valor pago" class="w-full p-4 rounded-xl font-bold text-green-500" oninput="calcTroco()">
+                            <input type="number" id="valorRecebido" placeholder="Valor recebido" class="w-full p-4 rounded-xl font-bold text-green-500" oninput="calcTroco()">
                         </div>
-                        <button onclick="finalizarVenda()" class="w-full bg-green-500 hover:bg-green-400 text-black font-black py-5 rounded-2xl transition-all uppercase tracking-widest text-sm">Finalizar (F9)</button>
+                        <button onclick="finalizarVenda()" class="w-full bg-green-500 hover:bg-green-400 text-black font-black py-5 rounded-2xl transition-all uppercase tracking-widest text-sm shadow-lg shadow-green-500/20">Finalizar (F9)</button>
                     </div>
                 </div>
             </div>
@@ -145,17 +152,17 @@
 
         <section id="estoque" class="tab-content p-6 h-full">
             <div class="max-w-6xl mx-auto w-full flex flex-col h-full overflow-hidden">
-                <div class="glass p-6 rounded-[2rem] shadow-2xl mb-6 shrink-0">
+                <div class="glass p-6 rounded-[2rem] shadow-2xl mb-6 shrink-0 border-white/10">
                     <form id="formProd" class="grid grid-cols-4 gap-4">
                         <input type="hidden" id="editId">
                         <div class="col-span-2"><input type="text" id="nome" placeholder="Nome do Produto" class="w-full p-3.5 rounded-xl" required></div>
                         <input type="text" id="cod" placeholder="Código/EAN" class="p-3.5 rounded-xl">
                         <input type="number" id="qtd" placeholder="Estoque" class="p-3.5 rounded-xl" required>
-                        <input type="number" id="custo" step="0.01" placeholder="Preço Custo" class="p-3.5 rounded-xl" required>
-                        <input type="number" id="preco" step="0.01" placeholder="Preço Venda" class="p-3.5 rounded-xl" required>
-                        <div class="col-span-1"><input type="text" id="imgUrl" placeholder="URL da Imagem" class="w-full p-3.5 rounded-xl"></div>
+                        <input type="number" id="custo" step="0.01" placeholder="Custo" class="p-3.5 rounded-xl" required>
+                        <input type="number" id="preco" step="0.01" placeholder="Venda" class="p-3.5 rounded-xl" required>
+                        <input type="text" id="imgUrl" placeholder="URL Imagem" class="p-3.5 rounded-xl col-span-2">
                         <div class="flex gap-2">
-                            <button type="submit" id="btnSalvar" class="flex-1 bg-green-500 hover:bg-green-400 text-black font-black rounded-xl uppercase text-xs">Salvar</button>
+                            <button type="submit" id="btnSalvar" class="flex-1 bg-green-500 text-black font-black rounded-xl uppercase text-xs">Salvar</button>
                             <button type="button" onclick="cancelarEdicao()" id="btnCancelarEdit" class="hidden px-4 bg-slate-700 text-white font-black rounded-xl uppercase text-[10px]">X</button>
                         </div>
                     </form>
@@ -169,7 +176,7 @@
         <section id="historico" class="tab-content p-8 h-full">
             <div class="max-w-6xl mx-auto w-full flex flex-col h-full overflow-hidden">
                 <div id="estatisticas" class="flex gap-6 mb-6 shrink-0"></div>
-                <div class="glass rounded-[2rem] overflow-hidden flex-1 flex flex-col">
+                <div class="glass rounded-[2rem] overflow-hidden flex-1 flex flex-col border-white/5">
                     <div class="overflow-y-auto custom-scroll">
                         <table class="w-full text-left">
                             <thead class="bg-white/5 text-slate-400 text-[10px] uppercase font-black sticky top-0 z-10">
@@ -189,26 +196,69 @@
             </div>
         </section>
 
-        <section id="config" class="tab-content p-8 h-full">
-            <div class="max-w-2xl mx-auto w-full">
-                <h2 class="text-3xl font-black mb-8 uppercase tracking-tighter">Configurações</h2>
-                <div class="glass p-8 rounded-[2.5rem] space-y-8">
+        <section id="config" class="tab-content p-8 h-full overflow-y-auto custom-scroll">
+            <div class="max-w-4xl mx-auto w-full pb-20">
+                <div class="flex justify-between items-end mb-8">
                     <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-500 mb-3 ml-2">Nome do Estabelecimento</label>
-                        <input type="text" id="cfgNomeLoja" class="w-full p-4 rounded-2xl" placeholder="Ex: Louisiana Store">
+                        <h2 class="text-4xl font-black uppercase tracking-tighter italic">Ajustes</h2>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Configurações do Sistema</p>
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-black uppercase text-slate-500 mb-3 ml-2">Alerta de Estoque Baixo (unidades)</label>
-                        <input type="number" id="cfgEstoqueBaixo" class="w-full p-4 rounded-2xl" placeholder="Ex: 5">
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <button onclick="salvarConfig()" class="bg-green-500 text-black font-black px-10 py-4 rounded-2xl uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-lg shadow-green-500/20">Salvar Alterações</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-8 rounded-[2.5rem] space-y-6">
+                        <h3 class="text-green-500 font-black text-xs uppercase tracking-widest mb-4">Perfil da Loja</h3>
                         <div>
-                            <p class="font-bold text-sm">Simular Impressão</p>
-                            <p class="text-xs text-slate-400">Abrir recibo em nova aba após venda</p>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1">Nome Fantasia</label>
+                            <input type="text" id="cfgNomeLoja" class="w-full p-4 rounded-xl">
                         </div>
-                        <input type="checkbox" id="cfgImpressao" class="w-6 h-6 accent-green-500">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1">Cor de Destaque (Hex)</label>
+                            <div class="flex gap-3">
+                                <input type="text" id="cfgCorDestaque" class="w-full p-4 rounded-xl" placeholder="#22c55e">
+                                <div id="colorPreview" class="w-14 rounded-xl border border-white/10"></div>
+                            </div>
+                        </div>
                     </div>
-                    <button onclick="salvarConfig()" class="w-full bg-green-500 text-black font-black py-4 rounded-2xl uppercase tracking-widest text-xs hover:bg-green-400 transition-all">Salvar Configurações</button>
+
+                    <div class="glass p-8 rounded-[2.5rem] space-y-6">
+                        <h3 class="text-green-500 font-black text-xs uppercase tracking-widest mb-4">Financeiro & Estoque</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1">Estoque Crítico</label>
+                                <input type="number" id="cfgEstoqueBaixo" class="w-full p-4 rounded-xl">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1">Taxa fixa (R$)</label>
+                                <input type="number" id="cfgTaxaFixa" class="w-full p-4 rounded-xl" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl">
+                            <span class="text-xs font-bold">Modo de Segurança (Ocultar Lucro)</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="cfgModoSeguro" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="glass p-8 rounded-[2.5rem] space-y-6 md:col-span-2">
+                        <h3 class="text-green-500 font-black text-xs uppercase tracking-widest mb-4">Recibos & Impressão</h3>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/5">
+                                <input type="checkbox" id="cfgImpressao" class="w-6 h-6 accent-green-500">
+                                <div>
+                                    <p class="text-xs font-bold">Gerar Recibo</p>
+                                    <p class="text-[9px] text-slate-500">Abrir popup após venda</p>
+                                </div>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-[10px] font-black uppercase text-slate-500 mb-2 ml-1">Mensagem no Rodapé do Recibo</label>
+                                <input type="text" id="cfgMsgRodape" class="w-full p-4 rounded-xl" placeholder="Ex: Volte Sempre! Deus é fiel.">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -239,11 +289,15 @@
 
     let produtos = [], vendas = [], carrinho = [];
     
-    // CONFIGURAÇÕES PADRÃO
-    let configGerais = JSON.parse(localStorage.getItem('pdv_configs')) || {
+    // CONFIGURAÇÕES PADRÃO MELHORADAS
+    let configGerais = JSON.parse(localStorage.getItem('pdv_configs_pro')) || {
         nomeLoja: "LOUISIANA",
         estoqueBaixo: 5,
-        impressao: false
+        impressao: false,
+        corDestaque: "#22c55e",
+        modoSeguro: false,
+        taxaFixa: 0,
+        msgRodape: "OBRIGADO PELA PREFERÊNCIA!"
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -256,11 +310,13 @@
         if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
             login.classList.add('hidden-app');
             appUi.classList.remove('hidden-app');
+            
             onSnapshot(collection(db, "produtos"), (snap) => {
                 produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
                 window.renderizarProdutos();
                 window.renderizarEstoque();
             });
+            
             onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
                 vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
                 window.renderizarHistorico();
@@ -275,25 +331,47 @@
         }, 800);
     });
 
-    // SISTEMA DE CONFIGURAÇÕES
+    // LÓGICA DE CONFIGURAÇÕES
     function aplicarConfigInterface() {
-        document.getElementById('displayNomeLojaLogin').innerText = configGerais.nomeLoja;
-        document.getElementById('headerNomeLoja').innerText = configGerais.nomeLoja;
+        // Atualiza textos
+        document.querySelectorAll('.nome-loja-txt').forEach(el => el.innerText = configGerais.nomeLoja);
+        
+        // Aplica cores
+        document.documentElement.style.setProperty('--accent-green', configGerais.corDestaque);
+        document.getElementById('colorPreview').style.backgroundColor = configGerais.corDestaque;
+        
+        // Preenche inputs
         document.getElementById('cfgNomeLoja').value = configGerais.nomeLoja;
         document.getElementById('cfgEstoqueBaixo').value = configGerais.estoqueBaixo;
         document.getElementById('cfgImpressao').checked = configGerais.impressao;
+        document.getElementById('cfgCorDestaque').value = configGerais.corDestaque;
+        document.getElementById('cfgModoSeguro').checked = configGerais.modoSeguro;
+        document.getElementById('cfgTaxaFixa').value = configGerais.taxaFixa;
+        document.getElementById('cfgMsgRodape').value = configGerais.msgRodape;
+
+        // Modo seguro
+        if(configGerais.modoSeguro) {
+            document.body.classList.add('modo-seguro');
+        } else {
+            document.body.classList.remove('modo-seguro');
+        }
     }
 
     window.salvarConfig = () => {
         configGerais = {
             nomeLoja: document.getElementById('cfgNomeLoja').value.toUpperCase() || "LOUISIANA",
             estoqueBaixo: parseInt(document.getElementById('cfgEstoqueBaixo').value) || 0,
-            impressao: document.getElementById('cfgImpressao').checked
+            impressao: document.getElementById('cfgImpressao').checked,
+            corDestaque: document.getElementById('cfgCorDestaque').value || "#22c55e",
+            modoSeguro: document.getElementById('cfgModoSeguro').checked,
+            taxaFixa: parseFloat(document.getElementById('cfgTaxaFixa').value) || 0,
+            msgRodape: document.getElementById('cfgMsgRodape').value.toUpperCase()
         };
-        localStorage.setItem('pdv_configs', JSON.stringify(configGerais));
+        localStorage.setItem('pdv_configs_pro', JSON.stringify(configGerais));
         aplicarConfigInterface();
         window.renderizarProdutos();
-        window.notificar("Configurações Salvas!");
+        window.atualizarCarrinho();
+        window.notificar("Ajustes Aplicados!");
     };
 
     window.fazerLoginEmail = async () => {
@@ -302,6 +380,7 @@
         try { await signInWithEmailAndPassword(auth, e, s); } 
         catch (err) { document.getElementById('loginError').classList.remove('hidden'); }
     };
+
     window.logout = () => signOut(auth).then(() => location.reload());
 
     window.switchTab = (id) => {
@@ -329,7 +408,7 @@
                     <h3 class="font-bold text-[10px] uppercase truncate text-white mb-1">${p.nome}</h3>
                     <div class="flex justify-between items-center mt-3">
                         <span class="font-black text-green-500 text-sm">R$ ${parseFloat(p.preco || 0).toFixed(2)}</span>
-                        <span class="text-[8px] ${isBaixo ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-slate-400'} px-2 py-1 rounded font-black">${p.estoque || 0} UN</span>
+                        <span class="text-[8px] ${isBaixo ? 'bg-red-500 text-white' : 'bg-white/5 text-slate-400'} px-2 py-1 rounded font-black">${p.estoque || 0} UN</span>
                     </div>
                 </div>
             `;
@@ -356,45 +435,54 @@
         const prod = produtos.find(p => p.firebaseId === fbId);
         if(!prod || prod.estoque <= 0) { window.notificar("Sem estoque!"); return; }
         const item = carrinho.find(i => i.firebaseId === fbId);
-        item ? (item.qtd < prod.estoque ? item.qtd++ : window.notificar("Estoque insuficiente")) : carrinho.push({...prod, qtd: 1});
+        item ? (item.qtd < prod.estoque ? item.qtd++ : window.notificar("Limite atingido")) : carrinho.push({...prod, qtd: 1});
         window.atualizarCarrinho();
     };
 
     window.atualizarCarrinho = () => {
         const lista = document.getElementById('carrinhoItens');
-        let total = 0;
+        let subtotal = 0;
         lista.innerHTML = carrinho.map((item, idx) => {
-            total += (item.preco * item.qtd);
+            subtotal += (item.preco * item.qtd);
             return `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center border-l-4 border-green-500">
-                <div class="truncate"><p class="font-bold text-xs truncate">${item.nome}</p><p class="text-green-500 font-black text-[10px]">${item.qtd}x R$ ${parseFloat(item.preco).toFixed(2)}</p></div>
+                <div class="truncate"><p class="font-bold text-xs truncate uppercase">${item.nome}</p><p class="text-green-500 font-black text-[10px]">${item.qtd}x R$ ${parseFloat(item.preco).toFixed(2)}</p></div>
                 <button onclick="window.removerItemCarrinho(${idx})" class="text-slate-500 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
             </div>`;
         }).join('');
-        document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
-        document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} Itens`;
+        
+        const totalFinal = subtotal + configGerais.taxaFixa;
+        document.getElementById('subtotalCarrinho').innerText = `R$ ${subtotal.toFixed(2)}`;
+        document.getElementById('totalVenda').innerText = `R$ ${totalFinal.toFixed(2)}`;
+        document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} ITENS`;
     };
 
     window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); window.atualizarCarrinho(); };
     window.toggleTroco = () => { document.getElementById('divTroco').style.display = (document.getElementById('metodoPgto').value === 'Dinheiro') ? 'flex' : 'none'; };
+    
     window.calcTroco = () => {
         const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '')) || 0;
         const recebido = parseFloat(document.getElementById('valorRecebido').value) || 0;
-        document.getElementById('toast').innerText = `Troco: R$ ${Math.max(0, recebido - total).toFixed(2)}`;
+        if(recebido > total) window.notificar(`Troco: R$ ${(recebido - total).toFixed(2)}`);
     };
 
     window.finalizarVenda = async () => {
         if(carrinho.length === 0) return;
         const batch = writeBatch(db);
         let totalV = 0, lucroV = 0;
+        
         carrinho.forEach(item => {
             totalV += (item.preco * item.qtd);
             lucroV += (item.preco - item.custo) * item.qtd;
             batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
         });
         
+        totalV += configGerais.taxaFixa; // Adiciona taxa configurada
+
         const vendaData = {
             data: new Date().toISOString(),
-            total: totalV, lucro: lucroV, pagamento: document.getElementById('metodoPgto').value,
+            total: totalV, 
+            lucro: lucroV, 
+            pagamento: document.getElementById('metodoPgto').value,
             itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
         };
 
@@ -402,9 +490,17 @@
         await batch.commit();
 
         if(configGerais.impressao) {
-            const ticket = `LOUISIANA PDV\nData: ${new Date().toLocaleString()}\nTotal: R$ ${totalV.toFixed(2)}\nObrigado pela preferência!`;
             const win = window.open("", "_blank");
-            win.document.write(`<pre>${ticket}</pre>`);
+            win.document.write(`
+                <div style="font-family:monospace; width:200px; padding:20px;">
+                    <center><b>${configGerais.nomeLoja}</b><br>RECIBO DE VENDA</center><br>
+                    ${carrinho.map(i => `${i.qtd}x ${i.nome.substring(0,15)}... R$${(i.preco*i.qtd).toFixed(2)}`).join('<br>')}
+                    <br><hr>
+                    <b>TOTAL: R$ ${totalV.toFixed(2)}</b><br>
+                    PGTO: ${vendaData.pagamento}<br><hr>
+                    <center>${configGerais.msgRodape}</center>
+                </div>
+            `);
             win.print();
             win.close();
         }
@@ -415,6 +511,7 @@
         window.notificar("Venda Concluída!");
     };
 
+    // CRUD ESTOQUE
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById('editId').value;
@@ -428,7 +525,7 @@
         };
         id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
         window.cancelarEdicao();
-        window.notificar("Salvo!");
+        window.notificar("Base atualizada!");
     };
 
     window.editarProduto = (id) => {
@@ -451,7 +548,7 @@
         document.getElementById('btnCancelarEdit').classList.add('hidden');
     };
 
-    window.removerProd = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "produtos", id)); };
+    window.removerProd = async (id) => { if(confirm("Remover produto permanentemente?")) await deleteDoc(doc(db, "produtos", id)); };
 
     window.renderizarHistorico = () => {
         const corpo = document.getElementById('corpoTabelaVendas');
@@ -461,29 +558,34 @@
             return `<tr>
                 <td class="p-6 text-slate-500 font-medium text-[10px]">${new Date(v.data).toLocaleString()}</td>
                 <td class="p-6 truncate max-w-[200px] font-bold text-white uppercase text-[9px]">${v.itens}</td>
-                <td class="p-6 uppercase text-[9px] font-black">${v.pagamento}</td>
+                <td class="p-6 uppercase text-[9px] font-black text-green-500">${v.pagamento}</td>
                 <td class="p-6 font-black text-white">R$ ${v.total.toFixed(2)}</td>
-                <td class="p-6 text-green-500 font-black">R$ ${v.lucro.toFixed(2)}</td>
-                <td class="p-6 text-center"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-500/50 hover:text-red-500">Excluir</button></td>
+                <td class="p-6 font-black text-green-500"><span class="valor-lucro">R$ ${v.lucro.toFixed(2)}</span></td>
+                <td class="p-6 text-center"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-500/30 hover:text-red-500 transition-all">Excluir</button></td>
             </tr>`;
         }).join('');
+        
         document.getElementById('estatisticas').innerHTML = `
             <div class="glass p-6 rounded-[1.5rem] flex-1">
-                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Total</p>
+                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Faturamento Total</p>
                 <p class="text-2xl font-black">R$ ${tTotal.toFixed(2)}</p>
             </div>
-            <div class="bg-green-500 p-6 rounded-[1.5rem] flex-1">
-                <p class="text-[9px] font-black text-black/40 uppercase tracking-widest">Lucro</p>
-                <p class="text-2xl font-black text-black">R$ ${lTotal.toFixed(2)}</p>
+            <div class="bg-green-500 p-6 rounded-[1.5rem] flex-1 shadow-lg shadow-green-500/10">
+                <p class="text-[9px] font-black text-black/40 uppercase tracking-widest">Lucro Estimado</p>
+                <p class="text-2xl font-black text-black"><span class="valor-lucro">R$ ${lTotal.toFixed(2)}</span></p>
             </div>`;
     };
-    window.removerVenda = async (id) => { if(confirm("Remover venda?")) await deleteDoc(doc(db, "vendas", id)); };
+
+    window.removerVenda = async (id) => { if(confirm("Estornar venda?")) await deleteDoc(doc(db, "vendas", id)); };
+
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
         t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
         setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
     };
+
     function focarBusca() { document.getElementById('inputBusca')?.focus(); }
+    
     window.addEventListener('keydown', (e) => {
         if (e.key === 'F1') window.switchTab('venda');
         if (e.key === 'F2') window.switchTab('estoque');
