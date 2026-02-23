@@ -38,7 +38,7 @@
             background: var(--primary); border-radius: 10px; box-shadow: 0 0 10px var(--primary);
         }
 
-        /* Grade de Produtos Corrigida - Quadrados Menores */
+        /* Grade de Produtos */
         .grid-pdv {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -47,7 +47,7 @@
             align-items: start;
         }
 
-        /* Cards de Produto Menores */
+        /* Cards de Produto */
         .img-produto { width: 100%; height: 100px; object-fit: cover; border-radius: 10px; background: #f1f5f9; transition: transform 0.3s; }
         .product-card:hover .img-produto { transform: scale(1.05); }
         .product-card { transition: all 0.2s; border: 1px solid #e2e8f0; }
@@ -69,10 +69,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Login Glassmorphism */
-        #loginScreen { 
-            background: radial-gradient(circle at top left, #1e293b, #0f172a); 
-        }
-        
+        #loginScreen { background: radial-gradient(circle at top left, #1e293b, #0f172a); }
         .hidden-app { display: none !important; }
     </style>
 </head>
@@ -137,7 +134,7 @@
                             <span class="font-black uppercase tracking-widest text-[10px] text-emerald-500">Checkout</span>
                             <span class="text-slate-400 text-xs" id="qtdItens">0 Itens no carrinho</span>
                         </div>
-                        <button onclick="carrinho = []; atualizarCarrinho();" class="text-slate-500 hover:text-red-400 text-[10px] font-bold uppercase transition">Limpar</button>
+                        <button onclick="limparCarrinho()" class="text-slate-500 hover:text-red-400 text-[10px] font-bold uppercase transition">Limpar</button>
                     </div>
                     
                     <div id="carrinhoItens" class="flex-1 scroll-area p-4 space-y-3 custom-scroll"></div>
@@ -256,6 +253,12 @@
 
     let produtos = [], vendas = [], carrinho = [];
 
+    // --- FUNÇÕES UTILITÁRIAS INTERNAS ---
+    function focarBusca() {
+        const b = document.getElementById('inputBusca');
+        if(b) { b.focus(); b.select(); }
+    }
+
     // --- SCANNER REMOTO ---
     function iniciarScannerRemoto() {
         onSnapshot(collection(db, "bipe_remoto"), (snapshot) => {
@@ -267,7 +270,7 @@
 
                     if (abaEstoqueAtiva) {
                         document.getElementById('cod').value = codigoAlvo;
-                        notificar("Código capturado!");
+                        window.notificar("Código capturado!");
                     } else {
                         inputBusca.value = codigoAlvo;
                         window.renderizarProdutos();
@@ -287,7 +290,11 @@
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { document.getElementById('loginError').classList.remove('hidden'); }
+        try { 
+            await signInWithEmailAndPassword(auth, e, s); 
+        } catch (err) { 
+            document.getElementById('loginError').classList.remove('hidden'); 
+        }
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -334,7 +341,7 @@
                 </div>
                 <h3 class="font-bold text-[11px] uppercase text-slate-600 mb-1 leading-tight line-clamp-2">${p.nome}</h3>
                 <div class="mt-auto pt-2 flex justify-between items-end">
-                    <span class="font-black text-base text-slate-900 leading-none">R$ ${p.preco.toFixed(2)}</span>
+                    <span class="font-black text-base text-slate-900 leading-none">R$ ${Number(p.preco || 0).toFixed(2)}</span>
                     <span class="text-[9px] ${p.estoque < 5 ? 'bg-red-50 text-red-500' : 'bg-slate-100 text-slate-500'} px-1.5 py-1 rounded-md font-black uppercase">${p.estoque} UN</span>
                 </div>
             </div>`).join('');
@@ -362,7 +369,7 @@
         const corpoTabela = document.getElementById('corpoTabelaVendas');
         const stats = document.getElementById('estatisticas');
         let t = 0, l = 0;
-        vendas.forEach(v => { t += v.total; l += v.lucro; });
+        vendas.forEach(v => { t += (v.total || 0); l += (v.lucro || 0); });
 
         stats.innerHTML = `
             <div class="bg-white p-6 rounded-[1.5rem] border border-slate-200 shadow-sm min-w-[180px]">
@@ -380,8 +387,8 @@
                 <td class="p-5 font-bold text-slate-400 text-xs">${new Date(v.data).toLocaleString()}</td>
                 <td class="p-5 max-w-xs truncate text-xs font-medium" title="${v.itens}">${v.itens}</td>
                 <td class="p-5"><span class="px-3 py-1 bg-slate-100 rounded-full text-[9px] font-black uppercase text-slate-500">${v.pagamento}</span></td>
-                <td class="p-5 font-black text-slate-800">R$ ${v.total.toFixed(2)}</td>
-                <td class="p-5 text-emerald-600 font-bold">R$ ${v.lucro.toFixed(2)}</td>
+                <td class="p-5 font-black text-slate-800">R$ ${Number(v.total || 0).toFixed(2)}</td>
+                <td class="p-5 text-emerald-600 font-bold">R$ ${Number(v.lucro || 0).toFixed(2)}</td>
                 <td class="p-5 text-right"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-300 hover:text-red-600 transition font-bold text-xs uppercase">Remover</button></td>
             </tr>
         `).join('');
@@ -413,11 +420,11 @@
         const lista = document.getElementById('carrinhoItens');
         let total = 0;
         lista.innerHTML = carrinho.map((item, idx) => {
-            total += item.preco * item.qtd;
+            total += (item.preco || 0) * item.qtd;
             return `<div class="carrinho-item p-4 rounded-2xl flex justify-between text-white text-xs items-center">
                 <div class="truncate pr-2">
                     <p class="font-bold truncate text-sm mb-1">${item.nome}</p>
-                    <p class="text-emerald-400 font-black">${item.qtd}x <span class="text-slate-500 ml-1">R$ ${item.preco.toFixed(2)}</span></p>
+                    <p class="text-emerald-400 font-black">${item.qtd}x <span class="text-slate-500 ml-1">R$ ${Number(item.preco || 0).toFixed(2)}</span></p>
                 </div>
                 <button onclick="removerItemCarrinho(${idx})" class="text-slate-500 hover:text-red-400 transition p-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -426,41 +433,54 @@
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
         document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} Itens no carrinho`;
+        window.calcTroco(); // Atualiza o troco se mudar as coisas do carrinho
     };
 
     window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); window.atualizarCarrinho(); focarBusca(); };
+
+    // FUNÇÃO CORRIGIDA DO BOTÃO LIMPAR
+    window.limparCarrinho = () => {
+        carrinho = [];
+        window.atualizarCarrinho();
+        document.getElementById('valorRecebido').value = '';
+        window.calcTroco();
+        focarBusca();
+    };
 
     window.finalizarVenda = async () => {
         if(carrinho.length === 0) return;
         const batch = writeBatch(db);
         let totalV = 0, lucroV = 0;
+        
         carrinho.forEach(item => {
-            totalV += item.preco * item.qtd;
-            lucroV += (item.preco - item.custo) * item.qtd;
+            totalV += (item.preco || 0) * item.qtd;
+            lucroV += ((item.preco || 0) - (item.custo || 0)) * item.qtd;
             batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
         });
+        
         await addDoc(collection(db, "vendas"), {
             data: new Date().toISOString(),
-            total: totalV, lucro: lucroV,
+            total: totalV, 
+            lucro: lucroV,
             pagamento: document.getElementById('metodoPgto').value,
             itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
         });
+        
         await batch.commit();
-        carrinho = []; window.atualizarCarrinho();
-        document.getElementById('valorRecebido').value = '';
-        window.notificar("Venda Concluída!"); focarBusca();
+        window.limparCarrinho();
+        window.notificar("Venda Concluída!"); 
     };
 
     // --- CADASTRO E UTILIDADES ---
     window.editarProduto = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
         document.getElementById('editId').value = id;
-        document.getElementById('nome').value = p.nome;
-        document.getElementById('cod').value = p.cod;
-        document.getElementById('custo').value = p.custo;
-        document.getElementById('preco').value = p.preco;
-        document.getElementById('qtd').value = p.estoque;
-        document.getElementById('imgUrl').value = p.img;
+        document.getElementById('nome').value = p.nome || '';
+        document.getElementById('cod').value = p.cod || '';
+        document.getElementById('custo').value = p.custo || '';
+        document.getElementById('preco').value = p.preco || '';
+        document.getElementById('qtd').value = p.estoque || '';
+        document.getElementById('imgUrl').value = p.img || '';
         document.getElementById('btnSalvar').innerText = "ATUALIZAR DADOS";
         document.getElementById('btnCancelarEdit').classList.remove('hidden');
         window.scrollTo(0,0);
@@ -486,20 +506,15 @@
         }, 3000);
     };
 
-    function focarBusca() {
-        const b = document.getElementById('inputBusca');
-        if(b) { b.focus(); b.select(); }
-    }
-
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById('editId').value;
         const p = {
             nome: document.getElementById('nome').value,
             cod: document.getElementById('cod').value || '0',
-            custo: parseFloat(document.getElementById('custo').value),
-            preco: parseFloat(document.getElementById('preco').value),
-            estoque: parseInt(document.getElementById('qtd').value),
+            custo: parseFloat(document.getElementById('custo').value) || 0,
+            preco: parseFloat(document.getElementById('preco').value) || 0,
+            estoque: parseInt(document.getElementById('qtd').value) || 0,
             img: document.getElementById('imgUrl').value || ''
         };
         id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
@@ -522,7 +537,8 @@
     };
 
     window.calcTroco = () => {
-        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', ''));
+        const totalText = document.getElementById('totalVenda').innerText.replace('R$ ', '');
+        const total = parseFloat(totalText) || 0;
         const rec = parseFloat(document.getElementById('valorRecebido').value) || 0;
         document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, rec - total).toFixed(2)}`;
     };
