@@ -3,159 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Louisiana PDV | Terminal Premium</title>
+    <title>Louisiana PDV | Premium Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary: #22c55e;
-            --bg-dark: #0f172a;
-            --glass: rgba(30, 41, 59, 0.7);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: radial-gradient(circle at top left, #1e293b, #0f172a);
-            color: #f8fafc;
-            height: 100vh; 
-            overflow: hidden; 
-            margin: 0;
-        }
-
+        :root { --primary: #22c55e; --bg-dark: #0f172a; --glass: rgba(30, 41, 59, 0.7); --border: rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top left, #1e293b, #0f172a); color: #f8fafc; height: 100vh; overflow: hidden; margin: 0; }
         .glass-card { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 1.5rem; }
         .glass-input { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); transition: all 0.3s ease; color: white; }
         .glass-input:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); outline: none; }
-
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-
         .tab-content { display: none; height: 100%; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        .tab-content.active { display: flex; } /* Mudado para flex para organizar carrinho */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .tab-btn.active { background: var(--primary); color: #000; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); }
-        .card-produto { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
-        .card-produto:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(34, 197, 94, 0.05); }
-
-        #loadingScreen { position: fixed; inset: 0; background: #0f172a; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s ease; }
-        .spinner { width: 40px; height: 40px; border: 3px solid rgba(34, 197, 94, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .card-produto { transition: all 0.2s ease; cursor: pointer; }
+        .card-produto:hover { transform: translateY(-3px); border-color: var(--primary); }
+        #loadingScreen { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .hidden-app { display: none !important; }
     </style>
 </head>
-<body class="flex flex-col">
+<body class="flex flex-col h-screen">
 
 <div id="loadingScreen">
-    <div class="spinner"></div>
-    <p class="mt-4 text-[10px] font-bold tracking-[0.3em] uppercase opacity-40">Iniciando Terminal...</p>
+    <div class="w-10 h-10 border-4 border-green-500/20 border-top-green-500 rounded-full animate-spin"></div>
 </div>
 
 <div id="loginScreen" class="fixed inset-0 z-[500] flex items-center justify-center bg-slate-950 p-6 hidden-app">
-    <div class="glass-card p-10 w-full max-w-md text-center shadow-2xl">
-        <h1 class="text-4xl font-extrabold tracking-tighter italic mb-2">LOUISIANA <span class="text-green-500">PDV</span></h1>
-        <p class="text-slate-400 text-xs mb-8 uppercase tracking-widest">Acesso Restrito</p>
+    <div class="glass-card p-10 w-full max-w-md text-center">
+        <h1 class="text-3xl font-black italic mb-8">LOUISIANA <span class="text-green-500">PDV</span></h1>
         <div class="space-y-4">
-            <input type="email" id="loginEmail" placeholder="E-mail corporativo" class="w-full glass-input p-4 rounded-2xl">
-            <input type="password" id="loginPassword" placeholder="Senha" class="w-full glass-input p-4 rounded-2xl">
-            <button id="btnLogin" class="w-full bg-green-500 hover:bg-green-400 text-slate-950 font-black py-4 rounded-2xl transition-all uppercase tracking-widest">Entrar</button>
+            <input type="email" id="loginEmail" placeholder="E-mail" class="w-full glass-input p-4 rounded-xl">
+            <input type="password" id="loginPassword" placeholder="Senha" class="w-full glass-input p-4 rounded-xl">
+            <button id="btnLogin" class="w-full bg-green-500 text-slate-950 font-black py-4 rounded-xl uppercase tracking-widest hover:bg-green-400">Entrar</button>
         </div>
-        <p id="loginError" class="text-red-400 mt-4 text-xs font-bold hidden">Credenciais Inválidas</p>
     </div>
 </div>
 
 <div id="appInterface" class="hidden-app flex flex-col h-screen overflow-hidden">
-    <header class="p-4 px-8 flex justify-between items-center glass-card m-4 mb-0 rounded-2xl shrink-0">
-        <div class="flex items-center gap-4">
-            <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center font-black text-slate-950">L</div>
-            <h1 class="text-xl font-bold tracking-tighter">LOUISIANA <span class="text-green-500 text-xs ml-1 uppercase">PDV</span></h1>
+    <header class="p-4 flex justify-between items-center glass-card m-4 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center font-black text-slate-950">L</div>
+            <span class="font-bold tracking-tighter">LOUISIANA PDV</span>
         </div>
-        <nav class="flex gap-2 bg-slate-900/50 p-1 rounded-2xl">
-            <button onclick="switchTab('venda')" id="btn-venda" class="tab-btn active px-6 py-2.5 text-[10px] font-black rounded-xl uppercase tracking-wider">Vendas (F1)</button>
-            <button onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn px-6 py-2.5 text-[10px] font-black rounded-xl uppercase tracking-wider">Estoque (F2)</button>
-            <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn px-6 py-2.5 text-[10px] font-black rounded-xl uppercase tracking-wider">Relatórios (F3)</button>
+        <nav class="flex gap-2 bg-slate-900/50 p-1 rounded-xl">
+            <button onclick="switchTab('venda')" id="btn-venda" class="tab-btn active px-5 py-2 text-[10px] font-black rounded-lg uppercase">Vendas</button>
+            <button onclick="switchTab('estoque')" id="btn-estoque" class="tab-btn px-5 py-2 text-[10px] font-black rounded-lg uppercase">Estoque</button>
+            <button onclick="switchTab('historico')" id="btn-historico" class="tab-btn px-5 py-2 text-[10px] font-black rounded-lg uppercase">Relatórios</button>
         </nav>
-        <button onclick="logout()" class="px-5 py-2 text-[10px] font-black text-red-400 border border-red-400/20 rounded-xl hover:bg-red-500 hover:text-white transition-all">SAIR</button>
+        <button onclick="logout()" class="text-red-400 text-[10px] font-black uppercase">Sair</button>
     </header>
 
-    <main class="flex-1 p-4 flex gap-4 overflow-hidden">
-        <section id="venda" class="tab-content active w-full flex gap-4">
-            <div class="flex-[3] flex flex-col gap-4">
-                <input type="text" id="inputBusca" placeholder="Pesquisar catálogo... (F8)" class="w-full glass-input p-5 rounded-2xl text-lg" oninput="renderizarProdutos()">
-                <div id="gridProdutos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 overflow-y-auto custom-scroll pr-2"></div>
+    <main class="flex-1 px-4 pb-4 overflow-hidden">
+        
+        <section id="venda" class="tab-content active gap-4 h-full">
+            <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+                <input type="text" id="inputBusca" placeholder="Pesquisar (F8)" class="glass-input p-4 rounded-xl shrink-0" oninput="renderizarProdutos()">
+                <div id="gridProdutos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 overflow-y-auto custom-scroll"></div>
             </div>
-            <div class="w-[380px] flex flex-col glass-card overflow-hidden">
-                <div class="p-5 border-b border-white/5 flex justify-between items-center bg-white/5">
-                    <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Carrinho</span>
-                    <span id="qtdItens" class="bg-green-500 text-slate-950 px-3 py-1 rounded-full text-[10px] font-black">0 ITENS</span>
+            
+            <div class="w-[350px] flex flex-col glass-card overflow-hidden shrink-0">
+                <div class="p-4 border-b border-white/5 bg-white/5 flex justify-between">
+                    <span class="text-[10px] font-black uppercase opacity-50">Checkout</span>
+                    <span id="qtdItens" class="text-green-500 text-[10px] font-black">0 ITENS</span>
                 </div>
-                <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 custom-scroll space-y-2"></div>
-                <div class="p-6 bg-slate-900/40 border-t border-white/5 space-y-4">
+                <div id="carrinhoItens" class="flex-1 overflow-y-auto p-4 space-y-2 custom-scroll"></div>
+                <div class="p-5 bg-slate-900/40 border-t border-white/5 space-y-4">
                     <div class="flex justify-between items-end">
-                        <span class="text-slate-500 text-[10px] font-bold uppercase">Total</span>
-                        <span id="totalVenda" class="text-3xl font-black text-green-500">R$ 0,00</span>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase">Subtotal</span>
+                        <span id="totalVenda" class="text-2xl font-black text-green-500">R$ 0,00</span>
                     </div>
-                    <select id="metodoPgto" class="w-full glass-input p-3 rounded-xl text-xs font-bold uppercase outline-none" onchange="toggleTroco()">
+                    <select id="metodoPgto" class="w-full glass-input p-3 rounded-lg text-xs font-bold" onchange="toggleTroco()">
                         <option value="Dinheiro">Dinheiro</option>
                         <option value="PIX">PIX</option>
                         <option value="Cartão">Cartão</option>
                     </select>
-                    <div id="divTroco" class="space-y-2">
-                        <input type="number" id="valorRecebido" placeholder="Valor Recebido" class="w-full glass-input p-3 rounded-xl text-xs font-bold" oninput="calcTroco()">
-                        <div class="flex justify-between text-[10px] font-bold px-1">
-                            <span class="text-slate-500 uppercase">Troco:</span>
-                            <span id="labelTroco" class="text-green-400">R$ 0,00</span>
-                        </div>
-                    </div>
-                    <button onclick="finalizarVenda()" class="w-full bg-green-500 hover:bg-green-400 p-4 rounded-xl font-black text-slate-950 uppercase tracking-widest transition-all">Finalizar (F9)</button>
+                    <input type="number" id="valorRecebido" placeholder="Valor Recebido" class="w-full glass-input p-3 rounded-lg text-xs" oninput="calcTroco()">
+                    <button onclick="finalizarVenda()" class="w-full bg-green-500 p-4 rounded-xl font-black text-slate-950 uppercase text-xs">Finalizar (F9)</button>
                 </div>
             </div>
         </section>
 
-        <section id="estoque" class="tab-content w-full overflow-y-auto custom-scroll pr-4">
-            <div class="max-w-5xl mx-auto space-y-6">
+        <section id="estoque" class="tab-content w-full h-full overflow-y-auto custom-scroll">
+            <div class="w-full max-w-6xl mx-auto flex flex-col gap-6">
                 <div class="glass-card p-6">
-                    <form id="formProd" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <form id="formProd" class="grid grid-cols-1 md:grid-cols-4 gap-3">
                         <input type="hidden" id="editId">
-                        <input type="text" id="nome" placeholder="Produto" class="md:col-span-2 glass-input p-3 rounded-xl" required>
-                        <input type="text" id="cod" placeholder="Código/EAN" class="glass-input p-3 rounded-xl">
-                        <input type="number" id="preco" step="0.01" placeholder="Preço Venda" class="glass-input p-3 rounded-xl" required>
-                        <input type="number" id="custo" step="0.01" placeholder="Preço Custo" class="glass-input p-3 rounded-xl" required>
-                        <input type="number" id="qtd" placeholder="Qtd Estoque" class="glass-input p-3 rounded-xl" required>
-                        <input type="text" id="imgUrl" placeholder="URL Imagem" class="md:col-span-2 glass-input p-3 rounded-xl">
-                        <button type="submit" id="btnSalvar" class="md:col-span-4 bg-green-500 text-slate-950 py-3 rounded-xl font-black uppercase">Salvar Produto</button>
+                        <input type="text" id="nome" placeholder="Nome do Produto" class="md:col-span-2 glass-input p-3 rounded-lg" required>
+                        <input type="text" id="cod" placeholder="Código" class="glass-input p-3 rounded-lg">
+                        <input type="number" id="preco" step="0.01" placeholder="Preço" class="glass-input p-3 rounded-lg" required>
+                        <input type="number" id="custo" step="0.01" placeholder="Custo" class="glass-input p-3 rounded-lg" required>
+                        <input type="number" id="qtd" placeholder="Estoque" class="glass-input p-3 rounded-lg" required>
+                        <input type="text" id="imgUrl" placeholder="Link da Imagem" class="md:col-span-2 glass-input p-3 rounded-lg">
+                        <button type="submit" id="btnSalvar" class="md:col-span-4 bg-green-500 text-slate-950 p-3 rounded-lg font-black uppercase text-xs">Salvar</button>
                     </form>
                 </div>
-                <div id="listaEstoqueGrid" class="grid grid-cols-2 md:grid-cols-5 gap-4"></div>
+                <div id="listaEstoqueGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
             </div>
         </section>
 
-        <section id="historico" class="tab-content w-full overflow-y-auto custom-scroll pr-4">
-            <div class="max-w-6xl mx-auto space-y-6">
+        <section id="historico" class="tab-content w-full h-full overflow-y-auto custom-scroll">
+            <div class="w-full max-w-6xl mx-auto space-y-4">
                 <div id="estatisticas" class="flex gap-4"></div>
                 <div class="glass-card overflow-hidden">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-white/5 text-slate-500 uppercase font-black">
-                            <tr>
-                                <th class="p-4">Data/Hora</th>
-                                <th class="p-4">Itens</th>
-                                <th class="p-4">Pagamento</th>
-                                <th class="p-4">Total</th>
-                                <th class="p-4">Lucro</th>
-                                <th class="p-4 text-center">Ação</th>
-                            </tr>
-                        </thead>
+                        <thead class="bg-white/5 text-slate-500 uppercase font-black"><tr class="border-b border-white/5"><th class="p-4">Data</th><th class="p-4">Itens</th><th class="p-4">Total</th><th class="p-4">Lucro</th><th class="p-4">Ação</th></tr></thead>
                         <tbody id="corpoTabelaVendas"></tbody>
                     </table>
                 </div>
             </div>
         </section>
+
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all glass-card bg-green-500 text-slate-950 px-8 py-3 z-[3000] font-black uppercase text-xs"></div>
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 opacity-0 transition-all glass-card bg-green-500 text-slate-950 px-6 py-2 z-[9999] font-black uppercase text-[10px]"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -176,54 +140,32 @@
     const auth = getAuth(app);
     const EMAIL_AUTORIZADO = "louisianapdv@gmail.com";
 
-    // Forçar persistência para o EXE
     setPersistence(auth, browserLocalPersistence);
-
     let produtos = [], vendas = [], carrinho = [];
 
-    // Gerenciamento de Telas
     onAuthStateChanged(auth, (user) => {
         const login = document.getElementById('loginScreen');
         const appDiv = document.getElementById('appInterface');
-
         if (user && user.email.toLowerCase() === EMAIL_AUTORIZADO) {
-            login.classList.add('hidden-app');
-            appDiv.classList.remove('hidden-app');
-            
-            onSnapshot(collection(db, "produtos"), (snap) => {
-                produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                window.renderizarProdutos();
-                window.renderizarEstoque();
+            login.classList.add('hidden-app'); appDiv.classList.remove('hidden-app');
+            onSnapshot(collection(db, "produtos"), (snap) => { 
+                produtos = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() })); 
+                window.renderizarProdutos(); window.renderizarEstoque(); 
             });
-
-            onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => {
-                vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                window.renderizarHistorico();
+            onSnapshot(query(collection(db, "vendas"), orderBy("data", "desc")), (snap) => { 
+                vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() })); 
+                window.renderizarHistorico(); 
             });
-        } else {
-            appDiv.classList.add('hidden-app');
-            login.classList.remove('hidden-app');
-        }
-        fecharSplash();
+        } else { login.classList.remove('hidden-app'); appDiv.classList.add('hidden-app'); }
+        setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; }, 2000);
     });
 
-    function fecharSplash() {
-        const s = document.getElementById('loadingScreen');
-        if(s) { s.style.opacity = '0'; setTimeout(() => s.style.display = 'none', 600); }
-    }
-
-    // Safety Timeout para o Splash
-    setTimeout(fecharSplash, 5000);
-
-    // FUNÇÕES EXPOSTAS AO WINDOW
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } 
-        catch (err) { document.getElementById('loginError').classList.remove('hidden'); }
+        try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { alert("Falha no login"); }
     };
     document.getElementById('btnLogin').onclick = window.fazerLoginEmail;
-
     window.logout = () => signOut(auth).then(() => location.reload());
 
     window.switchTab = (id) => {
@@ -236,149 +178,86 @@
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
-        const filtrados = produtos.filter(p => p.nome.toLowerCase().includes(busca) || p.cod.includes(busca));
-        grid.innerHTML = filtrados.map(p => `
-            <div class="card-produto glass-card p-3 flex flex-col h-[240px]" onclick="window.addCarrinho('${p.firebaseId}')">
-                <img src="${p.img || 'https://via.placeholder.com/150'}" class="h-28 w-full object-cover rounded-xl mb-2" onerror="this.src='https://via.placeholder.com/150'">
-                <h3 class="font-bold text-[10px] uppercase truncate text-slate-200">${p.nome}</h3>
-                <div class="mt-auto flex justify-between items-center">
-                    <span class="font-black text-green-500 text-sm">R$ ${parseFloat(p.preco).toFixed(2)}</span>
-                    <span class="text-[8px] bg-white/5 px-2 py-1 rounded text-slate-500">${p.estoque} UN</span>
-                </div>
+        grid.innerHTML = produtos.filter(p => p.nome.toLowerCase().includes(busca)).map(p => `
+            <div class="glass-card p-3 flex flex-col h-[200px]" onclick="window.addCarrinho('${p.firebaseId}')">
+                <img src="${p.img || 'https://via.placeholder.com/150'}" class="h-24 w-full object-cover rounded-lg mb-2">
+                <h3 class="font-bold text-[9px] uppercase truncate">${p.nome}</h3>
+                <div class="mt-auto flex justify-between"><span class="font-black text-green-500 text-xs">R$ ${p.preco.toFixed(2)}</span><span class="text-[8px] opacity-50">${p.estoque} UN</span></div>
             </div>
         `).join('');
     };
 
     window.addCarrinho = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
-        if(!p || p.estoque <= 0) return window.notificar("Sem estoque!");
+        if(!p || p.estoque <= 0) return window.notificar("Sem estoque");
         const item = carrinho.find(i => i.firebaseId === id);
         item ? (item.qtd < p.estoque ? item.qtd++ : null) : carrinho.push({...p, qtd: 1});
         window.atualizarCarrinho();
     };
 
     window.atualizarCarrinho = () => {
-        const lista = document.getElementById('carrinhoItens');
         let total = 0;
-        lista.innerHTML = carrinho.map((item, idx) => {
+        document.getElementById('carrinhoItens').innerHTML = carrinho.map((item, idx) => {
             total += (item.preco * item.qtd);
-            return `<div class="bg-white/5 p-3 rounded-xl flex justify-between items-center border-l-2 border-green-500">
-                <div class="truncate pr-2">
-                    <p class="font-bold text-[9px] uppercase text-slate-200">${item.nome}</p>
-                    <p class="text-[10px] text-green-500 font-black">${item.qtd}x R$ ${parseFloat(item.preco).toFixed(2)}</p>
-                </div>
-                <button onclick="window.removerItemCarrinho(${idx})" class="text-red-400 font-bold px-2">✕</button>
-            </div>`;
+            return `<div class="bg-white/5 p-2 rounded-lg flex justify-between items-center"><div class="truncate"><p class="font-bold text-[8px] uppercase">${item.nome}</p><p class="text-[9px] text-green-500 font-black">${item.qtd}x R$ ${item.preco.toFixed(2)}</p></div><button onclick="window.removerItemCarrinho(${idx})" class="text-red-400 font-bold px-1">✕</button></div>`;
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
         document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} ITENS`;
-        window.calcTroco();
     };
 
     window.removerItemCarrinho = (idx) => { carrinho.splice(idx,1); window.atualizarCarrinho(); };
-
-    window.calcTroco = () => {
-        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '')) || 0;
-        const recebido = parseFloat(document.getElementById('valorRecebido').value) || 0;
-        document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, recebido - total).toFixed(2)}`;
-    };
-
-    window.toggleTroco = () => {
-        const d = document.getElementById('divTroco');
-        d.style.opacity = document.getElementById('metodoPgto').value === 'Dinheiro' ? '1' : '0.2';
-    };
+    window.calcTroco = () => {}; window.toggleTroco = () => {};
 
     window.finalizarVenda = async () => {
         if(carrinho.length === 0) return;
         const batch = writeBatch(db);
         let totalV = 0, lucroV = 0;
         carrinho.forEach(item => {
-            totalV += (item.preco * item.qtd);
-            lucroV += (item.preco - item.custo) * item.qtd;
+            totalV += (item.preco * item.qtd); lucroV += (item.preco - item.custo) * item.qtd;
             batch.update(doc(db, "produtos", item.firebaseId), { estoque: item.estoque - item.qtd });
         });
-        await addDoc(collection(db, "vendas"), {
-            data: new Date().toISOString(), total: totalV, lucro: lucroV,
-            pagamento: document.getElementById('metodoPgto').value,
-            itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
-        });
-        await batch.commit();
-        carrinho = []; window.atualizarCarrinho();
-        document.getElementById('valorRecebido').value = '';
-        window.notificar("Venda Concluída!");
+        await addDoc(collection(db, "vendas"), { data: new Date().toISOString(), total: totalV, lucro: lucroV, pagamento: document.getElementById('metodoPgto').value, itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ') });
+        await batch.commit(); carrinho = []; window.atualizarCarrinho(); window.notificar("Venda Concluída!");
     };
 
     window.renderizarEstoque = () => {
-        const grid = document.getElementById('listaEstoqueGrid');
-        grid.innerHTML = produtos.map(p => `
-            <div class="glass-card p-3 flex flex-col h-[200px]">
-                <h3 class="font-bold text-[9px] uppercase truncate mb-2">${p.nome}</h3>
-                <p class="text-[10px] text-green-500 font-black">R$ ${p.preco.toFixed(2)}</p>
-                <div class="mt-auto flex gap-2">
-                    <button onclick="window.editarProduto('${p.firebaseId}')" class="flex-1 bg-white/5 py-2 rounded text-[8px] font-black uppercase">Editar</button>
-                    <button onclick="window.removerProd('${p.firebaseId}')" class="bg-red-500/10 text-red-500 px-2 rounded">✕</button>
-                </div>
-            </div>
+        document.getElementById('listaEstoqueGrid').innerHTML = produtos.map(p => `
+            <div class="glass-card p-3"><h3 class="text-[8px] font-bold truncate">${p.nome}</h3><div class="mt-2 flex gap-1"><button onclick="window.editarProduto('${p.firebaseId}')" class="flex-1 bg-white/5 py-1 rounded text-[7px] uppercase font-bold">Editar</button><button onclick="window.removerProd('${p.firebaseId}')" class="text-red-500 px-1 rounded">✕</button></div></div>
         `).join('');
     };
 
     document.getElementById('formProd').onsubmit = async (e) => {
         e.preventDefault();
         const id = document.getElementById('editId').value;
-        const p = {
-            nome: document.getElementById('nome').value,
-            cod: document.getElementById('cod').value || '',
-            custo: parseFloat(document.getElementById('custo').value),
-            preco: parseFloat(document.getElementById('preco').value),
-            estoque: parseInt(document.getElementById('qtd').value),
-            img: document.getElementById('imgUrl').value || ''
-        };
+        const p = { nome: document.getElementById('nome').value, cod: document.getElementById('cod').value || '', custo: parseFloat(document.getElementById('custo').value), preco: parseFloat(document.getElementById('preco').value), estoque: parseInt(document.getElementById('qtd').value), img: document.getElementById('imgUrl').value || '' };
         id ? await updateDoc(doc(db, "produtos", id), p) : await addDoc(collection(db, "produtos"), p);
-        document.getElementById('formProd').reset();
-        document.getElementById('editId').value = "";
-        window.notificar("Salvo com sucesso!");
+        document.getElementById('formProd').reset(); document.getElementById('editId').value = ""; window.notificar("Salvo!");
     };
 
     window.editarProduto = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
         document.getElementById('editId').value = id;
         document.getElementById('nome').value = p.nome;
-        document.getElementById('cod').value = p.cod;
-        document.getElementById('custo').value = p.custo;
         document.getElementById('preco').value = p.preco;
         document.getElementById('qtd').value = p.estoque;
-        document.getElementById('imgUrl').value = p.img || '';
-        window.notificar("Editando: " + p.nome);
+        window.notificar("Editando...");
     };
 
-    window.removerProd = async (id) => { if(confirm("Apagar produto?")) await deleteDoc(doc(db, "produtos", id)); };
+    window.removerProd = async (id) => { if(confirm("Apagar?")) await deleteDoc(doc(db, "produtos", id)); };
 
     window.renderizarHistorico = () => {
-        const corpo = document.getElementById('corpoTabelaVendas');
         let tTotal = 0, lTotal = 0;
-        corpo.innerHTML = vendas.map(v => {
+        document.getElementById('corpoTabelaVendas').innerHTML = vendas.map(v => {
             tTotal += v.total; lTotal += v.lucro;
-            return `<tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
-                <td class="p-4 text-slate-500">${new Date(v.data).toLocaleDateString()}</td>
-                <td class="p-4 font-bold text-slate-300 truncate max-w-[200px]">${v.itens}</td>
-                <td class="p-4 uppercase font-black text-[9px]">${v.pagamento}</td>
-                <td class="p-4 font-black">R$ ${v.total.toFixed(2)}</td>
-                <td class="p-4 text-green-500 font-black">R$ ${v.lucro.toFixed(2)}</td>
-                <td class="p-4 text-center"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-400">✕</button></td>
-            </tr>`;
+            return `<tr class="border-b border-white/5 hover:bg-white/5"><td class="p-4 opacity-50 font-mono">${new Date(v.data).toLocaleDateString()}</td><td class="p-4 font-bold truncate max-w-[200px]">${v.itens}</td><td class="p-4 font-black">R$ ${v.total.toFixed(2)}</td><td class="p-4 text-green-500 font-black">R$ ${v.lucro.toFixed(2)}</td><td class="p-4"><button onclick="window.removerVenda('${v.firebaseId}')" class="text-red-400">✕</button></td></tr>`;
         }).join('');
-
-        document.getElementById('estatisticas').innerHTML = `
-            <div class="glass-card p-5 flex-1"><p class="text-[9px] font-black text-slate-500 uppercase">Vendas Totais</p><p class="text-2xl font-black">R$ ${tTotal.toFixed(2)}</p></div>
-            <div class="glass-card p-5 flex-1 border-green-500/20"><p class="text-[9px] font-black text-green-500 uppercase">Lucro Líquido</p><p class="text-2xl font-black text-green-500">R$ ${lTotal.toFixed(2)}</p></div>
-        `;
+        document.getElementById('estatisticas').innerHTML = `<div class="glass-card p-4 flex-1 text-center"><p class="text-[8px] font-black uppercase">Vendas</p><p class="text-xl font-black">R$ ${tTotal.toFixed(2)}</p></div><div class="glass-card p-4 flex-1 text-center"><p class="text-[8px] font-black uppercase text-green-500">Lucro</p><p class="text-xl font-black text-green-500">R$ ${lTotal.toFixed(2)}</p></div>`;
     };
 
-    window.removerVenda = async (id) => { if(confirm("Excluir venda?")) await deleteDoc(doc(db, "vendas", id)); };
+    window.removerVenda = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db, "vendas", id)); };
 
     window.notificar = (msg) => {
-        const t = document.getElementById('toast');
-        t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
+        const t = document.getElementById('toast'); t.innerText = msg; t.classList.replace('opacity-0', 'opacity-100');
         setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
     };
 
@@ -386,7 +265,6 @@
         if (e.key === 'F1') window.switchTab('venda');
         if (e.key === 'F2') window.switchTab('estoque');
         if (e.key === 'F3') window.switchTab('historico');
-        if (e.key === 'F8') { e.preventDefault(); document.getElementById('inputBusca').focus(); }
         if (e.key === 'F9') window.finalizarVenda();
     });
 </script>
