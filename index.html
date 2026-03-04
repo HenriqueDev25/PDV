@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Louisiana PDV - v2.7 Corrigida</title>
+    <title>Louisiana PDV - v2.8 Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -12,19 +12,19 @@
         :root { --primary: #10b981; --bg-dark: #0f172a; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; height: 100vh; overflow: hidden; color: #1e293b; }
         
-        /* Navegação */
+        /* Navegação Estilizada */
         .tab-content { display: none; height: 100%; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
         .tab-btn { position: relative; color: #94a3b8; transition: all 0.3s; }
         .tab-btn.active { color: white; background: rgba(255,255,255,0.1); border-radius: 12px; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: -4px; left: 25%; width: 50%; height: 3px; background: var(--primary); border-radius: 10px; box-shadow: 0 0 10px var(--primary); }
 
-        /* GRID CORRIGIDO: Não estica mais verticalmente */
+        /* GRID CORRIGIDO (Não estica os produtos) */
         .grid-pdv { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
             gap: 1.25rem;
-            grid-auto-rows: max-content; /* Altura exata do conteúdo */
+            grid-auto-rows: max-content; 
             align-items: start;
         }
         
@@ -40,7 +40,7 @@
         }
         .product-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px -10px rgba(0,0,0,0.1); }
         
-        .img-produto-container { width: 100%; height: 120px; overflow: hidden; border-radius: 1rem; margin-bottom: 0.75rem; }
+        .img-produto-container { width: 100%; height: 120px; overflow: hidden; border-radius: 1rem; margin-bottom: 0.75rem; flex-shrink: 0; }
         .img-produto { width: 100%; height: 100%; object-fit: cover; background: #f8fafc; }
         
         /* Checkout Lateral */
@@ -58,34 +58,41 @@
 <body class="flex flex-col">
 
 <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0f172a] text-white p-6">
-    <div class="bg-white/5 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 text-center w-full max-w-sm">
+    <div class="bg-white/5 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 text-center w-full max-w-sm shadow-2xl">
         <h1 class="text-4xl font-extrabold mb-8 tracking-tighter">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
         <div class="space-y-4">
             <input type="email" id="loginEmail" placeholder="E-mail" class="w-full bg-white/10 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 ring-emerald-500">
             <input type="password" id="loginPassword" placeholder="Senha" class="w-full bg-white/10 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 ring-emerald-500">
-            <button onclick="fazerLoginEmail()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold transition">ENTRAR</button>
+            <button onclick="fazerLoginEmail()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold transition active:scale-95">ENTRAR</button>
         </div>
+        <p id="loginError" class="text-red-400 mt-4 text-xs font-bold hidden">Dados Inválidos</p>
     </div>
 </div>
 
 <div id="appInterface" class="hidden-app flex flex-col h-full">
-    <header class="bg-[#0f172a] text-white px-8 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-black">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
-        <nav class="flex gap-2 bg-white/5 p-1.5 rounded-2xl">
-            <button onclick="switchTab('venda')" class="tab-btn active px-6 py-2 text-xs font-bold uppercase">Vendas</button>
-            <button onclick="switchTab('estoque')" class="tab-btn px-6 py-2 text-xs font-bold uppercase">Estoque</button>
-            <button onclick="switchTab('historico')" class="tab-btn px-6 py-2 text-xs font-bold uppercase">Relatórios</button>
-            <button onclick="switchTab('config')" class="tab-btn px-6 py-2 text-xs font-bold uppercase">Ajustes</button>
+    <header class="bg-[#0f172a] text-white px-8 py-4 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-6">
+            <h1 class="text-xl font-black tracking-tighter">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
+            <div class="flex items-center gap-2 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                <span class="text-[10px] text-emerald-400 uppercase font-bold tracking-wider">Terminal Ativo</span>
+            </div>
+        </div>
+        <nav class="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/5">
+            <button onclick="switchTab('venda')" class="tab-btn active px-6 py-2.5 text-xs font-bold uppercase tracking-wider">Vendas (F1)</button>
+            <button onclick="switchTab('estoque')" class="tab-btn px-6 py-2.5 text-xs font-bold uppercase tracking-wider">Estoque (F2)</button>
+            <button onclick="switchTab('historico')" class="tab-btn px-6 py-2.5 text-xs font-bold uppercase tracking-wider">Relatórios (F3)</button>
+            <button onclick="switchTab('config')" class="tab-btn px-6 py-2.5 text-xs font-bold uppercase tracking-wider">Ajustes (F4)</button>
         </nav>
-        <button onclick="logout()" class="text-xs font-bold text-slate-400">Sair</button>
+        <button onclick="logout()" class="text-xs font-bold text-slate-400 hover:text-red-400 transition">Sair</button>
     </header>
 
     <main class="flex-1 relative overflow-hidden">
         <section id="venda" class="tab-content active">
             <div class="flex h-full p-6 gap-6">
                 <div class="flex-[3] flex flex-col gap-6 overflow-hidden">
-                    <input type="text" id="inputBusca" placeholder="Pesquisar... (F8)" class="w-full bg-white border-2 p-5 rounded-3xl outline-none focus:border-emerald-500" oninput="renderizarProdutos()">
-                    <div id="gridProdutos" class="grid-pdv scroll-area custom-scroll"></div>
+                    <input type="text" id="inputBusca" placeholder="Pesquisar produto... (F8)" class="w-full bg-white border-2 p-5 rounded-3xl outline-none focus:border-emerald-500" oninput="renderizarProdutos()">
+                    <div id="gridProdutos" class="grid-pdv scroll-area custom-scroll pr-2"></div>
                 </div>
 
                 <div class="flex-1 carrinho-container rounded-[2.5rem] flex flex-col text-white min-w-[380px] overflow-hidden">
@@ -100,19 +107,19 @@
                             <span id="totalVenda" class="text-4xl font-black">R$ 0,00</span>
                         </div>
                         <div class="space-y-4 mb-6">
-                            <select id="metodoPgto" class="w-full bg-white/5 p-4 rounded-2xl border border-white/10 text-white" onchange="toggleTroco()">
+                            <select id="metodoPgto" class="w-full bg-white/5 p-4 rounded-2xl border border-white/10 text-white outline-none" onchange="toggleTroco()">
                                 <option value="cartao">Cartão</option>
                                 <option value="pix">PIX</option>
                                 <option value="dinheiro">Dinheiro</option>
                             </select>
                             <div id="divTroco" class="hidden">
-                                <input type="number" id="valorRecebido" placeholder="Valor recebido" class="w-full bg-white/10 p-4 rounded-2xl text-white outline-none mb-2" oninput="calcTroco()">
+                                <input type="number" id="valorRecebido" placeholder="Valor recebido" class="w-full bg-white/10 border border-white/10 p-4 rounded-2xl text-white outline-none mb-2" oninput="calcTroco()">
                                 <div class="flex justify-between text-xs px-2 text-emerald-400 font-bold">
                                     <span>Troco:</span><span id="labelTroco">R$ 0,00</span>
                                 </div>
                             </div>
                         </div>
-                        <button onclick="finalizarVenda()" class="w-full bg-emerald-600 p-5 rounded-2xl font-black text-lg">FINALIZAR (F9)</button>
+                        <button onclick="finalizarVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-5 rounded-2xl font-black text-lg transition-all active:scale-95">FINALIZAR (F9)</button>
                     </div>
                 </div>
             </div>
@@ -124,15 +131,15 @@
                     <h2 class="text-lg font-bold mb-6" id="tituloForm">Novo Produto</h2>
                     <form id="formProd" class="grid grid-cols-4 gap-4">
                         <input type="hidden" id="editId">
-                        <input type="text" id="nome" placeholder="Nome" class="col-span-2 p-4 border rounded-2xl" required>
+                        <input type="text" id="nome" placeholder="Nome" class="col-span-2 p-4 border rounded-2xl outline-none" required>
                         <input type="text" id="cod" placeholder="Código" class="p-4 border rounded-2xl">
                         <input type="number" id="preco" placeholder="Venda R$" step="0.01" class="p-4 border rounded-2xl" required>
                         <input type="number" id="custo" placeholder="Custo R$" step="0.01" class="p-4 border rounded-2xl" required>
                         <input type="number" id="qtd" placeholder="Estoque" class="p-4 border rounded-2xl" required>
                         <input type="text" id="imgUrl" placeholder="Link da Imagem" class="col-span-2 p-4 border rounded-2xl">
                         <div class="col-span-4 flex gap-3">
-                            <button type="submit" id="btnSalvar" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase">Salvar Produto</button>
-                            <button type="button" onclick="cancelarEdicao()" id="btnCancelEdit" class="hidden px-8 bg-red-50 text-red-500 rounded-2xl font-bold">Cancelar</button>
+                            <button type="submit" id="btnSalvar" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase transition">Salvar Produto</button>
+                            <button type="button" onclick="cancelarEdicao()" id="btnCancelEdit" class="hidden px-8 bg-red-50 text-red-500 rounded-2xl font-bold uppercase">Cancelar</button>
                         </div>
                     </form>
                 </div>
@@ -145,8 +152,8 @@
                 <div id="estatisticas" class="flex gap-4"></div>
                 <div class="flex-1 bg-white rounded-[2rem] border overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-[10px] font-black text-slate-400">
-                            <tr><th class="p-5">Data</th><th class="p-5">Itens</th><th class="p-5">Pgto</th><th class="p-5">Total</th><th class="p-5">Lucro</th><th class="p-5 text-right">Ação</th></tr>
+                        <thead class="bg-slate-50 text-[10px] font-black text-slate-400 border-b">
+                            <tr><th class="p-5">Data/Hora</th><th class="p-5">Itens</th><th class="p-5">Pgto</th><th class="p-5">Total</th><th class="p-5">Lucro</th><th class="p-5 text-right">Ação</th></tr>
                         </thead>
                         <tbody id="corpoTabelaVendas" class="divide-y text-xs"></tbody>
                     </table>
@@ -155,11 +162,11 @@
         </section>
 
         <section id="config" class="tab-content">
-            <div class="p-8 max-w-2xl mx-auto">
-                <div class="bg-white p-10 rounded-[2.5rem] border shadow-sm">
+            <div class="p-8 max-w-2xl mx-auto flex flex-col gap-8">
+                <div class="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
                     <div class="flex items-center gap-5 mb-10">
                         <div class="p-4 bg-emerald-500/10 rounded-3xl text-emerald-600">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2"></path></svg>
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                         </div>
                         <div>
                             <h2 class="text-2xl font-extrabold tracking-tight">Stone Connect</h2>
@@ -167,8 +174,19 @@
                         </div>
                     </div>
                     <div class="space-y-6">
-                        <input type="text" id="stoneTerminalId" placeholder="S/N da Maquininha" class="w-full p-5 bg-slate-50 border rounded-2xl font-mono text-xl outline-none">
-                        <button onclick="salvarConfigStone()" class="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black uppercase shadow-lg">VINCULAR TERMINAL</button>
+                        <div>
+                            <label class="text-[10px] uppercase font-black text-slate-400 ml-1 mb-2 block">Terminal ID (S/N da Stone)</label>
+                            <input type="text" id="stoneTerminalId" placeholder="Ex: 12345678" class="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl font-mono text-xl focus:border-emerald-500 outline-none transition-all">
+                        </div>
+                        <button onclick="salvarConfigStone()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl active:scale-95">VINCULAR TERMINAL</button>
+                    </div>
+
+                    <div class="mt-8 p-6 bg-blue-50 border border-blue-100 rounded-2xl flex gap-4">
+                        <div class="text-blue-500 shrink-0"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path></svg></div>
+                        <div>
+                            <h3 class="text-blue-700 font-bold text-sm mb-1">Como funciona?</h3>
+                            <p class="text-blue-600/80 text-xs leading-relaxed font-medium">Ao vincular o Terminal ID, qualquer venda iniciada no sistema nativo da maquininha será enviada automaticamente para o seu carrinho neste computador.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -197,14 +215,13 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    let currentUser = null;
-    let produtos = [], vendas = [], carrinho = [];
+    let currentUser = null, produtos = [], vendas = [], carrinho = [];
 
-    // LOGIN
+    // AUTH
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
-        try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { alert("Erro no login"); }
+        try { await signInWithEmailAndPassword(auth, e, s); } catch (err) { document.getElementById('loginError').classList.remove('hidden'); }
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -231,6 +248,19 @@
             vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
             window.renderizarHistorico();
         });
+        onSnapshot(collection(db, `usuarios/${currentUser.uid}/pedidos_vincular`), (snap) => {
+            snap.docChanges().forEach(async (change) => {
+                if (change.type === "added") {
+                    const ped = change.doc.data();
+                    ped.itens.forEach(it => {
+                        const pl = produtos.find(p => p.nome === it.nome || p.cod === it.cod);
+                        if(pl) for(let i=0; i<it.qtd; i++) window.addCarrinho(pl.firebaseId);
+                    });
+                    window.notificar("🔔 Pedido da Stone!");
+                    await deleteDoc(doc(db, `usuarios/${currentUser.uid}/pedidos_vincular`, change.doc.id));
+                }
+            });
+        });
     }
 
     // ESTOQUE
@@ -243,7 +273,7 @@
         document.getElementById('custo').value = p.custo;
         document.getElementById('qtd').value = p.estoque;
         document.getElementById('imgUrl').value = p.img;
-        document.getElementById('tituloForm').innerText = "Editando Produto";
+        document.getElementById('tituloForm').innerText = "Editando: " + p.nome;
         document.getElementById('btnSalvar').innerText = "ATUALIZAR";
         document.getElementById('btnCancelEdit').classList.remove('hidden');
     };
@@ -287,13 +317,9 @@
         lista.innerHTML = carrinho.map((item, idx) => {
             t += (item.preco * item.qtd);
             return `<div class="carrinho-item p-4 rounded-2xl flex justify-between items-center text-xs">
-                <div class="truncate">
-                    <p class="font-bold text-white truncate">${item.nome}</p>
-                    <p class="text-emerald-400 font-black">${item.qtd}x R$ ${item.preco.toFixed(2)}</p>
-                </div>
-                <button onclick="removerItemCarrinho(${idx})" class="text-slate-500 hover:text-red-400 p-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2"></path></svg>
-                </button>
+                <div class="truncate"><p class="font-bold text-white truncate">${item.nome}</p>
+                <p class="text-emerald-400 font-black">${item.qtd}x R$ ${item.preco.toFixed(2)}</p></div>
+                <button onclick="removerItemCarrinho(${idx})" class="text-slate-500 hover:text-red-400 p-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2"></path></svg></button>
             </div>`;
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${t.toFixed(2)}`;
@@ -320,20 +346,17 @@
         window.notificar("Venda Concluída!");
     };
 
-    // RENDERIZAÇÃO CORRIGIDA (SEM ESTICAR)
+    // RENDERIZAÇÃO
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const b = document.getElementById('inputBusca').value.toLowerCase();
         const f = produtos.filter(p => p.nome.toLowerCase().includes(b) || p.cod.includes(b));
-        
         grid.innerHTML = f.map(p => `
             <div class="product-card" onclick="addCarrinho('${p.firebaseId}')">
-                <div class="img-produto-container">
-                    <img src="${p.img}" class="img-produto" onerror="this.src='https://via.placeholder.com/150'">
-                </div>
+                <div class="img-produto-container"><img src="${p.img}" class="img-produto" onerror="this.src='https://via.placeholder.com/150'"></div>
                 <h3 class="font-bold text-[10px] uppercase text-slate-600 mb-2 line-clamp-2 leading-tight">${p.nome}</h3>
                 <div class="mt-auto flex justify-between items-end border-t pt-2">
-                    <span class="font-black text-sm">R$ ${p.preco.toFixed(2)}</span>
+                    <span class="font-black text-sm text-slate-900">R$ ${p.preco.toFixed(2)}</span>
                     <span class="text-[8px] bg-slate-100 px-1.5 py-1 rounded font-black text-slate-500">${p.estoque} UN</span>
                 </div>
             </div>`).join('');
@@ -342,7 +365,7 @@
     window.renderizarEstoque = () => {
         const grid = document.getElementById('listaEstoqueGrid');
         grid.innerHTML = produtos.map(p => `
-            <div class="bg-white p-4 rounded-3xl border flex flex-col">
+            <div class="bg-white p-4 rounded-3xl border flex flex-col h-full">
                 <div class="img-produto-container"><img src="${p.img}" class="img-produto" onerror="this.src='https://via.placeholder.com/150'"></div>
                 <h3 class="font-bold text-xs uppercase truncate mb-1">${p.nome}</h3>
                 <div class="mt-auto flex gap-2">
@@ -356,16 +379,16 @@
         const corpo = document.getElementById('corpoTabelaVendas');
         const stats = document.getElementById('estatisticas');
         let t = 0, l = 0; vendas.forEach(v => { t += v.total; l += v.lucro; });
-        stats.innerHTML = `<div class="bg-white p-6 rounded-3xl border flex-1"><p class="text-xs">Faturamento</p><p class="text-2xl font-black">R$ ${t.toFixed(2)}</p></div>
-                           <div class="bg-emerald-600 text-white p-6 rounded-3xl flex-1"><p class="text-xs">Lucro</p><p class="text-2xl font-black">R$ ${l.toFixed(2)}</p></div>`;
+        stats.innerHTML = `<div class="bg-white p-6 rounded-3xl border flex-1 shadow-sm"><p class="text-xs uppercase font-bold text-slate-400">Faturamento</p><p class="text-2xl font-black">R$ ${t.toFixed(2)}</p></div>
+                           <div class="bg-emerald-600 text-white p-6 rounded-3xl flex-1"><p class="text-xs uppercase font-bold text-emerald-100">Lucro</p><p class="text-2xl font-black">R$ ${l.toFixed(2)}</p></div>`;
         corpo.innerHTML = vendas.map(v => `
-            <tr>
+            <tr class="hover:bg-slate-50">
                 <td class="p-5 font-bold text-slate-400">${new Date(v.data).toLocaleString()}</td>
                 <td class="p-5 truncate max-w-[200px]">${v.itens}</td>
-                <td class="p-5 text-[9px] uppercase font-bold">${v.pagamento || 'N/A'}</td>
+                <td class="p-5 text-[9px] font-black uppercase">${v.pagamento || 'N/A'}</td>
                 <td class="p-5 font-black">R$ ${v.total.toFixed(2)}</td>
                 <td class="p-5 text-emerald-600 font-bold">R$ ${v.lucro.toFixed(2)}</td>
-                <td class="p-5 text-right"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-400 text-[10px] font-bold">Apagar</button></td>
+                <td class="p-5 text-right"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-400 text-[10px] font-bold uppercase">Apagar</button></td>
             </tr>`).join('');
     };
 
