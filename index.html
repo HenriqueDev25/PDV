@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Louisiana PDV - Profissional v2.0</title>
+    <title>Louisiana PDV - Profissional v2.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -12,23 +12,26 @@
         :root { --primary: #10b981; --bg-dark: #0f172a; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; height: 100vh; overflow: hidden; color: #1e293b; }
         
+        /* Navegação */
         .tab-content { display: none; height: 100%; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
         .tab-btn { position: relative; color: #94a3b8; transition: all 0.3s; }
         .tab-btn.active { color: white; background: rgba(255,255,255,0.1); border-radius: 12px; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: -4px; left: 25%; width: 50%; height: 3px; background: var(--primary); border-radius: 10px; box-shadow: 0 0 10px var(--primary); }
 
-        .grid-pdv { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+        /* Grid de Produtos */
+        .grid-pdv { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; }
         .product-card { transition: all 0.2s; border: 1px solid #e2e8f0; cursor: pointer; background: white; border-radius: 1.5rem; padding: 0.75rem; }
         .product-card:hover { border-color: var(--primary); transform: translateY(-3px); }
         .img-produto { width: 100%; height: 100px; object-fit: cover; border-radius: 1rem; background: #f1f5f9; }
         
+        /* Checkout Lateral */
         .carrinho-container { background: var(--bg-dark); box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
-        .carrinho-item { background: rgba(255,255,255,0.05); border-left: 3px solid var(--primary); transition: all 0.2s; }
+        .carrinho-item { background: rgba(255,255,255,0.03); border-left: 3px solid var(--primary); backdrop-filter: blur(5px); }
         
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .scroll-area { overflow-y: auto; height: 100%; padding-bottom: 120px; }
+        .scroll-area { overflow-y: auto; height: 100%; padding-bottom: 150px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden-app { display: none !important; }
@@ -37,49 +40,76 @@
 <body class="flex flex-col">
 
 <div id="loginScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0f172a] text-white p-6">
-    <div class="bg-white/5 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 text-center w-full max-w-md">
-        <h1 class="text-4xl font-extrabold mb-8">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
-        <div class="space-y-4">
-            <input type="email" id="loginEmail" placeholder="E-mail" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 ring-emerald-500/50">
-            <input type="password" id="loginPassword" placeholder="Senha" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 ring-emerald-500/50">
-            <button onclick="fazerLoginEmail()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-bold transition">ENTRAR</button>
+    <div class="bg-white/5 backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 text-center w-full max-w-md shadow-2xl">
+        <div class="mb-8">
+            <h1 class="text-4xl font-extrabold tracking-tight">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
+            <p class="text-slate-400 text-sm mt-2">Identifique-se para começar</p>
         </div>
-        <p id="loginError" class="text-red-400 mt-4 text-xs font-bold hidden">Dados incorretos</p>
+        <div class="space-y-4">
+            <input type="email" id="loginEmail" placeholder="E-mail" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 ring-emerald-500/50 transition-all">
+            <input type="password" id="loginPassword" placeholder="Senha" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:ring-2 ring-emerald-500/50 transition-all">
+            <button onclick="fazerLoginEmail()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl transition shadow-lg active:scale-95">ENTRAR NO SISTEMA</button>
+        </div>
+        <p id="loginError" class="text-red-400 mt-4 text-xs font-bold hidden">Acesso Negado</p>
     </div>
 </div>
 
 <div id="appInterface" class="hidden-app flex flex-col h-full">
     <header class="bg-[#0f172a] text-white px-8 py-4 flex justify-between items-center shrink-0">
-        <h1 class="text-xl font-black">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
-        <nav class="flex gap-2 bg-white/5 p-1.5 rounded-2xl">
-            <button onclick="switchTab('venda')" class="tab-btn active px-6 py-2 text-xs font-bold uppercase">Vendas (F1)</button>
-            <button onclick="switchTab('estoque')" class="tab-btn px-6 py-2 text-xs font-bold uppercase">Estoque (F2)</button>
-            <button onclick="switchTab('historico')" class="tab-btn px-6 py-2 text-xs font-bold uppercase">Relatórios (F3)</button>
-            <button onclick="switchTab('config')" class="tab-btn px-6 py-2 text-xs font-bold uppercase">Ajustes (F4)</button>
+        <h1 class="text-xl font-black tracking-tighter">LOUISIANA <span class="text-emerald-500">PDV</span></h1>
+        <nav class="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/5">
+            <button onclick="switchTab('venda')" class="tab-btn active px-6 py-2.5 text-xs font-bold uppercase tracking-wider">Vendas (F1)</button>
+            <button onclick="switchTab('estoque')" class="tab-btn px-6 py-2.5 text-xs font-bold uppercase tracking-wider">Estoque (F2)</button>
+            <button onclick="switchTab('historico')" class="tab-btn px-6 py-2.5 text-xs font-bold uppercase tracking-wider">Relatórios (F3)</button>
+            <button onclick="switchTab('config')" class="tab-btn px-6 py-2.5 text-xs font-bold uppercase tracking-wider">Ajustes (F4)</button>
         </nav>
-        <button onclick="logout()" class="text-xs font-bold text-slate-400 hover:text-red-400">Sair</button>
+        <button onclick="logout()" class="text-xs font-bold text-slate-400 hover:text-red-400 transition">Sair</button>
     </header>
 
     <main class="flex-1 relative overflow-hidden">
         <section id="venda" class="tab-content active">
             <div class="flex h-full p-6 gap-6">
                 <div class="flex-[3] flex flex-col gap-6 overflow-hidden">
-                    <input type="text" id="inputBusca" placeholder="Pesquisar produto... (F8)" class="w-full bg-white border-2 p-5 rounded-3xl outline-none focus:border-emerald-500 transition-all" oninput="renderizarProdutos()">
+                    <input type="text" id="inputBusca" placeholder="Pesquisar produto ou bipe o código... (F8)" class="w-full bg-white border-2 border-slate-200 p-5 rounded-[1.5rem] shadow-sm outline-none text-lg focus:border-emerald-500 transition-all" oninput="renderizarProdutos()">
                     <div id="gridProdutos" class="grid-pdv scroll-area custom-scroll pr-2"></div>
                 </div>
 
                 <div class="flex-1 carrinho-container rounded-[2.5rem] flex flex-col text-white min-w-[380px] overflow-hidden">
-                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                        <span class="font-black text-emerald-500 text-[10px] uppercase">Checkout</span>
-                        <span class="text-slate-400 text-xs" id="qtdItens">0 Itens</span>
-                    </div>
-                    <div id="carrinhoItens" class="flex-1 scroll-area p-4 space-y-3 custom-scroll"></div>
-                    <div class="p-8 border-t border-white/5 bg-white/5 backdrop-blur-md">
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="text-slate-400">Total</span>
-                            <span id="totalVenda" class="text-4xl font-black">R$ 0,00</span>
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <div class="flex flex-col">
+                            <span class="font-black uppercase tracking-widest text-[10px] text-emerald-500">Checkout</span>
+                            <span class="text-slate-400 text-xs" id="qtdItens">0 Itens</span>
                         </div>
-                        <button onclick="finalizarVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-5 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition">FINALIZAR VENDA (F9)</button>
+                        <button onclick="limparCarrinho()" class="text-slate-500 hover:text-red-400 text-[10px] font-bold uppercase">Limpar</button>
+                    </div>
+                    
+                    <div id="carrinhoItens" class="flex-1 scroll-area p-4 space-y-3 custom-scroll"></div>
+
+                    <div class="p-8 bg-emerald-500/5 border-t border-white/5 backdrop-blur-md">
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-slate-400 font-medium">Total do Pedido</span>
+                            <span id="totalVenda" class="text-4xl font-black text-white tracking-tighter">R$ 0,00</span>
+                        </div>
+
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-slate-500 mb-1 block">Forma de Pagamento</label>
+                                <select id="metodoPgto" class="w-full bg-white/5 p-4 rounded-2xl border border-white/10 text-white outline-none focus:border-emerald-500 transition" onchange="toggleTroco()">
+                                    <option value="dinheiro" class="bg-slate-900">Dinheiro</option>
+                                    <option value="pix" class="bg-slate-900">PIX</option>
+                                    <option value="cartao" class="bg-slate-900">Cartão</option>
+                                </select>
+                            </div>
+                            <div id="divTroco" class="space-y-3">
+                                <input type="number" id="valorRecebido" placeholder="Valor recebido" class="w-full bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl text-emerald-400 outline-none" oninput="calcTroco()">
+                                <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                                    <span class="text-xs text-slate-400 font-bold uppercase">Troco:</span>
+                                    <span id="labelTroco" class="font-black text-emerald-400">R$ 0,00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="finalizarVenda()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-5 rounded-2xl font-black text-lg transition-all shadow-xl active:scale-[0.98]">FINALIZAR (F9)</button>
                     </div>
                 </div>
             </div>
@@ -87,19 +117,21 @@
 
         <section id="estoque" class="tab-content">
             <div class="p-8 flex flex-col h-full gap-8 overflow-y-auto custom-scroll">
-                <div class="bg-white p-8 rounded-[2rem] border">
-                    <h2 class="text-lg font-bold mb-6" id="tituloForm">Novo Produto</h2>
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-200">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2" id="tituloForm">
+                        <span class="w-2 h-6 bg-emerald-500 rounded-full"></span>Novo Produto
+                    </h2>
                     <form id="formProd" class="grid grid-cols-4 gap-4">
                         <input type="hidden" id="editId">
-                        <div class="col-span-2"><input type="text" id="nome" placeholder="Nome" class="w-full p-4 border rounded-2xl outline-none focus:border-emerald-500" required></div>
-                        <input type="text" id="cod" placeholder="EAN" class="p-4 border rounded-2xl font-mono">
+                        <div class="col-span-2"><input type="text" id="nome" placeholder="Nome do Produto" class="w-full p-4 border rounded-2xl outline-none focus:border-emerald-500" required></div>
+                        <input type="text" id="cod" placeholder="Código EAN" class="p-4 border rounded-2xl font-mono">
                         <input type="number" id="preco" placeholder="Venda R$" step="0.01" class="p-4 border rounded-2xl" required>
                         <input type="number" id="custo" placeholder="Custo R$" step="0.01" class="p-4 border rounded-2xl" required>
                         <input type="number" id="qtd" placeholder="Quantidade" class="p-4 border rounded-2xl" required>
                         <input type="text" id="imgUrl" placeholder="URL da Imagem" class="col-span-2 p-4 border rounded-2xl">
                         <div class="col-span-4 flex gap-3">
-                            <button type="submit" id="btnSalvar" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase">Salvar Produto</button>
-                            <button type="button" onclick="cancelarEdicao()" id="btnCancelEdit" class="hidden px-8 bg-red-50 text-red-500 rounded-2xl font-bold">Cancelar</button>
+                            <button type="submit" id="btnSalvar" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase hover:bg-black transition">Salvar Produto</button>
+                            <button type="button" onclick="cancelarEdicao()" id="btnCancelEdit" class="hidden px-8 bg-red-50 text-red-600 rounded-2xl font-bold uppercase transition">Cancelar</button>
                         </div>
                     </form>
                 </div>
@@ -110,31 +142,50 @@
         <section id="historico" class="tab-content">
             <div class="p-8 flex flex-col h-full gap-6">
                 <div id="estatisticas" class="flex gap-4"></div>
-                <div class="flex-1 bg-white rounded-[2rem] border overflow-hidden">
+                <div class="flex-1 bg-white rounded-[2rem] border shadow-sm overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 text-[10px] uppercase font-black text-slate-400">
-                            <tr><th class="p-5">Data</th><th class="p-5">Itens</th><th class="p-5">Total</th><th class="p-5">Lucro</th><th class="p-5 text-right">Ação</th></tr>
+                            <tr><th class="p-5">Data/Hora</th><th class="p-5">Itens Vendidos</th><th class="p-5">Pagamento</th><th class="p-5">Total</th><th class="p-5">Lucro</th><th class="p-5 text-right">Ação</th></tr>
                         </thead>
-                        <tbody id="corpoTabelaVendas" class="divide-y text-xs"></tbody>
+                        <tbody id="corpoTabelaVendas" class="divide-y divide-slate-100 text-xs"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
         <section id="config" class="tab-content">
-            <div class="p-8 max-w-xl mx-auto">
-                <div class="bg-white p-10 rounded-[2.5rem] border shadow-sm">
-                    <h2 class="text-2xl font-black mb-2">Vínculo Stone</h2>
-                    <p class="text-slate-400 text-sm mb-8">Configure o ID da sua maquininha</p>
-                    <input type="text" id="stoneTerminalId" placeholder="S/N do Terminal" class="w-full p-5 bg-slate-50 border rounded-2xl font-mono text-xl mb-4 outline-none">
-                    <button onclick="salvarConfigStone()" class="w-full bg-emerald-600 text-white p-5 rounded-2xl font-black uppercase shadow-lg">Vincular Terminal</button>
+            <div class="p-8 max-w-2xl mx-auto flex flex-col gap-8">
+                <div class="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-5 mb-10">
+                        <div class="p-4 bg-emerald-500/10 rounded-3xl text-emerald-600">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-extrabold tracking-tight">Stone Connect</h2>
+                            <p class="text-sm text-slate-400">Vincule sua maquininha via Nuvem</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-[10px] uppercase font-black text-slate-400 ml-1 mb-2 block">Terminal ID (S/N da Stone)</label>
+                            <input type="text" id="stoneTerminalId" placeholder="Ex: 12345678" class="w-full p-5 bg-slate-50 border border-slate-200 rounded-2xl font-mono text-xl focus:border-emerald-500 outline-none transition-all">
+                        </div>
+                        <button onclick="salvarConfigStone()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white p-5 rounded-2xl font-black uppercase tracking-widest transition-all shadow-xl active:scale-95">VINCULAR TERMINAL</button>
+                    </div>
+
+                    <div class="mt-10 p-6 bg-blue-50 border border-blue-100 rounded-[1.5rem] flex gap-4">
+                        <div class="text-blue-500 shrink-0"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path></svg></div>
+                        <p class="text-blue-700/80 text-xs leading-relaxed font-medium">Os produtos selecionados na maquininha aparecerão no carrinho deste computador automaticamente.</p>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 </div>
 
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 scale-90 transition-all duration-500 bg-emerald-600 text-white px-10 py-5 rounded-[2rem] z-[200] font-black shadow-2xl">
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 scale-90 transition-all duration-500 bg-emerald-600 text-white px-10 py-5 rounded-[2rem] z-[200] font-black shadow-2xl flex items-center gap-3">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
     <span id="toastMsg">Sucesso!</span>
 </div>
 
@@ -158,7 +209,7 @@
     let currentUser = null;
     let produtos = [], vendas = [], carrinho = [];
 
-    // --- AUTH ---
+    // LOGIN
     window.fazerLoginEmail = async () => {
         const e = document.getElementById('loginEmail').value;
         const s = document.getElementById('loginPassword').value;
@@ -189,6 +240,7 @@
             vendas = snap.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
             window.renderizarHistorico();
         });
+        // Sincronização Maquininha
         onSnapshot(collection(db, `usuarios/${currentUser.uid}/pedidos_vincular`), (snap) => {
             snap.docChanges().forEach(async (change) => {
                 if (change.type === "added") {
@@ -197,14 +249,14 @@
                         const pLocal = produtos.find(p => p.nome === item.nome || p.cod === item.cod);
                         if(pLocal) for(let i=0; i<item.qtd; i++) window.addCarrinho(pLocal.firebaseId);
                     });
-                    window.notificar("🔔 Pedido vindo da Stone!");
+                    window.notificar("🔔 Pedido da Maquininha!");
                     await deleteDoc(doc(db, `usuarios/${currentUser.uid}/pedidos_vincular`, change.doc.id));
                 }
             });
         });
     }
 
-    // --- ESTOQUE (EDITAR/CADASTRAR) ---
+    // ESTOQUE
     window.editarProduto = (id) => {
         const p = produtos.find(x => x.firebaseId === id);
         document.getElementById('editId').value = id;
@@ -214,8 +266,8 @@
         document.getElementById('custo').value = p.custo;
         document.getElementById('qtd').value = p.estoque;
         document.getElementById('imgUrl').value = p.img;
-        document.getElementById('tituloForm').innerText = "Editando Produto";
-        document.getElementById('btnSalvar').innerText = "ATUALIZAR PRODUTO";
+        document.getElementById('tituloForm').innerHTML = `<span class="w-2 h-6 bg-emerald-500 rounded-full"></span> Editando: ${p.nome}`;
+        document.getElementById('btnSalvar').innerText = "ATUALIZAR DADOS";
         document.getElementById('btnCancelEdit').classList.remove('hidden');
         window.scrollTo({top: 0, behavior: 'smooth'});
     };
@@ -223,8 +275,8 @@
     window.cancelarEdicao = () => {
         document.getElementById('formProd').reset();
         document.getElementById('editId').value = "";
-        document.getElementById('tituloForm').innerText = "Novo Produto";
-        document.getElementById('btnSalvar').innerText = "Salvar no Inventário";
+        document.getElementById('tituloForm').innerHTML = `<span class="w-2 h-6 bg-emerald-500 rounded-full"></span> Novo Produto`;
+        document.getElementById('btnSalvar').innerText = "Salvar Produto";
         document.getElementById('btnCancelEdit').classList.add('hidden');
     };
 
@@ -239,20 +291,15 @@
             estoque: parseInt(document.getElementById('qtd').value),
             img: document.getElementById('imgUrl').value
         };
-
         try {
-            if(id) {
-                await updateDoc(doc(db, `usuarios/${currentUser.uid}/produtos`, id), p);
-                window.notificar("Produto atualizado!");
-            } else {
-                await addDoc(collection(db, `usuarios/${currentUser.uid}/produtos`), p);
-                window.notificar("Produto cadastrado!");
-            }
+            if(id) await updateDoc(doc(db, `usuarios/${currentUser.uid}/produtos`, id), p);
+            else await addDoc(collection(db, `usuarios/${currentUser.uid}/produtos`), p);
             window.cancelarEdicao();
+            window.notificar("Estoque Atualizado!");
         } catch (err) { window.notificar("Erro ao salvar."); }
     };
 
-    // --- VENDAS ---
+    // VENDAS
     window.addCarrinho = (fbId) => {
         const prod = produtos.find(p => p.firebaseId === fbId);
         if(!prod || prod.estoque <= 0) return window.notificar("Sem estoque!");
@@ -281,6 +328,7 @@
         }).join('');
         document.getElementById('totalVenda').innerText = `R$ ${total.toFixed(2)}`;
         document.getElementById('qtdItens').innerText = `${carrinho.reduce((a,b)=>a+b.qtd,0)} Itens`;
+        window.calcTroco();
     };
 
     window.finalizarVenda = async () => {
@@ -294,6 +342,7 @@
         });
         await addDoc(collection(db, `usuarios/${currentUser.uid}/vendas`), {
             data: new Date().toISOString(), total: totalV, lucro: lucroV,
+            pagamento: document.getElementById('metodoPgto').value,
             itens: carrinho.map(i => `${i.qtd}x ${i.nome}`).join(', ')
         });
         await batch.commit();
@@ -301,7 +350,7 @@
         window.notificar("Venda Concluída!");
     };
 
-    // --- RENDER ---
+    // RENDER
     window.renderizarProdutos = () => {
         const grid = document.getElementById('gridProdutos');
         const busca = document.getElementById('inputBusca').value.toLowerCase();
@@ -338,24 +387,25 @@
         vendas.forEach(v => { f += v.total; l += v.lucro; });
         stats.innerHTML = `
             <div class="bg-white p-6 rounded-3xl border flex-1 shadow-sm">
-                <p class="text-[10px] uppercase font-black text-slate-400">Vendas</p>
+                <p class="text-[10px] uppercase font-black text-slate-400">Faturamento</p>
                 <p class="text-2xl font-black">R$ ${f.toFixed(2)}</p>
             </div>
             <div class="bg-emerald-600 text-white p-6 rounded-3xl flex-1 shadow-xl">
-                <p class="text-[10px] uppercase font-black text-emerald-200">Lucro</p>
+                <p class="text-[10px] uppercase font-black text-emerald-100">Lucro Real</p>
                 <p class="text-2xl font-black">R$ ${l.toFixed(2)}</p>
             </div>`;
         corpo.innerHTML = vendas.map(v => `
             <tr class="hover:bg-slate-50">
                 <td class="p-5 font-bold text-slate-400">${new Date(v.data).toLocaleString()}</td>
-                <td class="p-5 truncate max-w-xs font-medium">${v.itens}</td>
+                <td class="p-5 font-medium truncate max-w-[200px]">${v.itens}</td>
+                <td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[9px] uppercase font-black">${v.pagamento || 'N/A'}</span></td>
                 <td class="p-5 font-black text-slate-800">R$ ${v.total.toFixed(2)}</td>
                 <td class="p-5 text-emerald-600 font-bold">R$ ${v.lucro.toFixed(2)}</td>
-                <td class="p-5 text-right"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-400 font-bold text-[10px] uppercase">Apagar</button></td>
+                <td class="p-5 text-right"><button onclick="removerVenda('${v.firebaseId}')" class="text-red-400 text-[10px] font-bold uppercase">Apagar</button></td>
             </tr>`).join('');
     };
 
-    // --- UTIL ---
+    // UTIL
     window.switchTab = (id) => {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -371,8 +421,14 @@
         if(!tid) return window.notificar("Informe o ID");
         await setDoc(doc(db, `usuarios/${currentUser.uid}/config`, 'stone'), { terminalId: tid });
         await setDoc(doc(db, `terminais_pedidos`, tid), { ownerUid: currentUser.uid });
-        window.notificar("Stone Vinculada!");
+        window.notificar("Vínculo Stone OK!");
     };
+    window.calcTroco = () => {
+        const total = parseFloat(document.getElementById('totalVenda').innerText.replace('R$ ', '')) || 0;
+        const rec = parseFloat(document.getElementById('valorRecebido').value) || 0;
+        document.getElementById('labelTroco').innerText = `R$ ${Math.max(0, rec - total).toFixed(2)}`;
+    };
+    window.toggleTroco = () => document.getElementById('divTroco').style.display = document.getElementById('metodoPgto').value === 'dinheiro' ? 'block' : 'none';
     window.notificar = (msg) => {
         const t = document.getElementById('toast');
         document.getElementById('toastMsg').innerText = msg;
